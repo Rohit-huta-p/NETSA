@@ -32,6 +32,7 @@ export default function Home() {
         <OnboardingCard
           id="artist-card"
           icon={<Palette className="w-10 h-10 text-primary" />}
+          iconContainerClassName="bg-primary/10"
           title="For Artists"
           description="Unleash your creativity and find your next opportunity."
           benefits={artistBenefits}
@@ -39,7 +40,8 @@ export default function Home() {
         />
         <OnboardingCard
           id="recruiter-card"
-          icon={<Users className="w-10 h-10 text-primary" />}
+          icon={<Users className="w-10 h-10 text-[#FB7185]" />}
+          iconContainerClassName="bg-[#FFEDD5]"
           title="For Recruiters"
           description="Discover exceptional talent and build your dream team."
           benefits={recruiterBenefits}
@@ -63,6 +65,7 @@ export default function Home() {
 interface OnboardingCardProps {
   id: string;
   icon: React.ReactNode;
+  iconContainerClassName?: string;
   title: string;
   description: string;
   benefits: string[];
@@ -70,11 +73,11 @@ interface OnboardingCardProps {
   buttonClassName?: string;
 }
 
-function OnboardingCard({ id, icon, title, description, benefits, buttonText, buttonClassName }: OnboardingCardProps) {
+function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName }: OnboardingCardProps) {
   return (
     <Card id={id} className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
       <CardHeader className="items-center text-center p-8">
-        <div className="p-4 bg-primary/10 rounded-full mb-4">
+        <div className={`p-4 rounded-full mb-4 ${iconContainerClassName}`}>
           {icon}
         </div>
         <CardTitle className="text-3xl font-headline">{title}</CardTitle>
