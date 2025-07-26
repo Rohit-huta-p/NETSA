@@ -20,8 +20,8 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8 selection:bg-primary/20">
       <div className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary tracking-tight">
-          TalentMatch
+        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] bg-clip-text text-transparent">
+          welcome to Nets
         </h1>
         <p className="text-muted-foreground mt-2 font-body text-lg max-w-prose">
           Choose your path and join our creative community.
