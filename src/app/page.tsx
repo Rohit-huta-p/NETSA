@@ -1,6 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Palette, Users } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   // Benefits listed for artists
@@ -13,10 +15,10 @@ export default function Home() {
 
   // Benefits listed for recruiters
   const recruiterBenefits = [
-    "Post job opportunities and reach a vast talent pool",
-    "Browse diverse artist profiles and portfolios",
-    "Host events and workshops to engage with talent",
-    "Build a powerful network of creative professionals",
+    "Post job opportunities",
+    "Browse diverse artist profiles",
+    "Host events and workshops",
+    "Build a powerful network",
   ];
 
   return (
@@ -47,6 +49,7 @@ export default function Home() {
           buttonText="Register as an Artist"
           buttonClassName="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
           bulletColor="#8B5CF6"
+          href="/register?type=artist"
         />
         {/* Onboarding card for recruiters */}
         <OnboardingCard
@@ -59,6 +62,7 @@ export default function Home() {
           buttonText="Register as a Recruiter"
           buttonClassName="bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
           bulletColor="#FB7185"
+          href="/register?type=recruiter"
         />
       </div>
 
@@ -87,10 +91,11 @@ interface OnboardingCardProps {
   buttonText: string;
   buttonClassName?: string;
   bulletColor: string;
+  href: string;
 }
 
 // OnboardingCard functional component
-function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName, bulletColor }: OnboardingCardProps) {
+function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName, bulletColor, href }: OnboardingCardProps) {
   return (
     // Card component with styling
     <Card id={id} className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
@@ -118,10 +123,12 @@ function OnboardingCard({ id, icon, iconContainerClassName, title, description, 
       </CardContent>
       {/* Card footer with button */}
       <CardFooter className="p-8 pt-0 mt-auto">
-        {/* Button component with dynamic class */}
-        <Button size="lg" className={`w-full font-bold text-base py-6 ${buttonClassName}`}>
-          {buttonText}
-        </Button>
+        <Link href={href} className="w-full">
+          {/* Button component with dynamic class */}
+          <Button size="lg" className={`w-full font-bold text-base py-6 ${buttonClassName}`}>
+            {buttonText}
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
