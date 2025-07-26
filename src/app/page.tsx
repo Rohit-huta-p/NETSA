@@ -109,8 +109,8 @@ function OnboardingCard({ id, icon, iconContainerClassName, title, description, 
       <CardContent className="flex-grow px-8 pb-8">
         <div className="space-y-2 font-body text-[#374151]">
           {benefits.map((benefit) => (
-            <div key={benefit} className="flex items-start">
-              <div style={{ backgroundColor: bulletColor }} className="w-2 h-2 rounded-full mr-3 mt-1.5 shrink-0"></div>
+            <div key={benefit} className="flex items-center">
+              <div style={{ backgroundColor: bulletColor }} className="w-2 h-2 rounded-full mr-3 shrink-0"></div>
               <span>{benefit}</span>
             </div>
           ))}
