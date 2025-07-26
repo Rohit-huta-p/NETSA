@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check, Palette, Users } from "lucide-react";
+import { Palette, Users } from "lucide-react";
 
 export default function Home() {
   const artistBenefits = [
@@ -85,10 +85,9 @@ function OnboardingCard({ id, icon, iconContainerClassName, title, description, 
         <CardDescription className="font-body mt-2 text-base">{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow px-8 pb-8">
-        <ul className="space-y-4 font-body text-muted-foreground">
+        <ul className="space-y-2 font-body text-muted-foreground list-disc list-inside">
           {benefits.map((benefit) => (
-            <li key={benefit} className="flex items-start">
-              <Check className="w-5 h-5 mr-3 mt-1 text-primary shrink-0" />
+            <li key={benefit}>
               <span>{benefit}</span>
             </li>
           ))}
