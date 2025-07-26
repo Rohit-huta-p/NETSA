@@ -33,6 +33,7 @@ import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Switch } from './ui/switch';
+import { useEffect } from 'react';
 
 const formSchema = z
   .object({
@@ -44,6 +45,7 @@ const formSchema = z
       .min(8, 'Password must be at least 8 characters long'),
     confirmPassword: z.string(),
     artistType: z.string().min(1, 'Please select an artist type'),
+    otherArtistType: z.string().optional(),
     phoneNumber: z.string().optional(),
     gender: z.enum(['male', 'female', 'other']).optional(),
     dob: z.date().optional(),
@@ -54,6 +56,7 @@ const formSchema = z
     experienceYears: z.coerce.number().optional(),
     genres: z.array(z.string()).optional(),
     skills: z.array(z.string()).optional(),
+    otherSkill: z.string().optional(),
     languages: z.string().optional(),
     portfolioLinks: z.string().optional(),
     resumeUrl: z.string().url('Invalid URL').optional(),
@@ -69,23 +72,41 @@ const formSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
+  })
+  .refine((data) => {
+    if (data.artistType === 'Other') {
+      return !!data.otherArtistType;
+    }
+    return true;
+  }, {
+    message: 'Please specify your artist type',
+    path: ['otherArtistType'],
+  })
+  .refine((data) => {
+    if (data.skills?.includes('Other')) {
+        return !!data.otherSkill;
+    }
+    return true;
+  }, {
+    message: 'Please specify your skill',
+    path: ['otherSkill'],
   });
 
-const skillsAndSpecialties = [
-  'Contemporary',
-  'Hip-Hop',
-  'Ballet',
-  'Jazz',
-  'Acting',
-  'Bollywood',
-  'Musical Theatre',
-  'Street Dance',
-  'Choreography',
-  'Popping',
-  'Locking',
-  'Freestyle',
-  'Other',
-];
+
+const skillsByArtistType: Record<string, string[]> = {
+    'Dancer': ['Contemporary', 'Hip-Hop', 'Ballet', 'Jazz', 'Bollywood', 'Street Dance', 'Popping', 'Locking', 'Freestyle', 'Choreography', 'Other'],
+    'Singer': ['Pop', 'Rock', 'Jazz', 'Classical', 'R&B', 'Vocal Coach', 'Other'],
+    'DJ': ['Turntablism', 'Live Remixing', 'Beatmatching', 'Controllerism', 'Other'],
+    'Music Producer': ['Beat Making', 'Sound Design', 'Mixing', 'Mastering', 'Other'],
+    'Rapper': ['Freestyle', 'Lyrical', 'Trap', 'Boom Bap', 'Other'],
+    'Actor': ['Method Acting', 'Improvisation', 'Voice Acting', 'Stage Combat', 'Other'],
+    'Model': ['Fashion', 'Runway', 'Commercial', 'Fitness', 'Other'],
+    'Choreographer': ['Contemporary', 'Hip-Hop', 'Ballet', 'Jazz', 'Musical Theatre', 'Other'],
+    'Voice-over Artist': ['Character Voices', 'Narration', 'Commercials', 'Animation', 'Other'],
+    'Instrumentalist': ['Guitar', 'Piano', 'Drums', 'Violin', 'Saxophone', 'Other'],
+    'Theatre Artist': ['Stage Management', 'Set Design', 'Lighting Design', 'Sound Design', 'Other'],
+    'Host / Emcee / Presenter': ['Corporate Events', 'Weddings', 'Live Shows', 'Public Speaking', 'Other'],
+  };
 
 const artistTypes = [
   'Dancer',
@@ -100,6 +121,7 @@ const artistTypes = [
   'Instrumentalist',
   'Theatre Artist',
   'Host / Emcee / Presenter',
+  'Other'
 ];
 
 const genres = ['hip hop', 'freestyle', 'classical', 'folk', 'pop', 'rock'];
@@ -114,9 +136,11 @@ export default function ArtistRegistrationForm() {
       password: '',
       confirmPassword: '',
       artistType: '',
+      otherArtistType: '',
       phoneNumber: '',
       bio: '',
       skills: [],
+      otherSkill: '',
       agreeToTerms: false,
       agencyAffiliated: false,
       availableForBooking: true,
@@ -126,9 +150,18 @@ export default function ArtistRegistrationForm() {
     },
   });
 
+  const watchedArtistType = form.watch('artistType');
+  const watchedSkills = form.watch('skills');
+
+  useEffect(() => {
+    form.resetField('skills');
+  }, [watchedArtistType, form]);
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     console.log(values);
   };
+
+  const currentSkills = skillsByArtistType[watchedArtistType] || [];
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -390,6 +423,21 @@ export default function ArtistRegistrationForm() {
                   </FormItem>
                 )}
               />
+              {watchedArtistType === 'Other' && (
+                <FormField
+                  control={form.control}
+                  name="otherArtistType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Please specify</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Stunt Performer" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="bio"
@@ -406,54 +454,71 @@ export default function ArtistRegistrationForm() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="skills"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>Skills & Specialties</FormLabel>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {skillsAndSpecialties.map((item) => (
-                        <FormField
-                          key={item}
-                          control={form.control}
-                          name="skills"
-                          render={({ field }) => {
-                            return (
-                              <FormItem
-                                key={item}
-                                className="flex flex-row items-start space-x-2 space-y-0"
-                              >
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.includes(item)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([
-                                            ...(field.value || []),
-                                            item,
-                                          ])
-                                        : field.onChange(
-                                            field.value?.filter(
-                                              (value) => value !== item
-                                            )
-                                          );
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">
-                                  {item}
-                                </FormLabel>
-                              </FormItem>
-                            );
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {currentSkills.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name="skills"
+                  render={() => (
+                    <FormItem>
+                      <FormLabel>Skills & Specialties</FormLabel>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {currentSkills.map((item) => (
+                          <FormField
+                            key={item}
+                            control={form.control}
+                            name="skills"
+                            render={({ field }) => {
+                              return (
+                                <FormItem
+                                  key={item}
+                                  className="flex flex-row items-start space-x-2 space-y-0"
+                                >
+                                  <FormControl>
+                                    <Checkbox
+                                      checked={field.value?.includes(item)}
+                                      onCheckedChange={(checked) => {
+                                        return checked
+                                          ? field.onChange([
+                                              ...(field.value || []),
+                                              item,
+                                            ])
+                                          : field.onChange(
+                                              field.value?.filter(
+                                                (value) => value !== item
+                                              )
+                                            );
+                                      }}
+                                    />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">
+                                    {item}
+                                  </FormLabel>
+                                </FormItem>
+                              );
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {watchedSkills?.includes('Other') && (
+                <FormField
+                  control={form.control}
+                  name="otherSkill"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Please specify skill</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="e.g., Juggling" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="genres"
