@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Palette, Users } from "lucide-react";
 
 export default function Home() {
+  // Benefits listed for artists
   const artistBenefits = [
     "Apply for gigs that match your unique skills",
     "Showcase your work in a stunning portfolio",
@@ -10,6 +11,7 @@ export default function Home() {
     "Access exclusive workshops to hone your craft",
   ];
 
+  // Benefits listed for recruiters
   const recruiterBenefits = [
     "Post job opportunities and reach a vast talent pool",
     "Browse diverse artist profiles and portfolios",
@@ -18,17 +20,23 @@ export default function Home() {
   ];
 
   return (
+    // Main container for the home page, centered with padding
     <main className="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 md:p-8 selection:bg-primary/20">
+      {/* Welcome section with title and description */}
       <div className="text-center mb-10">
+        {/* Animated gradient title */}
         <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] bg-clip-text text-transparent">
-          welcome to Nets
+          Welcome to Netsa
         </h1>
+        {/* Subtitle */}
         <p className="text-muted-foreground mt-2 font-body text-lg max-w-prose">
           Choose your path and join our creative community.
         </p>
       </div>
 
+      {/* Grid layout for onboarding cards */}
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl w-full">
+        {/* Onboarding card for artists */}
         <OnboardingCard
           id="artist-card"
           icon={<Palette className="w-10 h-10 text-primary" />}
@@ -38,7 +46,9 @@ export default function Home() {
           benefits={artistBenefits}
           buttonText="Register as an Artist"
           buttonClassName="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+          bulletColor="#8B5CF6"
         />
+        {/* Onboarding card for recruiters */}
         <OnboardingCard
           id="recruiter-card"
           icon={<Users className="w-10 h-10 text-[#FB7185]" />}
@@ -48,12 +58,15 @@ export default function Home() {
           benefits={recruiterBenefits}
           buttonText="Register as a Recruiter"
           buttonClassName="bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
+          bulletColor="#FB7185"
         />
       </div>
 
+      {/* Sign-in link */}
       <div className="mt-10 text-center">
         <p className="font-body text-muted-foreground">
           Already have an account?{" "}
+          {/* Sign-in button as a link */}
           <Button variant="link" className="text-primary font-bold p-1">
             Sign In
           </Button>
@@ -63,6 +76,7 @@ export default function Home() {
   );
 }
 
+// Interface for OnboardingCard component props
 interface OnboardingCardProps {
   id: string;
   icon: React.ReactNode;
@@ -72,29 +86,39 @@ interface OnboardingCardProps {
   benefits: string[];
   buttonText: string;
   buttonClassName?: string;
-  benefitsClassName?: string;
+  bulletColor: string;
 }
 
-function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName, benefitsClassName }: OnboardingCardProps) {
+// OnboardingCard functional component
+function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName, bulletColor }: OnboardingCardProps) {
   return (
+    // Card component with styling
     <Card id={id} className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
+      {/* Card header with icon, title, and description */}
       <CardHeader className="items-center text-center p-8">
+        {/* Icon container with dynamic background class */}
         <div className={`p-4 rounded-full mb-4 ${iconContainerClassName}`}>
           {icon}
         </div>
+        {/* Card title */}
         <CardTitle className="text-3xl font-headline">{title}</CardTitle>
+        {/* Card description */}
         <CardDescription className="font-body mt-2 text-base">{description}</CardDescription>
       </CardHeader>
+      {/* Card content with benefits list */}
       <CardContent className="flex-grow px-8 pb-8">
-        <ul className={`space-y-2 font-body list-disc list-inside ${benefitsClassName || 'text-muted-foreground'}`}>
+        <div className="space-y-2 font-body text-[#374151]">
           {benefits.map((benefit) => (
-            <li key={benefit}>
+            <div key={benefit} className="flex items-start">
+              <div style={{ backgroundColor: bulletColor }} className="w-2 h-2 rounded-full mr-3 mt-1.5 shrink-0"></div>
               <span>{benefit}</span>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </CardContent>
+      {/* Card footer with button */}
       <CardFooter className="p-8 pt-0 mt-auto">
+        {/* Button component with dynamic class */}
         <Button size="lg" className={`w-full font-bold text-base py-6 ${buttonClassName}`}>
           {buttonText}
         </Button>
