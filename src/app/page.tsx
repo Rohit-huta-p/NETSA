@@ -30,6 +30,7 @@ export default function Home() {
 
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl w-full">
         <OnboardingCard
+          id="artist-card"
           icon={<Palette className="w-10 h-10 text-primary" />}
           title="For Artists"
           description="Unleash your creativity and find your next opportunity."
@@ -37,11 +38,13 @@ export default function Home() {
           buttonText="Register as an Artist"
         />
         <OnboardingCard
+          id="recruiter-card"
           icon={<Users className="w-10 h-10 text-primary" />}
           title="For Recruiters"
           description="Discover exceptional talent and build your dream team."
           benefits={recruiterBenefits}
           buttonText="Register as a Recruiter"
+          buttonClassName="bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
         />
       </div>
 
@@ -58,16 +61,18 @@ export default function Home() {
 }
 
 interface OnboardingCardProps {
+  id: string;
   icon: React.ReactNode;
   title: string;
   description: string;
   benefits: string[];
   buttonText: string;
+  buttonClassName?: string;
 }
 
-function OnboardingCard({ icon, title, description, benefits, buttonText }: OnboardingCardProps) {
+function OnboardingCard({ id, icon, title, description, benefits, buttonText, buttonClassName }: OnboardingCardProps) {
   return (
-    <Card className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
+    <Card id={id} className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
       <CardHeader className="items-center text-center p-8">
         <div className="p-4 bg-primary/10 rounded-full mb-4">
           {icon}
@@ -86,7 +91,7 @@ function OnboardingCard({ icon, title, description, benefits, buttonText }: Onbo
         </ul>
       </CardContent>
       <CardFooter className="p-8 pt-0 mt-auto">
-        <Button size="lg" className="w-full font-bold text-base py-6">
+        <Button size="lg" className={`w-full font-bold text-base py-6 ${buttonClassName}`}>
           {buttonText}
         </Button>
       </CardFooter>
