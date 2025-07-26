@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from './ui/form';
 import { Input } from './ui/input';
+import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Textarea } from './ui/textarea';
 
