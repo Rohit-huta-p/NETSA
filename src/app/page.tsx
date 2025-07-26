@@ -38,6 +38,7 @@ export default function Home() {
           benefits={artistBenefits}
           buttonText="Register as an Artist"
           buttonClassName="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+          benefitsClassName="text-primary"
         />
         <OnboardingCard
           id="recruiter-card"
@@ -72,9 +73,10 @@ interface OnboardingCardProps {
   benefits: string[];
   buttonText: string;
   buttonClassName?: string;
+  benefitsClassName?: string;
 }
 
-function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName }: OnboardingCardProps) {
+function OnboardingCard({ id, icon, iconContainerClassName, title, description, benefits, buttonText, buttonClassName, benefitsClassName }: OnboardingCardProps) {
   return (
     <Card id={id} className="flex flex-col rounded-xl border shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 bg-card/80 backdrop-blur-sm">
       <CardHeader className="items-center text-center p-8">
@@ -85,7 +87,7 @@ function OnboardingCard({ id, icon, iconContainerClassName, title, description, 
         <CardDescription className="font-body mt-2 text-base">{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow px-8 pb-8">
-        <ul className="space-y-2 font-body text-muted-foreground list-disc list-inside">
+        <ul className={`space-y-2 font-body list-disc list-inside ${benefitsClassName || 'text-muted-foreground'}`}>
           {benefits.map((benefit) => (
             <li key={benefit}>
               <span>{benefit}</span>
