@@ -36,6 +36,9 @@ import { Switch } from './ui/switch';
 import { useEffect, useState, useMemo } from 'react';
 import { indianCities } from '@/lib/cities';
 import { Badge } from './ui/badge';
+import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
+import { addUserProfile } from '@/lib/firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z
   .object({
@@ -129,6 +132,7 @@ const artistTypes = [
 const genres = ['hip hop', 'freestyle', 'classical', 'folk', 'pop', 'rock'];
 
 export default function ArtistRegistrationForm() {
+    const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -160,8 +164,40 @@ export default function ArtistRegistrationForm() {
     form.resetField('skills');
   }, [watchedArtistType, form]);
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const { email, password, ...profileData } = values;
+    
+    const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+
+    if (authError) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: authError,
+      })
+      return;
+    }
+
+    if (user) {
+      const { error: profileError } = await addUserProfile(user.uid, {
+        ...profileData,
+        role: 'artist'
+      });
+      if (profileError) {
+        toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: profileError,
+          })
+        return;
+      }
+
+      toast({
+        title: "Success!",
+        description: "Your artist account has been created.",
+      })
+      form.reset();
+    }
   };
 
   const currentSkills = skillsByArtistType[watchedArtistType] || [];
