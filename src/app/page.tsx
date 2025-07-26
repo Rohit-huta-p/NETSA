@@ -38,7 +38,6 @@ export default function Home() {
           benefits={artistBenefits}
           buttonText="Register as an Artist"
           buttonClassName="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
-          benefitsClassName="text-primary"
         />
         <OnboardingCard
           id="recruiter-card"
