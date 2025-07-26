@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, Palette } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, Palette, Check, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -22,18 +22,19 @@ import { Label } from './ui/label';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Textarea } from './ui/textarea';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from './ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Switch } from './ui/switch';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const formSchema = z
   .object({
@@ -162,6 +163,7 @@ export default function ArtistRegistrationForm() {
   };
 
   const currentSkills = skillsByArtistType[watchedArtistType] || [];
+  const [popoverOpen, setPopoverOpen] = useState(false);
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -400,25 +402,60 @@ export default function ArtistRegistrationForm() {
                 control={form.control}
                 name="artistType"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex flex-col">
                     <FormLabel>Artist Type *</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your primary artistic discipline" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {artistTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={popoverOpen}
+                            className={cn(
+                              'w-full justify-between',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value
+                              ? artistTypes.find(
+                                  (type) => type === field.value
+                                )
+                              : 'Select your primary artistic discipline'}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <Command>
+                          <CommandInput placeholder="Search artist type..." />
+                          <CommandList>
+                            <CommandEmpty>No artist type found.</CommandEmpty>
+                            <CommandGroup>
+                              {artistTypes.map((type) => (
+                                <CommandItem
+                                  value={type}
+                                  key={type}
+                                  onSelect={() => {
+                                    form.setValue('artistType', type);
+                                    setPopoverOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      'mr-2 h-4 w-4',
+                                      type === field.value
+                                        ? 'opacity-100'
+                                        : 'opacity-0'
+                                    )}
+                                  />
+                                  {type}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
