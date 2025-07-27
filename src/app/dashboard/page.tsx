@@ -162,13 +162,13 @@ function DiscoverSection() {
           Discover <span className="text-pink-500">Events</span> &<br/> <span className="text-purple-500">Workshops</span>
         </h1>
         <p className="mt-4 text-gray-500 text-lg">Find your next dance adventure in the city</p>
-        <div className="mt-8 max-w-4xl mx-auto bg-white p-2 rounded-full shadow-lg flex items-center gap-2">
-          <div className="relative flex-grow">
-             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 pr-4 py-3 border-none focus:ring-0 text-base"/>
+        <div className="mt-8 max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-5 items-center gap-4 border">
+          <div className="relative md:col-span-2">
+             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 pr-4 py-3 border-none focus:ring-0 text-base bg-transparent"/>
              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
           <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
+              <SelectTrigger className="w-full border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
                   <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -180,7 +180,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
           <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
+              <SelectTrigger className="w-full border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
                   <SelectValue placeholder="All Locations" />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +190,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
            <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
+              <SelectTrigger className="w-full border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
                   <SelectValue placeholder="Any Date" />
               </SelectTrigger>
               <SelectContent>
@@ -371,5 +371,7 @@ function Footer() {
     );
 }
 
+
+    
 
     
