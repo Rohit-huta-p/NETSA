@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bell, Calendar, CheckCircle, Heart, MapPin, Search, Users, Briefcase } from "lucide-react";
+import { Bell, Calendar, CheckCircle, Heart, MapPin, Search, Users, Briefcase, X } from "lucide-react";
 import Link from "next/link";
 
 const events = [
@@ -369,3 +369,5 @@ function Footer() {
     );
 }
 
+
+    
