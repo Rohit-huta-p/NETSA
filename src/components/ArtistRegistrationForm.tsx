@@ -40,6 +40,7 @@ import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { addUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from './ui/label';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z
   .object({
@@ -134,6 +135,7 @@ const genres = ['hip hop', 'freestyle', 'classical', 'folk', 'pop', 'rock'];
 
 export default function ArtistRegistrationForm() {
     const { toast } = useToast();
+    const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -206,7 +208,7 @@ export default function ArtistRegistrationForm() {
         title: "Success!",
         description: "Your artist account has been created.",
       })
-      form.reset();
+      router.push('/dashboard');
     }
   };
 

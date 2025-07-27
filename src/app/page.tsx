@@ -71,8 +71,8 @@ export default function Home() {
         <p className="font-body text-muted-foreground">
           Already have an account?{" "}
           {/* Sign-in button as a link */}
-          <Button variant="link" className="text-primary font-bold p-1">
-            Sign In
+          <Button asChild variant="link" className="text-primary font-bold p-1">
+            <Link href="/dashboard">Sign In</Link>
           </Button>
         </p>
       </div>
