@@ -290,6 +290,9 @@ export default function ArtistRegistrationForm() {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
+                            captionLayout="dropdown-buttons"
+                            fromYear={new Date().getFullYear() - 80}
+                            toYear={new Date().getFullYear()}
                             disabled={(date) =>
                               date > new Date() || date < new Date('1900-01-01')
                             }
