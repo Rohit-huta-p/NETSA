@@ -94,28 +94,33 @@ const profileCompletionSteps = [
   
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50 font-body">
+    <div className=" min-h-screen bg-gray-50 font-body ">
       <Header />
-      <main className="p-8">
+
+      <main className="p-8 relative">
         <DiscoverSection />
-        <div className="mt-8">
+        <div className="mt-8 relative">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">6 Events Found</h2>
             </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event, index) => (
-              <EventCard key={index} {...event} />
-            ))}
-          </div>
+            <div className="relative">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {events.map((event, index) => (
+                  <EventCard key={index} {...event} />
+                ))}
+              </div>
+            </div>
           <div className="text-center mt-12">
             <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Events</Button>
           </div>
+          <div className="absolute bottom-0  right-2 z-50 lg:block">
+            <ProfileCompletionCard />
+          </div>
         </div>
+        
       </main>
 
-       <div className="px-8 pb-16 flex justify-end">
-        <ProfileCompletionCard />
-       </div>
+     
 
       <Footer />
     </div>
@@ -210,14 +215,14 @@ function DiscoverSection() {
 function EventCard({ tag, tagColor, title, description, date, location, attendees, price, image, imageHint }) {
     return (
         <Card className="overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 group">
-          <CardHeader className="p-0 relative">
+          <CardHeader className="p-0 relative bg-[linear-gradient(to_right,_#8B5CF633,_#FB718533)]">
             <div className={`absolute top-4 left-4 text-xs font-bold py-1 px-3 rounded-full ${tagColor}`}>
               {tag}
             </div>
             <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 rounded-full">
                 <Heart className="w-5 h-5 text-white" />
             </Button>
-            <Image src={image} alt={title} width={300} height={200} className="w-full h-48 object-cover" data-ai-hint={imageHint} />
+            <Image src={image} alt={title} width={300} height={200} className="w-full h-48 object-cover bg-[linear-gradient(to_right,_#8B5CF633,_#FB718533)]" data-ai-hint={imageHint} />
 
             {price !== null ? (
                 <div className="absolute bottom-4 right-4 bg-white text-purple-600 font-bold py-1 px-4 rounded-full shadow-md">
