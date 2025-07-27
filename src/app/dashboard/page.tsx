@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bell, Calendar, CheckCircle, Heart, MapPin, Search, Users, Briefcase, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const events = [
   {
@@ -95,7 +96,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 font-body">
       <Header />
-      <main className="p-8">
+      <main className="p-8 pb-32">
         <DiscoverSection />
         <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
@@ -105,15 +106,17 @@ export default function DashboardPage() {
             {events.map((event, index) => (
               <EventCard key={index} {...event} />
             ))}
-            <div className="lg:col-start-3 lg:row-start-2">
-               <ProfileCompletionCard />
-            </div>
           </div>
           <div className="text-center mt-12">
             <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Events</Button>
           </div>
         </div>
       </main>
+
+       <div className="fixed bottom-0 left-0 m-8 z-50">
+        <ProfileCompletionCard />
+       </div>
+
       <Footer />
     </div>
   );
@@ -164,11 +167,11 @@ function DiscoverSection() {
         <p className="mt-4 text-gray-500 text-lg">Find your next dance adventure in the city</p>
         <div className="mt-8 max-w-5xl mx-auto bg-white p-4 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-6 items-center gap-4 border">
           <div className="relative md:col-span-3">
-             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 pr-4 py-3 border focus:ring-0 text-base bg-transparent"/>
+             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 pr-4 py-3 border focus:ring-0 text-base bg-transparent border-gray-300 rounded-full"/>
              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
           <Select>
-              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
+              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none border-gray-300">
                   <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -180,7 +183,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
           <Select>
-              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
+              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none border-gray-300">
                   <SelectValue placeholder="All Locations" />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +193,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
            <Select>
-              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none">
+              <SelectTrigger className="w-full border font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4 shadow-none border-gray-300">
                   <SelectValue placeholder="Any Date" />
               </SelectTrigger>
               <SelectContent>
@@ -214,9 +217,8 @@ function EventCard({ tag, tagColor, title, description, date, location, attendee
             <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 rounded-full">
                 <Heart className="w-5 h-5 text-white" />
             </Button>
-            <div className="bg-purple-100 h-48 flex items-center justify-center">
-                 <Briefcase className="w-16 h-16 text-purple-300" />
-            </div>
+            <Image src={image} alt={title} width={300} height={200} className="w-full h-48 object-cover" data-ai-hint={imageHint} />
+
             {price !== null ? (
                 <div className="absolute bottom-4 right-4 bg-white text-purple-600 font-bold py-1 px-4 rounded-full shadow-md">
                     ${price}
@@ -254,7 +256,7 @@ function EventCard({ tag, tagColor, title, description, date, location, attendee
 
 function ProfileCompletionCard() {
     return (
-        <Card className="rounded-2xl shadow-lg p-6 bg-white">
+        <Card className="rounded-2xl shadow-lg p-6 bg-white border-l-4 border-l-purple-500 max-w-sm">
             <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                     <div className="bg-gray-100 p-2 rounded-full">
@@ -272,9 +274,9 @@ function ProfileCompletionCard() {
             <div className="mt-4">
                 <div className="flex justify-between items-center mb-1">
                     <span className="text-sm font-medium text-gray-600">Profile Completion</span>
-                    <span className="text-sm font-bold text-purple-600">60%</span>
+                    <span className="text-sm font-bold text-purple-600">25%</span>
                 </div>
-                <Progress value={60} className="h-2" />
+                <Progress value={25} className="h-2" />
             </div>
             <div className="mt-4 space-y-3">
                 {profileCompletionSteps.map((step, index) => (
@@ -284,7 +286,7 @@ function ProfileCompletionCard() {
                         ) : (
                             <div className="w-5 h-5 border-2 border-gray-300 rounded-full"></div>
                         )}
-                        <span className={step.completed ? "text-gray-800" : "text-gray-500"}>{step.text}</span>
+                        <span className={step.completed ? "text-gray-800 line-through" : "text-gray-500"}>{step.text}</span>
                     </div>
                 ))}
             </div>
@@ -370,10 +372,3 @@ function Footer() {
       </footer>
     );
 }
-
-
-    
-
-    
-
-
