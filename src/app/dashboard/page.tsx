@@ -19,7 +19,7 @@ const events = [
     location: "Downtown Studio, NYC",
     attendees: 24,
     price: 45,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "dance workshop"
   },
   {
@@ -31,7 +31,7 @@ const events = [
     location: "Urban Center, Brooklyn",
     attendees: 156,
     price: null,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "hip-hop battle"
   },
   {
@@ -43,7 +43,7 @@ const events = [
     location: "Royal Academy, Manhattan",
     attendees: 32,
     price: 180,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "ballet performance"
   },
   {
@@ -55,7 +55,7 @@ const events = [
     location: "Swing Society, Queens",
     attendees: 89,
     price: 25,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "jazz dance"
   },
   {
@@ -67,7 +67,7 @@ const events = [
     location: "Arts Theater, Manhattan",
     attendees: 234,
     price: 35,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "modern dance"
   },
   {
@@ -79,7 +79,7 @@ const events = [
     location: "Latin Dance Studio, Bronx",
     attendees: 45,
     price: 30,
-    image: "https://placehold.co/300x200.png",
+    image: "https://placehold.co/600x400.png",
     imageHint: "salsa dancing"
   },
 ];
@@ -222,7 +222,7 @@ function EventCard({ tag, tagColor, title, description, date, location, attendee
             <Button variant="ghost" size="icon" className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 rounded-full">
                 <Heart className="w-5 h-5 text-white" />
             </Button>
-            <Image src={image} alt={title} width={300} height={200} className="w-full h-48 object-cover bg-[linear-gradient(to_right,_#8B5CF633,_#FB718533)]" data-ai-hint={imageHint} />
+            <Image src={image} alt={title} width={600} height={400} className="w-full h-48 object-cover block" data-ai-hint={imageHint} />
 
             {price !== null ? (
                 <div className="absolute bottom-4 right-4 bg-white text-purple-600 font-bold py-1 px-4 rounded-full shadow-md">
