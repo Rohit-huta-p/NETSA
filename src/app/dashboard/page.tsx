@@ -122,8 +122,8 @@ export default function DashboardPage() {
 function Header() {
     return (
       <header className="bg-white border-b border-gray-200">
-        <div className="container mx-auto px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-8">
+        <div className="container mx-auto px-8 py-4 grid grid-cols-3 items-center">
+          <div className="flex items-center gap-8 justify-start">
             <Link href="/dashboard" className="flex items-center gap-2">
                  <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                  <span className="text-2xl font-bold text-gray-800">Netsa</span>
@@ -134,11 +134,13 @@ function Header() {
               <Link href="#" className="hover:text-purple-600">Create Event</Link>
             </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Input type="search" placeholder="Search events, artists, workshops..." className="w-64 pl-10 bg-gray-100 border-none"/>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <div className="flex justify-center">
+            <div className="relative hidden md:block w-full max-w-md">
+              <Input type="search" placeholder="Search events, artists, workshops..." className="w-full pl-10 bg-gray-100 border-none rounded-full"/>
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
+          </div>
+          <div className="flex items-center gap-4 justify-end">
             <Button variant="ghost" size="icon" className="relative">
               <Bell className="w-6 h-6 text-gray-500" />
               <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500" />
@@ -156,17 +158,17 @@ function Header() {
 function DiscoverSection() {
     return (
       <div className="text-center py-16">
-        <h1 className="text-5xl font-bold text-gray-800">
-          Discover <span className="text-pink-500">Events</span> & <span className="text-purple-500">Workshops</span>
+        <h1 className="text-5xl font-bold text-gray-800 leading-tight">
+          Discover <span className="text-pink-500">Events</span> &<br/> <span className="text-purple-500">Workshops</span>
         </h1>
         <p className="mt-4 text-gray-500 text-lg">Find your next dance adventure in the city</p>
-        <div className="mt-8 max-w-4xl mx-auto bg-white p-4 rounded-full shadow-md flex items-center gap-4">
+        <div className="mt-8 max-w-4xl mx-auto bg-white p-2 rounded-full shadow-lg flex items-center gap-2">
           <div className="relative flex-grow">
-             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 border-none focus:ring-0"/>
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+             <Input type="search" placeholder="Search events, styles, instructors..." className="w-full pl-10 pr-4 py-3 border-none focus:ring-0 text-base"/>
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
           <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600">
+              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
                   <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -178,7 +180,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
           <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600">
+              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
                   <SelectValue placeholder="All Locations" />
               </SelectTrigger>
               <SelectContent>
@@ -188,7 +190,7 @@ function DiscoverSection() {
               </SelectContent>
           </Select>
            <Select>
-              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600">
+              <SelectTrigger className="w-[180px] border-none focus:ring-0 font-medium text-gray-600 bg-white hover:bg-gray-100 rounded-full py-3 px-4">
                   <SelectValue placeholder="Any Date" />
               </SelectTrigger>
               <SelectContent>
