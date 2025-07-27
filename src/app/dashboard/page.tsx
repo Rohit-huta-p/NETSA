@@ -96,7 +96,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 font-body">
       <Header />
-      <main className="p-8 pb-32">
+      <main className="p-8">
         <DiscoverSection />
         <div className="mt-8">
             <div className="flex justify-between items-center mb-4">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
         </div>
       </main>
 
-       <div className="fixed bottom-0 left-0 m-8 z-50">
+       <div className="px-8 pb-16 flex justify-end">
         <ProfileCompletionCard />
        </div>
 
