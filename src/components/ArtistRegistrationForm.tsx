@@ -145,23 +145,25 @@ export default function ArtistRegistrationForm() {
       artistType: '',
       otherArtistType: '',
       phoneNumber: '',
-      bio: '',
-      skills: [],
-      otherSkill: '',
-      agreeToTerms: false,
-      agencyAffiliated: false,
-      availableForBooking: true,
-      travelReady: false,
-      remoteWorkOk: false,
-      genres: [],
-      preferredCities: [],
+      gender: undefined,
+      dob: undefined,
       city: '',
       country: '',
+      bio: '',
       profileImageUrl: '',
-      experienceYears: undefined,
+      experienceYears: 0,
+      genres: [],
+      skills: [],
+      otherSkill: '',
       languages: '',
       portfolioLinks: '',
       resumeUrl: '',
+      agencyAffiliated: false,
+      availableForBooking: true,
+      preferredCities: [],
+      travelReady: false,
+      remoteWorkOk: false,
+      agreeToTerms: false,
     },
   });
 
@@ -946,5 +948,3 @@ export default function ArtistRegistrationForm() {
     </div>
   );
 }
-
-    
