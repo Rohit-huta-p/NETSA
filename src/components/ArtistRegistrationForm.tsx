@@ -39,6 +39,7 @@ import { Badge } from './ui/badge';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { addUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { Label } from './ui/label';
 
 const formSchema = z
   .object({
@@ -154,6 +155,13 @@ export default function ArtistRegistrationForm() {
       remoteWorkOk: false,
       genres: [],
       preferredCities: [],
+      city: '',
+      country: '',
+      profileImageUrl: '',
+      experienceYears: undefined,
+      languages: '',
+      portfolioLinks: '',
+      resumeUrl: '',
     },
   });
 
@@ -938,3 +946,5 @@ export default function ArtistRegistrationForm() {
     </div>
   );
 }
+
+    
