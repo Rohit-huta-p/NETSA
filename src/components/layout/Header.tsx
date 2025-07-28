@@ -8,9 +8,11 @@ import { Menu, Search, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useUser } from "@/hooks/useUser";
 
 
 export function Header() {
+    const { user } = useUser();
     return (
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -30,7 +32,9 @@ export function Header() {
                   </Link>
                   <Link href="#" className="hover:text-primary">Events</Link>
                   <Link href="#" className="hover:text-primary">Community</Link>
-                  <Link href="#" className="hover:text-primary">Create Event</Link>
+                  {user?.role === 'recruiter' && (
+                    <Link href="#" className="hover:text-primary">Create Event</Link>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -41,7 +45,9 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
               <Link href="#" className="hover:text-primary">Events</Link>
               <Link href="#" className="hover:text-primary">Community</Link>
-              <Link href="#" className="hover:text-primary">Create Event</Link>
+              {user?.role === 'recruiter' && (
+                <Link href="#" className="hover:text-primary">Create Event</Link>
+              )}
             </nav>
           </div>
           <div className="flex-1 flex justify-center px-4">
