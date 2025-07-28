@@ -19,6 +19,10 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn } from 'lucide-react';
 import { signInWithEmailAndPassword } from '@/lib/firebase/auth';
+import { useMutation } from '@tanstack/react-query';
+import { useUserStore } from '@/store/userStore';
+import { getUserProfile } from '@/lib/firebase/firestore';
+import Cookies from 'js-cookie';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,6 +32,7 @@ const formSchema = z.object({
 export default function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const { setUser } = useUserStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,27 +42,37 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { email, password } = values;
-
-    const { user, error } = await signInWithEmailAndPassword(email, password);
-
-    if (error) {
+  const { mutate: signIn, isPending } = useMutation({
+    mutationFn: async ({ email, password }: z.infer<typeof formSchema>) => {
+      const { user, error } = await signInWithEmailAndPassword(email, password);
+      if (error) throw new Error(error);
+      return user;
+    },
+    onSuccess: async (user) => {
+        if(user) {
+            const token = await user.getIdToken();
+            Cookies.set('user-token', token, { expires: 1 });
+            const { data } = await getUserProfile(user.uid);
+            setUser({ ...user, ...data });
+            toast({
+              title: 'Success!',
+              description: 'You have successfully signed in.',
+            });
+            router.push('/dashboard');
+            router.refresh();
+        }
+    },
+    onError: (error) => {
       toast({
         variant: 'destructive',
         title: 'Sign In Failed',
-        description: error,
+        description: error.message,
       });
-      return;
     }
+  });
 
-    if (user) {
-      toast({
-        title: 'Success!',
-        description: 'You have successfully signed in.',
-      });
-      router.push('/dashboard');
-    }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    signIn(values);
   };
 
   return (
@@ -102,8 +117,9 @@ export default function LoginForm() {
               type="submit"
               size="lg"
               className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+              disabled={isPending}
             >
-              Sign In
+              {isPending ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
         </Form>

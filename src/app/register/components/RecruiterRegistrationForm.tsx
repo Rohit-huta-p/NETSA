@@ -11,7 +11,6 @@ import { Checkbox } from '../../../components/ui/checkbox';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +22,9 @@ import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
+import { useUserStore } from '@/store/userStore';
 
 const formSchema = z
   .object({
@@ -52,6 +54,7 @@ const formSchema = z
 export default function RecruiterRegistrationForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const { setUser } = useUserStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -72,41 +75,45 @@ export default function RecruiterRegistrationForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { email, password, ...profileData } = values;
+  const { mutate: signUp, isPending } = useMutation({
+    mutationFn: async (values: z.infer<typeof formSchema>) => {
+        const { email, password, ...profileData } = values;
+        const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+        if (authError) throw new Error(authError);
+        if (!user) throw new Error("User not created");
 
-    const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
-
-    if (authError) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: authError,
-      });
-      return;
-    }
-
-    if (user) {
-      const { error: profileError } = await addUserProfile(user.uid, {
-        ...profileData,
-        role: 'recruiter',
-      });
-      if (profileError) {
-        toast({
-          variant: 'destructive',
-          title: 'Uh oh! Something went wrong.',
-          description: profileError,
+        const { error: profileError } = await addUserProfile(user.uid, {
+            ...profileData,
+            role: 'recruiter'
         });
-        return;
-      }
+        if (profileError) throw new Error(profileError);
+        return user;
+    },
+    onSuccess: async (user) => {
+        const token = await user.getIdToken();
+        Cookies.set('user-token', token, { expires: 1 });
+        const { data } = await getUserProfile(user.uid);
+        setUser({ ...user, ...data });
+        toast({
+            title: "Success!",
+            description: "Your recruiter account has been created.",
+        });
+        router.push('/dashboard');
+        router.refresh();
+    },
+    onError: (error) => {
+        toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: error.message,
+        });
+    },
+});
 
-      toast({
-        title: 'Success!',
-        description: 'Your recruiter account has been created.',
-      });
-      router.push('/dashboard');
-    }
-  };
+const onSubmit = (values: z.infer<typeof formSchema>) => {
+    signUp(values);
+};
+
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -344,8 +351,9 @@ export default function RecruiterRegistrationForm() {
                 type="submit"
                 size="lg"
                 className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
+                disabled={isPending}
               >
-                Create Recruiter Account
+                {isPending ? 'Creating Account...' : 'Create Recruiter Account'}
               </Button>
             </div>
           </form>

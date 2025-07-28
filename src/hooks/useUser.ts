@@ -1,39 +1,36 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { useEffect } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import Cookies from 'js-cookie';
 import { auth } from '@/lib/firebase/config';
 import { getUserProfile } from '@/lib/firebase/firestore';
-
-interface UserProfile extends User {
-    role?: string;
-}
+import { useUserStore } from '@/store/userStore';
 
 export function useUser() {
-    const [user, setUser] = useState<UserProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, setUser, loading, setLoading, clearUser } = useUserStore();
 
     useEffect(() => {
+        setLoading(true);
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             if (authUser) {
-                const { data, error } = await getUserProfile(authUser.uid);
-                if (data) {
-                    setUser({
-                        ...authUser,
-                        role: data.role,
-                    });
-                } else {
-                    setUser(authUser);
-                }
+                const token = await authUser.getIdToken();
+                Cookies.set('user-token', token, { expires: 1 }); // Expires in 1 day
+                const { data } = await getUserProfile(authUser.uid);
+                
+                setUser({
+                    ...authUser,
+                    ...data,
+                });
             } else {
-                setUser(null);
+                Cookies.remove('user-token');
+                clearUser();
             }
-            setLoading(false);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [setUser, setLoading, clearUser]);
 
     return { user, loading };
 }

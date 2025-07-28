@@ -41,6 +41,9 @@ import { addUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '../../../components/ui/label';
 import { useRouter } from 'next/navigation';
+import { useMutation } from '@tanstack/react-query';
+import Cookies from 'js-cookie';
+import { useUserStore } from '@/store/userStore';
 
 const formSchema = z
   .object({
@@ -136,6 +139,8 @@ const genres = ['hip hop', 'freestyle', 'classical', 'folk', 'pop', 'rock'];
 export default function ArtistRegistrationForm() {
     const { toast } = useToast();
     const router = useRouter();
+    const { setUser } = useUserStore();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -176,40 +181,43 @@ export default function ArtistRegistrationForm() {
     form.resetField('skills');
   }, [watchedArtistType, form]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { email, password, ...profileData } = values;
-    
-    const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+    const { mutate: signUp, isPending } = useMutation({
+        mutationFn: async (values: z.infer<typeof formSchema>) => {
+            const { email, password, ...profileData } = values;
+            const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+            if (authError) throw new Error(authError);
+            if (!user) throw new Error("User not created");
 
-    if (authError) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: authError,
-      })
-      return;
-    }
+            const { error: profileError } = await addUserProfile(user.uid, {
+                ...profileData,
+                role: 'artist'
+            });
+            if (profileError) throw new Error(profileError);
+            return user;
+        },
+        onSuccess: async (user) => {
+            const token = await user.getIdToken();
+            Cookies.set('user-token', token, { expires: 1 });
+            const { data } = await getUserProfile(user.uid);
+            setUser({ ...user, ...data });
+            toast({
+                title: "Success!",
+                description: "Your artist account has been created.",
+            });
+            router.push('/dashboard');
+            router.refresh();
+        },
+        onError: (error) => {
+            toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: error.message,
+            });
+        },
+    });
 
-    if (user) {
-      const { error: profileError } = await addUserProfile(user.uid, {
-        ...profileData,
-        role: 'artist'
-      });
-      if (profileError) {
-        toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: profileError,
-          })
-        return;
-      }
-
-      toast({
-        title: "Success!",
-        description: "Your artist account has been created.",
-      })
-      router.push('/dashboard');
-    }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    signUp(values);
   };
 
   const currentSkills = skillsByArtistType[watchedArtistType] || [];
@@ -942,8 +950,9 @@ export default function ArtistRegistrationForm() {
             type="submit"
             size="lg"
             className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+            disabled={isPending}
           >
-            Create Artist Account
+            {isPending ? 'Creating Account...' : 'Create Artist Account'}
           </Button>
         </form>
       </Form>
