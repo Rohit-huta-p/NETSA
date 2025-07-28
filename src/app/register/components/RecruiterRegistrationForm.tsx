@@ -6,8 +6,8 @@ import { ArrowLeft, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Button } from './ui/button';
-import { Checkbox } from './ui/checkbox';
+import { Button } from '../../../components/ui/button';
+import { Checkbox } from '../../../components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -16,9 +16,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form';
-import { Input } from './ui/input';
-import { Textarea } from './ui/textarea';
+} from '../../../components/ui/form';
+import { Input } from '../../../components/ui/input';
+import { Textarea } from '../../../components/ui/textarea';
 import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';

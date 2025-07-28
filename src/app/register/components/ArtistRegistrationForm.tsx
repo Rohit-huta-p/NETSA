@@ -6,8 +6,8 @@ import { ArrowLeft, CalendarIcon, Palette, Check, ChevronsUpDown, X } from 'luci
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Button } from './ui/button';
-import { Checkbox } from './ui/checkbox';
+import { Button } from '../../../components/ui/button';
+import { Checkbox } from '../../../components/ui/checkbox';
 import {
   Form,
   FormControl,
@@ -16,10 +16,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from './ui/form';
-import { Input } from './ui/input';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Textarea } from './ui/textarea';
+} from '../../../components/ui/form';
+import { Input } from '../../../components/ui/input';
+import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
+import { Textarea } from '../../../components/ui/textarea';
 import {
   Command,
   CommandEmpty,
@@ -27,19 +27,19 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from './ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Calendar } from './ui/calendar';
+} from '../../../components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
+import { Calendar } from '../../../components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Switch } from './ui/switch';
+import { Switch } from '../../../components/ui/switch';
 import { useEffect, useState, useMemo } from 'react';
 import { indianCities } from '@/lib/cities';
-import { Badge } from './ui/badge';
+import { Badge } from '../../../components/ui/badge';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { addUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Label } from './ui/label';
+import { Label } from '../../../components/ui/label';
 import { useRouter } from 'next/navigation';
 
 const formSchema = z

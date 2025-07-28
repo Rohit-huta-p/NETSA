@@ -1,6 +1,4 @@
-
-
-import RegistrationForm from '@/components/RegistrationForm';
+import RegistrationForm from '@/app/register/components/RegistrationForm';
 import { Suspense } from 'react';
 
 function RegisterContent() {

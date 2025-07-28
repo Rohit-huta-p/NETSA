@@ -72,7 +72,7 @@ export default function Home() {
           Already have an account?{" "}
           {/* Sign-in button as a link */}
           <Button asChild variant="link" className="text-primary font-bold p-1">
-            <Link href="/dashboard">Sign In</Link>
+            <Link href="/login">Sign In</Link>
           </Button>
         </p>
       </div>
