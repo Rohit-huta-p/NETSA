@@ -58,8 +58,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            router.push('/dashboard');
-            router.refresh();
+            window.location.href = '/dashboard';
         }
     },
     onError: (error) => {
