@@ -37,7 +37,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { indianCities } from '@/lib/cities';
 import { Badge } from '../../../components/ui/badge';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
-import { addUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '../../../components/ui/label';
 import { useRouter } from 'next/navigation';
