@@ -12,7 +12,6 @@ export function useUser() {
     const { user, setUser, loading, setLoading, clearUser } = useUserStore();
 
     useEffect(() => {
-        setLoading(true);
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             if (authUser) {
                 const token = await authUser.getIdToken();
@@ -27,6 +26,7 @@ export function useUser() {
                 Cookies.remove('user-token');
                 clearUser();
             }
+             setLoading(false);
         });
 
         return () => unsubscribe();
