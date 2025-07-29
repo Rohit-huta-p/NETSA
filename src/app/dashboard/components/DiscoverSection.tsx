@@ -3,11 +3,18 @@
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useUser } from "@/hooks/useUser";
 import { Search } from "lucide-react";
 
 export function DiscoverSection() {
+    const { user } = useUser();
     return (
       <div className="text-center py-16">
+        {user && (
+            <h2 className="text-2xl font-semibold text-muted-foreground mb-4">
+                Welcome back, {user.firstName}!
+            </h2>
+        )}
         <h1 className="text-5xl font-bold text-foreground leading-tight">
           Discover <span className="text-pink-500">Events</span> &<br/> <span className="text-purple-500">Workshops</span>
         </h1>
