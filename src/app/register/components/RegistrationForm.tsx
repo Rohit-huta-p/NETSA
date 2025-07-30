@@ -6,7 +6,7 @@ import RecruiterRegistrationForm from './RecruiterRegistrationForm';
 
 export default function RegistrationForm() {
   const searchParams = useSearchParams();
-  const userType = searchParams.get('type') || 'artist';
+  const userType = searchParams.get('type');
 
   if (userType === 'recruiter') {
     return <RecruiterRegistrationForm />;
