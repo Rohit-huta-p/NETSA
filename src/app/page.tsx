@@ -27,7 +27,7 @@ export default function Home() {
       {/* Welcome section with title and description */}
       <div className="text-center mb-10">
         {/* Animated gradient title */}
-        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight text-primary">
+        <h1 className="text-4xl md:text-5xl font-bold font-headline tracking-tight bg-gradient-to-r from-[#FB7185] to-[#EA580C] bg-clip-text text-transparent">
           Welcome to Netsa
         </h1>
         {/* Subtitle */}
