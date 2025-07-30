@@ -47,7 +47,7 @@ export default function Home() {
           description="Unleash your creativity and find your next opportunity."
           benefits={artistBenefits}
           buttonText="Register as an Artist"
-          buttonClassName="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+          buttonClassName="text-white bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
           bulletColor="#8B5CF6"
           href="/register?type=artist"
         />
@@ -60,7 +60,7 @@ export default function Home() {
           description="Discover exceptional talent and build your dream team."
           benefits={recruiterBenefits}
           buttonText="Register as a Recruiter"
-          buttonClassName="bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
+          buttonClassName="text-white bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
           bulletColor="#FB7185"
           href="/register?type=recruiter"
         />
