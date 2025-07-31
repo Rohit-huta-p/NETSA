@@ -2,11 +2,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { DiscoverSection } from "./components/DiscoverSection";
-import { EventCard } from "./components/EventCard";
-import { ProfileCompletionCard } from "./components/ProfileCompletionCard";
+import { DiscoverSection } from "@/app/dashboard/components/DiscoverSection";
+import { EventCard } from "@/app/dashboard/components/EventCard";
+import { ProfileCompletionCard } from "@/app/dashboard/components/ProfileCompletionCard";
 
 const events = [
   {
@@ -86,8 +84,6 @@ const events = [
 export default function DashboardPage() {
   return (
     <div className=" min-h-screen bg-background font-body ">
-      <Header />
-
       <main className="p-8 relative">
         <DiscoverSection />
         <div className="mt-8 relative">
@@ -108,10 +104,7 @@ export default function DashboardPage() {
             <ProfileCompletionCard />
           </div>
         </div>
-        
       </main>
-
-      <Footer />
     </div>
   );
 }

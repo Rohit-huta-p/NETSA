@@ -3,6 +3,8 @@ import type {Metadata} from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
 import Providers from '@/components/Providers';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
   title: 'TalentMatch Onboarding',
@@ -24,10 +26,11 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <Providers>
-          {children}
-          <Toaster />
+            {children}
+            <Toaster />
         </Providers>
       </body>
     </html>
   );
 }
+

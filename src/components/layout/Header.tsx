@@ -30,8 +30,8 @@ export function Header() {
                      <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                      <span className="text-2xl font-bold text-foreground">Netsa</span>
                   </Link>
-                  <Link href="#" className="hover:text-primary">Events</Link>
-                  <Link href="#" className="hover:text-primary">Community</Link>
+                  <Link href="/jobs" className="hover:text-primary">Jobs</Link>
+                  <Link href="/workshops" className="hover:text-primary">Workshops</Link>
                   {user?.role === 'recruiter' && (
                     <Link href="#" className="hover:text-primary">Create Event</Link>
                   )}
@@ -43,8 +43,8 @@ export function Header() {
                  <span className="text-2xl font-bold text-foreground">Netsa</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
-              <Link href="#" className="hover:text-primary">Events</Link>
-              <Link href="#" className="hover:text-primary">Community</Link>
+              <Link href="/jobs" className="hover:text-primary">Jobs</Link>
+              <Link href="/workshops" className="hover:text-primary">Workshops</Link>
               {user?.role === 'recruiter' && (
                 <Link href="#" className="hover:text-primary">Create Event</Link>
               )}
@@ -63,8 +63,8 @@ export function Header() {
               <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500" />
             </Button>
             <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
+              <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
             </Avatar>
           </div>
         </div>

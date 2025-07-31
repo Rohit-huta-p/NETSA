@@ -2,10 +2,9 @@
 import { create } from 'zustand';
 import { User } from 'firebase/auth';
 
+// This is a generic interface, the actual user profile will have more fields based on the role
 interface UserProfile extends User {
-  role?: string;
-  firstName?: string;
-  lastName?: string;
+  [key: string]: any;
 }
 
 interface UserState {
