@@ -2,9 +2,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DiscoverSection } from "@/app/dashboard/components/DiscoverSection";
-import { EventCard } from "@/app/dashboard/components/EventCard";
-import { ProfileCompletionCard } from "@/app/dashboard/components/ProfileCompletionCard";
+import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
+import { EventCard } from "@/components/dashboard/EventCard";
+import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 
 const events = [
   {
