@@ -1,27 +1,35 @@
-
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Drama } from "lucide-react";
 
 export function ActivityFeed() {
   const activities = [
-    { text: "Applied for 'The Grand Gala'", time: "2 hours ago" },
-    { text: "Updated their portfolio with new videos.", time: "1 day ago" },
-    { text: "Completed 'Advanced Vocal Training' workshop.", time: "3 days ago" },
+    { title: "Urban Dance Workshop", date: "Nov 15, 2024", status: "Attended" },
+    { title: "Corporate Event", date: "Oct 28, 2024", status: "Attended" },
   ];
 
   return (
-    <Card>
+    <Card className="border-none shadow-none">
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle className="text-2xl font-bold">Recent Activity</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ul className="space-y-4">
-          {activities.map((activity, index) => (
-            <li key={index} className="flex flex-col">
-              <span>{activity.text}</span>
-              <span className="text-sm text-muted-foreground">{activity.time}</span>
-            </li>
-          ))}
-        </ul>
+      <CardContent className="space-y-4">
+        {activities.map((activity, index) => (
+            <Card key={index} className="p-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-muted p-3 rounded-full">
+                            <Drama className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                            <p className="font-bold">{activity.title}</p>
+                            <p className="text-sm text-muted-foreground">{activity.date} • {activity.status}</p>
+                        </div>
+                    </div>
+                    <Badge variant="secondary">{activity.status}</Badge>
+                </div>
+            </Card>
+        ))}
       </CardContent>
     </Card>
   );

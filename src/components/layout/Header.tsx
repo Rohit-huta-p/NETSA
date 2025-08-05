@@ -30,11 +30,9 @@ export function Header() {
                      <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                      <span className="text-2xl font-bold text-foreground">Netsa</span>
                   </Link>
-                  <Link href="/jobs" className="hover:text-primary">Jobs</Link>
-                  <Link href="/workshops" className="hover:text-primary">Workshops</Link>
-                  {user?.role === 'organizer' && (
-                    <Link href="#" className="hover:text-primary">Create Event</Link>
-                  )}
+                  <Link href="/events" className="hover:text-primary">Events</Link>
+                  <Link href="#" className="hover:text-primary">Community</Link>
+                  <Link href="#" className="hover:text-primary">Create Event</Link>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -43,16 +41,14 @@ export function Header() {
                  <span className="text-2xl font-bold text-foreground">Netsa</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
-              <Link href="/jobs" className="hover:text-primary">Jobs</Link>
-              <Link href="/workshops" className="hover:text-primary">Workshops</Link>
-              {user?.role === 'organizer' && (
-                <Link href="#" className="hover:text-primary">Create Event</Link>
-              )}
+              <Link href="/events" className="hover:text-primary">Events</Link>
+              <Link href="#" className="hover:text-primary">Community</Link>
+              <Link href="#" className="hover:text-primary font-bold text-primary">Create Event</Link>
             </nav>
           </div>
           <div className="flex-1 flex justify-center px-4">
             <div className="relative w-full max-w-md">
-              <Input type="search" placeholder="Search events, artists, workshops..." className="w-full pl-10 bg-muted border-none rounded-full"/>
+              <Input type="search" placeholder="Search events, artists, workshops..." className="w-full pl-10 bg-muted border-none rounded-full h-12"/>
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             </div>
           </div>
