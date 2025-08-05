@@ -2,14 +2,14 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
 import ArtistRegistrationForm from './ArtistRegistrationForm';
-import RecruiterRegistrationForm from './RecruiterRegistrationForm';
+import OrganizerRegistrationForm from './OrganizerRegistrationForm';
 
 export default function RegistrationForm() {
   const searchParams = useSearchParams();
   const userType = searchParams.get('type');
 
-  if (userType === 'recruiter') {
-    return <RecruiterRegistrationForm />;
+  if (userType === 'organizer') {
+    return <OrganizerRegistrationForm />;
   }
   
   return <ArtistRegistrationForm />;

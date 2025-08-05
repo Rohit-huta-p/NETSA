@@ -49,16 +49,16 @@ export default function Home() {
             href="/register?type=artist"
           />
           <OnboardingCard
-            id="recruiter-card"
+            id="organizer-card"
             icon={<Users className="w-10 h-10 text-[#FB7185]" />}
             iconContainerClassName="bg-[#FFEDD5]"
-            title="For Recruiters"
+            title="For Organizers"
             description="Discover exceptional talent and build your dream team."
             benefits={recruiterBenefits}
-            buttonText="Register as a Recruiter"
+            buttonText="Register as an Organizer"
             buttonClassName="text-white bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
             bulletColor="#FB7185"
-            href="/register?type=recruiter"
+            href="/register?type=organizer"
           />
         </div>
 

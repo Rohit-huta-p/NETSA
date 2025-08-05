@@ -32,7 +32,7 @@ export function Header() {
                   </Link>
                   <Link href="/jobs" className="hover:text-primary">Jobs</Link>
                   <Link href="/workshops" className="hover:text-primary">Workshops</Link>
-                  {user?.role === 'recruiter' && (
+                  {user?.role === 'organizer' && (
                     <Link href="#" className="hover:text-primary">Create Event</Link>
                   )}
                 </nav>
@@ -45,7 +45,7 @@ export function Header() {
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
               <Link href="/jobs" className="hover:text-primary">Jobs</Link>
               <Link href="/workshops" className="hover:text-primary">Workshops</Link>
-              {user?.role === 'recruiter' && (
+              {user?.role === 'organizer' && (
                 <Link href="#" className="hover:text-primary">Create Event</Link>
               )}
             </nav>

@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, CalendarIcon, Palette, Check, ChevronsUpDown, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,7 +11,6 @@ import { Checkbox } from '../../../components/ui/checkbox';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,26 +19,14 @@ import {
 import { Input } from '../../../components/ui/input';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
 import { Textarea } from '../../../components/ui/textarea';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '../../../components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '../../../components/ui/popover';
 import { Calendar } from '../../../components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Switch } from '../../../components/ui/switch';
-import { useEffect, useState, useMemo } from 'react';
-import { indianCities } from '@/lib/cities';
-import { Badge } from '../../../components/ui/badge';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Label } from '../../../components/ui/label';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';

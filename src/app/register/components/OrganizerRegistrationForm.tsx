@@ -40,18 +40,19 @@ const formSchema = z
     password: z.string().min(8, 'Password must be at least 8 characters long'),
     confirmPassword: z.string(),
 
-    // Company Info
-    companyName: z.string().min(1, 'Company name is required'),
-    jobTitle: z.string().min(1, 'Job title is required'),
-    companyDescription: z.string().optional(),
-    companyWebsite: z.string().url('Invalid URL').optional(),
-    companyLogoUrl: z.string().url('Invalid URL').optional(),
-    industry: z.enum(['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'other']).optional(),
-    companySize: z.enum(['startup', 'small', 'medium', 'large', 'enterprise']).optional(),
+    // Organization Info
+    organizationType: z.enum(['company', 'individual', 'agency', 'institution', 'event_management']),
+    organizationName: z.string().optional(),
+    jobTitle: z.string().optional(),
+    organizationDescription: z.string().optional(),
+    organizationWebsite: z.string().url('Invalid URL').optional(),
+    organizationLogoUrl: z.string().url('Invalid URL').optional(),
+    industry: z.enum(['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'education', 'other']).optional(),
+    organizationSize: z.enum(['individual', 'small', 'medium', 'large', 'enterprise']).optional(),
 
-    // Company Location
-    companyCity: z.string().optional(),
-    companyCountry: z.string().optional(),
+    // Location
+    city: z.string().optional(),
+    country: z.string().optional(),
 
     // Professional Info
     yearsInIndustry: z.coerce.number().optional(),
@@ -72,10 +73,11 @@ const formSchema = z
     path: ['confirmPassword'],
   });
 
-const industries = ['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'other'];
-const companySizes = ['startup', 'small', 'medium', 'large', 'enterprise'];
+const organizationTypes = ['company', 'individual', 'agency', 'institution', 'event_management'];
+const industries = ['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'education', 'other'];
+const organizationSizes = ['individual', 'small', 'medium', 'large', 'enterprise'];
 
-export default function RecruiterRegistrationForm() {
+export default function OrganizerRegistrationForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { setUser } = useUserStore();
@@ -101,13 +103,14 @@ export default function RecruiterRegistrationForm() {
         const now = new Date();
         const finalProfileData = {
           ...profileData,
-          role: 'recruiter',
+          role: 'organizer',
           isVerified: false,
           createdAt: now,
           updatedAt: now,
           lastActive: now,
           stats: {
-            jobsPosted: 0,
+            opportunitiesPosted: 0,
+            eventsCreated: 0,
             artistsHired: 0,
             eventsOrganized: 0,
             connectionsCount: 0,
@@ -141,7 +144,7 @@ export default function RecruiterRegistrationForm() {
         setUser({ ...user, ...data });
         toast({
             title: "Success!",
-            description: "Your recruiter account has been created.",
+            description: "Your organizer account has been created.",
         });
         router.push('/dashboard');
         router.refresh();
@@ -174,7 +177,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
           <Users className="w-10 h-10 text-[#FB7185]" />
         </div>
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FB7185] to-[#EA580C] mt-4">
-          Recruiter Registration
+          Organizer Registration
         </h1>
         <p className="text-muted-foreground mt-2">
           Find the perfect talent for your next project
@@ -201,21 +204,41 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
             <FormField control={form.control} name="profileImageUrl" render={({ field }) => (<FormItem><FormLabel>Profile Image URL</FormLabel><FormControl><Input placeholder="https://your-domain.com/profile.jpg" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <hr className="my-8" />
 
-            <h2 className="text-2xl font-bold text-center">Company Information</h2>
-            <FormField control={form.control} name="companyName" render={({ field }) => (<FormItem><FormLabel>Company/Organization Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="jobTitle" render={({ field }) => (<FormItem><FormLabel>Your Job Title *</FormLabel><FormControl><Input placeholder="e.g. Casting Manager" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="companyDescription" render={({ field }) => (<FormItem><FormLabel>Company Description</FormLabel><FormControl><Textarea placeholder="Tell us about your company..." {...field}/></FormControl><FormMessage /></FormItem>)}/>
+            <h2 className="text-2xl font-bold text-center">Organization Information</h2>
+            <FormField
+                control={form.control}
+                name="organizationType"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Organization Type *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select your organization type" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                        {organizationTypes.map(type => <SelectItem key={type} value={type} className="capitalize">{type.replace('_', ' ')}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField control={form.control} name="organizationName" render={({ field }) => (<FormItem><FormLabel>Organization/Brand Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="jobTitle" render={({ field }) => (<FormItem><FormLabel>Your Job Title</FormLabel><FormControl><Input placeholder="e.g. Casting Manager" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="organizationDescription" render={({ field }) => (<FormItem><FormLabel>Organization Description</FormLabel><FormControl><Textarea placeholder="Tell us about your organization..." {...field}/></FormControl><FormMessage /></FormItem>)}/>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="companyWebsite" render={({ field }) => (<FormItem><FormLabel>Company Website</FormLabel><FormControl><Input placeholder="https://companyname.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="companyLogoUrl" render={({ field }) => (<FormItem><FormLabel>Company Logo URL</FormLabel><FormControl><Input placeholder="https://companyname.com/logo.png" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="organizationWebsite" render={({ field }) => (<FormItem><FormLabel>Organization Website</FormLabel><FormControl><Input placeholder="https://companyname.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="organizationLogoUrl" render={({ field }) => (<FormItem><FormLabel>Organization Logo URL</FormLabel><FormControl><Input placeholder="https://companyname.com/logo.png" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField control={form.control} name="industry" render={({ field }) => (<FormItem><FormLabel>Industry</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select industry" /></SelectTrigger></FormControl><SelectContent>{industries.map(i => <SelectItem key={i} value={i} className="capitalize">{i}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="companySize" render={({ field }) => (<FormItem><FormLabel>Company Size</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select company size" /></SelectTrigger></FormControl><SelectContent>{companySizes.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="organizationSize" render={({ field }) => (<FormItem><FormLabel>Organization Size</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select organization size" /></SelectTrigger></FormControl><SelectContent>{organizationSizes.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="companyCity" render={({ field }) => (<FormItem><FormLabel>Company City</FormLabel><FormControl><Input placeholder="e.g. New York" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="companyCountry" render={({ field }) => (<FormItem><FormLabel>Company Country</FormLabel><FormControl><Input placeholder="e.g. USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input placeholder="e.g. New York" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g. USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
 
             <hr className="my-8" />
@@ -274,7 +297,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
                 className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
                 disabled={isPending}
               >
-                {isPending ? 'Creating Account...' : 'Create Recruiter Account'}
+                {isPending ? 'Creating Account...' : 'Create Organizer Account'}
               </Button>
             </div>
           </form>
