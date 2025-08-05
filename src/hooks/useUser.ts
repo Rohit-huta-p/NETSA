@@ -14,7 +14,9 @@ export function useUser() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             if (authUser) {
-                if (!user) { // Only fetch if user is not already in the store
+                // If we have an authenticated user but no profile in the store, fetch it.
+                // This handles the case where the user is already logged in when they visit the site.
+                if (!user || user.uid !== authUser.uid) {
                     const token = await authUser.getIdToken();
                     Cookies.set('user-token', token, { expires: 1 });
                     const { data } = await getUserProfile(authUser.uid);
@@ -32,7 +34,7 @@ export function useUser() {
         });
 
         return () => unsubscribe();
-    }, [user, setUser, setLoading, clearUser]);
+    }, [setUser, setLoading, clearUser]);
 
     return { user, loading };
 }
