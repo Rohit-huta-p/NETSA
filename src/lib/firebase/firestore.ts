@@ -10,15 +10,16 @@ export async function addUserProfile(userId: string, data: any) {
   }
 }
 
+// This function now fetches from the API route instead of directly from Firestore client-side
 export async function getUserProfile(userId: string) {
   try {
-    const docRef = doc(db, "users", userId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return { data: docSnap.data(), error: null };
-    } else {
-      return { data: null, error: "No such document!" };
+    const response = await fetch(`/api/users/${userId}`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to fetch user profile with status: ${response.status}`);
     }
+    const { data } = await response.json();
+    return { data, error: null };
   } catch (error: any) {
     return { data: null, error: error.message };
   }
