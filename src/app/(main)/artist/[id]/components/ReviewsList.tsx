@@ -18,6 +18,7 @@ export function ReviewsList() {
 
     return (
         <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Reviews & Testimonials</h2>
             {reviews.map((review, index) => (
                 <Card key={index}>
                     <CardHeader className="flex flex-row items-center gap-4">
