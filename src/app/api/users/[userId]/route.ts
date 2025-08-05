@@ -1,16 +1,13 @@
-
-// /src/app/api/users/[userId]/route.ts
 import { NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { adminDb } from '@/lib/firebase/admin-config';
 
-// GET a user profile
+// GET a user profile using Admin SDK
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
     try {
-        const docRef = doc(db, 'users', params.userId);
-        const docSnap = await getDoc(docRef);
+        const docRef = adminDb.collection('users').doc(params.userId);
+        const docSnap = await docRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             return NextResponse.json({ data: docSnap.data() });
         } else {
             return NextResponse.json({ error: 'No such document!' }, { status: 404 });
@@ -20,24 +17,23 @@ export async function GET(request: Request, { params }: { params: { userId: stri
     }
 }
 
-// PUT (update) a user profile
+// PUT (update) a user profile using Admin SDK
 export async function PUT(request: Request, { params }: { params: { userId: string } }) {
     try {
         const body = await request.json();
-        const userRef = doc(db, 'users', params.userId);
+        const userRef = adminDb.collection('users').doc(params.userId);
         
-        // Ensure the document exists before updating
-        const docSnap = await getDoc(userRef);
-        if (!docSnap.exists()) {
+        const docSnap = await userRef.get();
+        if (!docSnap.exists) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        await updateDoc(userRef, {
+        await userRef.update({
             ...body,
             updatedAt: new Date(),
         });
 
-        const updatedDoc = await getDoc(userRef);
+        const updatedDoc = await userRef.get();
 
         return NextResponse.json({ data: updatedDoc.data() });
     } catch (error: any) {

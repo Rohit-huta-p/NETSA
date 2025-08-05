@@ -10,14 +10,17 @@ import { UserProfile } from "@/store/userStore";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ArtistProfilePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [artist, setArtist] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!id) return;
+    
     const fetchArtist = async () => {
       setLoading(true);
-      const { data, error } = await getUserProfile(params.id);
+      const { data, error } = await getUserProfile(id);
       if (error || !data) {
         setError(error || "Artist not found");
         console.error(error);
@@ -28,7 +31,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
     };
 
     fetchArtist();
-  }, [params.id]);
+  }, [id]);
 
   if (loading) {
     return (
