@@ -1,3 +1,4 @@
+
 // /src/app/api/users/[userId]/route.ts
 import { NextResponse } from 'next/server';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
