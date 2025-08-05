@@ -81,7 +81,7 @@ const events = [
   },
 ];
   
-export default function DashboardPage() {
+export default function EventsPage() {
   return (
     <div className=" min-h-screen bg-background font-body ">
       <main className="p-8 relative">

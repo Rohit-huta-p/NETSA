@@ -26,21 +26,23 @@ export function Header() {
               </SheetTrigger>
               <SheetContent side="left">
                 <nav className="grid gap-6 text-lg font-medium rounded-xl">
-                  <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
+                  <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
                      <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                      <span className="text-2xl font-bold text-foreground">Netsa</span>
                   </Link>
+                  <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
                   <Link href="/events" className="hover:text-primary">Events</Link>
                   <Link href="#" className="hover:text-primary">Community</Link>
                   <Link href="#" className="hover:text-primary">Create Event</Link>
                 </nav>
               </SheetContent>
             </Sheet>
-            <Link href="/dashboard" className="hidden md:flex items-center gap-2">
+            <Link href="/events" className="hidden md:flex items-center gap-2">
                  <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                  <span className="text-2xl font-bold text-foreground">Netsa</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
+              <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
               <Link href="/events" className="hover:text-primary">Events</Link>
               <Link href="#" className="hover:text-primary">Community</Link>
               <Link href="#" className="hover:text-primary font-bold text-primary">Create Event</Link>

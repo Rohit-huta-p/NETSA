@@ -58,7 +58,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            window.location.href = '/dashboard';
+            window.location.href = '/events';
         }
     },
     onError: (error) => {

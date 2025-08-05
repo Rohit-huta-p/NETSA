@@ -81,14 +81,14 @@ const events = [
   },
 ];
   
-export default function JobsPage() {
+export default function OpportunitiesPage() {
   return (
     <div className=" min-h-screen bg-background font-body ">
       <main className="p-8 relative">
         <DiscoverSection />
         <div className="mt-8 relative">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-foreground">6 Jobs Found</h2>
+                <h2 className="text-2xl font-bold text-foreground">6 Opportunities Found</h2>
             </div>
             <div className="relative">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -98,7 +98,7 @@ export default function JobsPage() {
               </div>
             </div>
           <div className="text-center mt-12">
-            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Jobs</Button>
+            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Opportunities</Button>
           </div>
           <div className="absolute bottom-0  right-2 z-50 lg:block">
             <ProfileCompletionCard />

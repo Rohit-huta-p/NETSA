@@ -197,7 +197,7 @@ export default function ArtistRegistrationForm() {
                 title: "Success!",
                 description: "Your artist account has been created.",
             });
-            router.push('/dashboard');
+            router.push('/events');
             router.refresh();
         },
         onError: (error) => {
