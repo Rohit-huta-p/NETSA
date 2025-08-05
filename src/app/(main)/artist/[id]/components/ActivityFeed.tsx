@@ -9,24 +9,24 @@ export function ActivityFeed() {
   ];
 
   return (
-    <Card className="border-none shadow-none">
+    <Card className="border-none shadow-none bg-transparent">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Recent Activity</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {activities.map((activity, index) => (
-            <Card key={index} className="p-4">
+            <Card key={index} className="p-4 shadow-sm">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="bg-muted p-3 rounded-full">
+                        <div className="bg-muted p-3 rounded-lg">
                             <Drama className="w-6 h-6 text-muted-foreground" />
                         </div>
                         <div>
-                            <p className="font-bold">{activity.title}</p>
+                            <p className="font-semibold">{activity.title}</p>
                             <p className="text-sm text-muted-foreground">{activity.date} • {activity.status}</p>
                         </div>
                     </div>
-                    <Badge variant="secondary">{activity.status}</Badge>
+                    <Badge variant="outline" className="font-medium">{activity.status}</Badge>
                 </div>
             </Card>
         ))}
