@@ -522,5 +522,3 @@ export default function ArtistRegistrationForm() {
     </div>
   );
 }
-
-    
