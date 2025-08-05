@@ -23,6 +23,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
 import { getUserProfile } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -32,7 +33,7 @@ const formSchema = z.object({
 export default function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
-  const { setUser } = useUserStore();
+  const { user, setUser } = useUserStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,7 +59,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            router.push('/');
+            router.push('/events');
         }
     },
     onError: (error) => {
@@ -69,6 +70,12 @@ export default function LoginForm() {
       });
     }
   });
+
+  useEffect(() => {
+    if (user) {
+      router.push('/events');
+    }
+  }, [user, router]);
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     signIn(values);

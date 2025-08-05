@@ -8,20 +8,35 @@ export function middleware(request: NextRequest) {
 
   const protectedRoutes = ['/events', '/opportunities', '/workshops', '/artist'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
 
-  // If the user is trying to access a protected route without a token, redirect to login
+  // If trying to access a protected route without a token, redirect to login.
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
   }
 
-  // If the user is authenticated and tries to access login, register, or the root, redirect to events
-  if ((pathname.startsWith('/login') || pathname.startsWith('/register') || pathname === '/') && token) {
-     return NextResponse.redirect(new URL('/events', request.url))
+  // If logged in, and trying to access login/register, redirect to events page.
+  // The root path '/' for logged-in users should also redirect to '/events'.
+  if ((isAuthRoute || pathname === '/') && token) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/events';
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/events/:path*', '/opportunities/:path*', '/workshops/:path*', '/artist/:path*', '/login', '/register', '/'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ],
 }

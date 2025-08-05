@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import Cookies from 'js-cookie';
 import { auth } from '@/lib/firebase/config';
 import { getUserProfile } from '@/lib/firebase/firestore';
@@ -12,29 +12,42 @@ export function useUser() {
     const { user, setUser, loading, setLoading, clearUser } = useUserStore();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (authUser: User | null) => {
             if (authUser) {
-                // If we have an authenticated user but no profile in the store, fetch it.
-                // This handles the case where the user is already logged in when they visit the site.
+                // If we have an authenticated user but no profile in the zustand store,
+                // it means the user was likely already logged in from a previous session.
+                // We'll fetch their profile and populate the store.
                 if (!user || user.uid !== authUser.uid) {
                     const token = await authUser.getIdToken();
-                    Cookies.set('user-token', token, { expires: 1 });
-                    const { data } = await getUserProfile(authUser.uid);
+                    Cookies.set('user-token', token, { expires: 1 }); // Refresh cookie
+                    const { data, error } = await getUserProfile(authUser.uid);
                     
-                    setUser({
-                        ...authUser,
-                        ...data,
-                    });
+                    if (data) {
+                        setUser({
+                            ...authUser,
+                            ...data,
+                        });
+                    } else {
+                        // Handle case where user exists in Firebase Auth but not in Firestore
+                        console.error("Could not fetch user profile:", error);
+                        clearUser();
+                        Cookies.remove('user-token');
+                    }
                 }
             } else {
-                Cookies.remove('user-token');
+                // No authenticated user found in Firebase Auth.
                 clearUser();
+                Cookies.remove('user-token');
             }
             setLoading(false);
         });
 
+        // Cleanup subscription on unmount
         return () => unsubscribe();
-    }, [setUser, setLoading, clearUser]);
+    // This effect should only run once on mount to set up the listener.
+    // We remove dependencies to prevent re-running it unnecessarily.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return { user, loading };
 }
