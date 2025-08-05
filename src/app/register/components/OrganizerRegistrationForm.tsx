@@ -93,6 +93,18 @@ export default function OrganizerRegistrationForm() {
       specialization: [],
       preferredArtistTypes: [],
       agreeToTerms: false,
+      phoneNumber: '',
+      profileImageUrl: '',
+      organizationName: '',
+      jobTitle: '',
+      organizationDescription: '',
+      organizationWebsite: '',
+      organizationLogoUrl: '',
+      city: '',
+      country: '',
+      linkedin: '',
+      instagram: '',
+      website: '',
     },
   });
 
@@ -306,3 +318,5 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
     </div>
   );
 }
+
+    
