@@ -1,5 +1,7 @@
+
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
+import { UserProfile } from "@/store/userStore";
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -23,4 +25,20 @@ export async function getUserProfile(userId: string) {
   } catch (error: any) {
     return { data: null, error: error.message };
   }
+}
+
+// Server-side function to get artist profile
+export async function getArtistProfile(userId: string): Promise<{ data: UserProfile | null, error: string | null }> {
+    try {
+        const docRef = doc(db, 'users', userId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return { data: docSnap.data() as UserProfile, error: null };
+        } else {
+            return { data: null, error: 'No such document!' };
+        }
+    } catch (error: any) {
+        return { data: null, error: error.message };
+    }
 }

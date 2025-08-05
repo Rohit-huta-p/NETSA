@@ -60,10 +60,12 @@ export function Header() {
               <Bell className="w-6 h-6 text-muted-foreground" />
               <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500" />
             </Button>
-            <Avatar>
-              <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
-              <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
-            </Avatar>
+            <Link href={user ? `/artist/${user.uid}` : '/login'}>
+                <Avatar>
+                  <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
+                  <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
+                </Avatar>
+            </Link>
           </div>
         </div>
       </header>

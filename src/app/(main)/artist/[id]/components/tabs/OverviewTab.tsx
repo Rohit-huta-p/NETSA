@@ -1,6 +1,11 @@
+
+import { UserProfile } from "@/store/userStore";
 import { ActivityFeed } from "../ActivityFeed";
 
-export function OverviewTab() {
+interface OverviewTabProps {
+  artist: UserProfile;
+}
+export function OverviewTab({ artist }: OverviewTabProps) {
   return (
     <ActivityFeed />
   );

@@ -1,14 +1,21 @@
+
+import { getArtistProfile } from "@/lib/firebase/firestore";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileTabs } from "./components/ProfileTabs";
+import { notFound } from "next/navigation";
 
-export default function ArtistProfilePage({ params }: { params: { id: string } }) {
-  // In a real app, you would fetch artist data based on params.id
-  // const artist = await getArtistProfile(params.id);
+export default async function ArtistProfilePage({ params }: { params: { id: string } }) {
+  const { data: artist, error } = await getArtistProfile(params.id);
+
+  if (error || !artist) {
+    console.error(error);
+    notFound();
+  }
 
   return (
     <div className="container mx-auto py-10">
-      <ProfileHeader />
-      <ProfileTabs />
+      <ProfileHeader artist={artist} />
+      <ProfileTabs artist={artist} />
     </div>
   );
 }
