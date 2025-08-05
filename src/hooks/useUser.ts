@@ -45,7 +45,6 @@ export function useUser() {
         // Cleanup subscription on unmount
         return () => unsubscribe();
     // This effect should only run once on mount to set up the listener.
-    // We remove dependencies to prevent re-running it unnecessarily.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

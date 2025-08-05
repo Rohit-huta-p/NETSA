@@ -211,7 +211,7 @@ export default function ArtistRegistrationForm() {
                 title: "Success!",
                 description: "Your artist account has been created.",
             });
-            router.push('/events');
+            router.push('/');
         },
         onError: (error) => {
             toast({
