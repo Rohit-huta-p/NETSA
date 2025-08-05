@@ -58,6 +58,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
+            // Let the middleware handle redirection.
             router.push('/events');
         }
     },
