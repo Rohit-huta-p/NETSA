@@ -9,11 +9,14 @@ const serviceAccount = {
 
 if (!admin.apps.length) {
   try {
+    if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
+        throw new Error("Firebase Admin SDK credentials are not set in .env.local. Please check the documentation.");
+    }
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount as any),
     });
   } catch (error: any) {
-    console.error('Firebase admin initialization error', error.stack);
+    console.error('Firebase admin initialization error:', error.message);
   }
 }
 
