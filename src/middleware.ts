@@ -6,6 +6,11 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('user-token');
   const { pathname } = request.nextUrl;
 
+  // If the request is for an API route, do not apply middleware.
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const protectedRoutes = ['/events', '/opportunities', '/workshops', '/artist'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
@@ -37,11 +42,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }

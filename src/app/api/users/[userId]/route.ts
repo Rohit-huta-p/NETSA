@@ -5,8 +5,9 @@ import { adminDb } from '@/lib/firebase/admin-config';
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
     try {
         const docRef = adminDb.collection('users').doc(params.userId);
+        console.log("docRef",docRef)
         const docSnap = await docRef.get();
-
+        console.log("docSnap",docSnap)
         if (docSnap.exists) {
             return NextResponse.json({ data: docSnap.data() });
         } else {

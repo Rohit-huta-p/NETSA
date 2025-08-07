@@ -11,8 +11,11 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUser } from "@/hooks/useUser";
 
 
+
 export function Header() {
     const { user } = useUser();
+    console.log("User ",user);
+    
     return (
       <header className="bg-card border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">

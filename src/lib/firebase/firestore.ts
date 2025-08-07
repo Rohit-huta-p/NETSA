@@ -15,6 +15,7 @@ export async function addUserProfile(userId: string, data: any) {
 // This function now fetches from the API route instead of directly from Firestore client-side
 export async function getUserProfile(userId: string) {
   try {
+    console.log("User Id:",userId)
     const response = await fetch(`/api/users/${userId}`);
     if (!response.ok) {
       const errorData = await response.json();

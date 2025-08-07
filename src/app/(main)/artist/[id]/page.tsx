@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ArtistProfilePage({ params }: { params: { id: string } }) {
   const { id } = params;
+  console.log("id",id)
   const [artist, setArtist] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +22,7 @@ export default function ArtistProfilePage({ params }: { params: { id: string } }
     const fetchArtist = async () => {
       setLoading(true);
       const { data, error } = await getUserProfile(id);
+      console.log("data: ",data)
       if (error || !data) {
         setError(error || "Artist not found");
         console.error(error);
