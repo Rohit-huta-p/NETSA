@@ -158,7 +158,7 @@ export default function OrganizerRegistrationForm() {
             title: "Success!",
             description: "Your organizer account has been created.",
         });
-        router.push('/');
+        router.push('/events');
     },
     onError: (error) => {
         toast({

@@ -58,7 +58,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            router.push('/');
+            router.push('/events');
         }
     },
     onError: (error) => {
