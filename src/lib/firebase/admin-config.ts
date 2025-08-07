@@ -19,7 +19,7 @@ function initializeFirebaseAdmin() {
       credential: admin.credential.cert(serviceAccount),
     });
   } catch (error: any) {
-    console.error('Firebase Admin initialization error:', error);
+    console.error('Firebase Admin initialization error:', error.message);
     throw new Error('Failed to initialize Firebase Admin SDK. Check the format of your GOOGLE_APPLICATION_CREDENTIALS_JSON.');
   }
 }
