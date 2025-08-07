@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
 import { UserProfile } from "@/store/userStore";
 import axiosInstance from "../axiosInstance";
+import { getAdminUserProfile } from "./admin-config";
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -13,14 +14,20 @@ export async function addUserProfile(userId: string, data: any) {
   }
 }
 
-// This function now fetches from the API route instead of directly from Firestore client-side
+// This can be called from client or server. 
+// If on server, it uses admin SDK. If on client, it uses axiosInstance.
 export async function getUserProfile(userId: string) {
+  // Server-side
+  if (typeof window === 'undefined') {
+    return getAdminUserProfile(userId);
+  }
+
+  // Client-side
   try {
-    console.log("Fetching profile for User Id:",userId)
     const response = await axiosInstance.get(`/api/users/${userId}`);
     return { data: response.data.data, error: null };
   } catch (error: any) {
-    console.error("Error fetching user profile:", error);
+    console.error("Error fetching user profile (client):", error);
     const errorMessage = error.response?.data?.error || error.message;
     return { data: null, error: errorMessage };
   }
@@ -41,3 +48,4 @@ export async function getArtistProfile(userId: string): Promise<{ data: UserProf
         return { data: null, error: error.message };
     }
 }
+

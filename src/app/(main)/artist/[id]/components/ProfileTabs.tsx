@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UserProfile } from "@/store/userStore";
 import { EventsList } from "./EventsList";
