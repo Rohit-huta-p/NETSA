@@ -2,6 +2,7 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
 import { UserProfile } from "@/store/userStore";
+import axiosInstance from "../axiosInstance";
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -15,16 +16,13 @@ export async function addUserProfile(userId: string, data: any) {
 // This function now fetches from the API route instead of directly from Firestore client-side
 export async function getUserProfile(userId: string) {
   try {
-    console.log("User Id:",userId)
-    const response = await fetch(`/api/users/${userId}`);
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `Failed to fetch user profile with status: ${response.status}`);
-    }
-    const { data } = await response.json();
-    return { data, error: null };
+    console.log("Fetching profile for User Id:",userId)
+    const response = await axiosInstance.get(`/api/users/${userId}`);
+    return { data: response.data.data, error: null };
   } catch (error: any) {
-    return { data: null, error: error.message };
+    console.error("Error fetching user profile:", error);
+    const errorMessage = error.response?.data?.error || error.message;
+    return { data: null, error: errorMessage };
   }
 }
 
