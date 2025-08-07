@@ -4,17 +4,16 @@ import { adminDb } from '@/lib/firebase/admin-config';
 // GET a user profile using Admin SDK
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
     try {
-        console.log("IN ROUTE: ",params.userId)
         const docRef = adminDb.collection('users').doc(params.userId);
-        console.log("docRef",docRef)
         const docSnap = await docRef.get();
-        console.log("docSnap",docSnap)
+        
         if (docSnap.exists) {
             return NextResponse.json({ data: docSnap.data() });
         } else {
             return NextResponse.json({ error: 'No such document!' }, { status: 404 });
         }
     } catch (error: any) {
+        console.error(`Error in /api/users/[userId] GET:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
@@ -39,6 +38,7 @@ export async function PUT(request: Request, { params }: { params: { userId: stri
 
         return NextResponse.json({ data: updatedDoc.data() });
     } catch (error: any) {
+        console.error(`Error in /api/users/[userId] PUT:`, error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

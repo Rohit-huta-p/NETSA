@@ -1,22 +1,26 @@
 import * as admin from 'firebase-admin';
 import { UserProfile } from '@/store/userStore';
 
+// Ensure the service account details are correctly formatted
 const serviceAccount = {
   projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
   clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
   privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
 };
 
-if (!admin.apps.length) {
-  try {
-    if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
-        throw new Error("Firebase Admin SDK credentials are not set in .env.local. Please check the documentation.");
+// Check if the required environment variables are set
+if (!serviceAccount.projectId || !serviceAccount.clientEmail || !serviceAccount.privateKey) {
+  console.error("Firebase Admin SDK credentials are not set in environment variables. Please check your .env.local file.");
+} else {
+  // Initialize the app only if it hasn't been initialized yet
+  if (!admin.apps.length) {
+    try {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount as any),
+      });
+    } catch (error: any) {
+      console.error('Firebase admin initialization error:', error.message);
     }
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount as any),
-    });
-  } catch (error: any) {
-    console.error('Firebase admin initialization error:', error.message);
   }
 }
 
