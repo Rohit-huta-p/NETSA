@@ -25,7 +25,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Switch } from '../../../components/ui/switch';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
-import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile, getUserProfileFromClient } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
@@ -205,7 +205,7 @@ export default function ArtistRegistrationForm() {
         onSuccess: async (user) => {
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
-            const { data } = await getUserProfile(user.uid);
+            const { data } = await getUserProfileFromClient(user.uid);
             setUser({ ...user, ...data });
             toast({
                 title: "Success!",

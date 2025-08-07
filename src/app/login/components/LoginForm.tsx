@@ -21,7 +21,7 @@ import { LogIn } from 'lucide-react';
 import { signInWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
-import { getUserProfile } from '@/lib/firebase/firestore';
+import { getUserProfileFromClient } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
 
 const formSchema = z.object({
@@ -52,7 +52,7 @@ export default function LoginForm() {
         if(user) {
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
-            const { data } = await getUserProfile(user.uid);
+            const { data } = await getUserProfileFromClient(user.uid);
             setUser({ ...user, ...data });
             toast({
               title: 'Success!',

@@ -1,9 +1,7 @@
 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
-import { UserProfile } from "@/store/userStore";
 import axiosInstance from "../axiosInstance";
-import { getAdminUserProfile } from "./admin-config";
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -14,15 +12,9 @@ export async function addUserProfile(userId: string, data: any) {
   }
 }
 
-// This can be called from client or server. 
-// If on server, it uses admin SDK. If on client, it uses axiosInstance.
-export async function getUserProfile(userId: string) {
-  // Server-side
-  if (typeof window === 'undefined') {
-    return getAdminUserProfile(userId);
-  }
-
-  // Client-side
+// This function is for CLIENT-SIDE use only.
+// It fetches user data via your API route.
+export async function getUserProfileFromClient(userId: string) {
   try {
     const response = await axiosInstance.get(`/api/users/${userId}`);
     return { data: response.data.data, error: null };
@@ -32,20 +24,3 @@ export async function getUserProfile(userId: string) {
     return { data: null, error: errorMessage };
   }
 }
-
-// Server-side function to get artist profile
-export async function getArtistProfile(userId: string): Promise<{ data: UserProfile | null, error: string | null }> {
-    try {
-        const docRef = doc(db, 'users', userId);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            return { data: docSnap.data() as UserProfile, error: null };
-        } else {
-            return { data: null, error: 'No such document!' };
-        }
-    } catch (error: any) {
-        return { data: null, error: error.message };
-    }
-}
-
