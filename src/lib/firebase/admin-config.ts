@@ -2,25 +2,26 @@ import * as admin from 'firebase-admin';
 import { UserProfile } from '@/store/userStore';
 
 const serviceAccountKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-if (!serviceAccountKey) {
-    throw new Error('The FIREBASE_ADMIN_PRIVATE_KEY environment variable is not set.');
-}
+const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
 
-const serviceAccount = {
-  projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-  // Restore the newlines for the private key
-  privateKey: serviceAccountKey.replace(/\\n/g, '\n'),
-};
+if (!serviceAccountKey || !projectId || !clientEmail) {
+    throw new Error('Firebase Admin SDK environment variables are not set.');
+}
 
 // Initialize the app only if it hasn't been initialized yet
 if (!admin.apps.length) {
   try {
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount as any),
+      credential: admin.credential.cert({
+        projectId,
+        clientEmail,
+        privateKey: serviceAccountKey.replace(/\\n/g, '\n'),
+      }),
     });
   } catch (error: any) {
     console.error('Firebase admin initialization error:', error.message);
+    throw new Error('Failed to initialize Firebase Admin SDK.');
   }
 }
 
