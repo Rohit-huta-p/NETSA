@@ -6,17 +6,20 @@ const axiosInstance = axios.create({
   baseURL: '/', 
 });
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('user-token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+// Check if running in a browser environment before setting up the interceptor
+if (typeof window !== 'undefined') {
+  axiosInstance.interceptors.request.use(
+    (config) => {
+      const token = Cookies.get('user-token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  );
+}
 
 export default axiosInstance;

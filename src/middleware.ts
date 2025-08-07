@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('user-token');
   const { pathname } = request.nextUrl;
 
-  // If the request is for an API route, do not apply middleware.
+  // Allow all API routes to pass through
   if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }

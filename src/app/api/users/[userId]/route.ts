@@ -4,6 +4,7 @@ import { adminDb } from '@/lib/firebase/admin-config';
 // GET a user profile using Admin SDK
 export async function GET(request: Request, { params }: { params: { userId: string } }) {
     try {
+        console.log("IN ROUTE: ",params.userId)
         const docRef = adminDb.collection('users').doc(params.userId);
         console.log("docRef",docRef)
         const docSnap = await docRef.get();
