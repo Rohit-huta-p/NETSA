@@ -1,33 +1,32 @@
 import * as admin from 'firebase-admin';
-import { UserProfile } from '@/store/userStore';
+import type { UserProfile } from '@/store/userStore';
 
-const serviceAccountKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY;
-const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+function initializeFirebaseAdmin() {
+  if (admin.apps.length > 0) {
+    return admin.app();
+  }
 
-if (!serviceAccountKey || !projectId || !clientEmail) {
-    throw new Error('Firebase Admin SDK environment variables are not set.');
-}
+  const serviceAccountJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (!serviceAccountJson) {
+    throw new Error(
+      'The GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable was not found.'
+    );
+  }
 
-// Initialize the app only if it hasn't been initialized yet
-if (!admin.apps.length) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId,
-        clientEmail,
-        privateKey: serviceAccountKey.replace(/\\n/g, '\n'),
-      }),
+    const serviceAccount = JSON.parse(serviceAccountJson);
+    return admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
     });
   } catch (error: any) {
-    console.error('Firebase admin initialization error:', error.message);
-    throw new Error('Failed to initialize Firebase Admin SDK.');
+    console.error('Firebase Admin initialization error:', error);
+    throw new Error('Failed to initialize Firebase Admin SDK. Check the format of your GOOGLE_APPLICATION_CREDENTIALS_JSON.');
   }
 }
 
-export const adminDb = admin.firestore();
-export const adminAuth = admin.auth();
-
+const app = initializeFirebaseAdmin();
+export const adminDb = admin.firestore(app);
+export const adminAuth = admin.auth(app);
 
 export async function getAdminUserProfile(userId: string) {
     try {

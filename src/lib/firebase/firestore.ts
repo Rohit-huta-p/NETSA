@@ -16,10 +16,11 @@ export async function addUserProfile(userId: string, data: any) {
 // It fetches user data via your API route.
 export async function getUserProfileFromClient(userId: string) {
   try {
+    console.log("userId",userId);
     const response = await axiosInstance.get(`/api/users/${userId}`);
     return { data: response.data.data, error: null };
   } catch (error: any) {
-    console.error("Error fetching user profile (client):", error);
+    console.error("Error fetching user profile (client):", error.response?.data?.error || error.message);
     const errorMessage = error.response?.data?.error || error.message;
     return { data: null, error: errorMessage };
   }
