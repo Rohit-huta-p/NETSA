@@ -23,8 +23,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If logged in, and trying to access login/register, or the root, redirect to events page.
-  if ((isAuthRoute || isRoot) && token) {
+  // If logged in, and trying to access login or the root, redirect to events page.
+  // We allow access to /register even if logged in, in case they want to create a different type of account.
+  if ((pathname.startsWith('/login') || isRoot) && token) {
     const url = request.nextUrl.clone();
     url.pathname = '/events';
     return NextResponse.redirect(url);

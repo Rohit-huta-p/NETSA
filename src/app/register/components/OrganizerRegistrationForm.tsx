@@ -183,7 +183,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <Link
-        href="/"
+        href="/register"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="w-4 h-4" />
