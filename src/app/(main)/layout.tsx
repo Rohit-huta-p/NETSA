@@ -4,6 +4,9 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { useUser } from "@/hooks/useUser";
+import { PageLoader } from "@/components/layout/PageLoader";
+import { NavigationEvents } from "@/components/layout/NavigationEvents";
+import { Suspense } from "react";
 
 export default function MainLayout({
     children,
@@ -14,8 +17,12 @@ export default function MainLayout({
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
+            <PageLoader />
             <main className="flex-1">{children}</main>
             <Footer />
+            <Suspense fallback={null}>
+                <NavigationEvents />
+            </Suspense>
         </div>
     );
 }
