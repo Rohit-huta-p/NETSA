@@ -1,7 +1,6 @@
-
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "./config";
-import axiosInstance from "../axiosInstance";
+import type { UserProfile } from "@/store/userStore";
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -12,16 +11,17 @@ export async function addUserProfile(userId: string, data: any) {
   }
 }
 
-// This function is for CLIENT-SIDE use only.
-// It fetches user data via your API route.
-export async function getUserProfileFromClient(userId: string) {
-  try {
-    console.log("userId",userId);
-    const response = await axiosInstance.get(`/api/users/${userId}`);
-    return { data: response.data.data, error: null };
-  } catch (error: any) {
-    console.error("Error fetching user profile (client):", error.response?.data?.error || error.message);
-    const errorMessage = error.response?.data?.error || error.message;
-    return { data: null, error: errorMessage };
-  }
+export async function getUserProfile(userId: string) {
+    try {
+        const docRef = doc(db, 'users', userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { data: docSnap.data() as UserProfile, error: null };
+        } else {
+            return { data: null, error: 'No such document!' };
+        }
+    } catch (error: any) {
+        console.error("Error fetching user profile:", error);
+        return { data: null, error: error.message };
+    }
 }

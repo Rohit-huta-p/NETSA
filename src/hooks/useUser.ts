@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import Cookies from 'js-cookie';
 import { auth } from '@/lib/firebase/config';
-import { getUserProfileFromClient } from '@/lib/firebase/firestore';
+import { getUserProfile } from '@/lib/firebase/firestore';
 import { useUserStore } from '@/store/userStore';
 
 export function useUser() {
@@ -20,7 +20,7 @@ export function useUser() {
                 if (!user || user.uid !== authUser.uid) {
                     const token = await authUser.getIdToken();
                     Cookies.set('user-token', token, { expires: 1 }); // Refresh cookie
-                    const { data, error } = await getUserProfileFromClient(authUser.uid);
+                    const { data, error } = await getUserProfile(authUser.uid);
                     
                     if (data) {
                         setUser({
