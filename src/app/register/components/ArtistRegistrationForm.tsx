@@ -323,7 +323,7 @@ export default function ArtistRegistrationForm() {
                 name="profileImageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Profile Image URL</FormLabel>
+                    <FormLabel>Upload Profile Image URL</FormLabel>
                     <FormControl><Input placeholder="https://your-domain.com/profile-photo.jpg" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -528,3 +528,5 @@ export default function ArtistRegistrationForm() {
     </div>
   );
 }
+
+    

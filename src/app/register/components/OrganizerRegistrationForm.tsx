@@ -218,7 +218,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
             </div>
 
             <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="profileImageUrl" render={({ field }) => (<FormItem><FormLabel>Profile Image URL</FormLabel><FormControl><Input placeholder="https://your-domain.com/profile.jpg" {...field} /></FormControl><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="profileImageUrl" render={({ field }) => (<FormItem><FormLabel>Upload Profile Image URL</FormLabel><FormControl><Input placeholder="https://your-domain.com/profile.jpg" {...field} /></FormControl><FormMessage /></FormItem>)} />
             <hr className="my-8" />
 
             <h2 className="text-2xl font-bold text-center">Organization Information</h2>
@@ -323,3 +323,5 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
     </div>
   );
 }
+
+    
