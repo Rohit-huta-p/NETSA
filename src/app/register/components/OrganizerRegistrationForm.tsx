@@ -26,6 +26,7 @@ import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLoaderStore } from '@/store/loaderStore';
 
 const formSchema = z
   .object({
@@ -81,6 +82,7 @@ export default function OrganizerRegistrationForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { setUser } = useUserStore();
+  const { setLoading } = useLoaderStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -110,6 +112,7 @@ export default function OrganizerRegistrationForm() {
 
   const { mutate: signUp, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
+        setLoading(true);
         const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
         const now = new Date();
@@ -158,7 +161,7 @@ export default function OrganizerRegistrationForm() {
             title: "Success!",
             description: "Your organizer account has been created.",
         });
-        router.push('/events');
+        window.location.href = '/events';
     },
     onError: (error) => {
         toast({
@@ -167,6 +170,9 @@ export default function OrganizerRegistrationForm() {
             description: error.message,
         });
     },
+    onSettled: () => {
+        setLoading(false);
+    }
 });
 
 const onSubmit = (values: z.infer<typeof formSchema>) => {

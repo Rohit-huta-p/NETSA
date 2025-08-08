@@ -23,6 +23,7 @@ import { useUserStore } from '@/store/userStore';
 import { getUserProfile } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
+import { useLoaderStore } from '@/store/loaderStore';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -33,6 +34,7 @@ export default function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
   const { setUser } = useUserStore();
+  const { setLoading } = useLoaderStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,6 +46,7 @@ export default function LoginForm() {
 
   const { mutate: signIn, isPending } = useMutation({
     mutationFn: async ({ email, password }: z.infer<typeof formSchema>) => {
+      setLoading(true);
       const { user, error } = await signInWithEmailAndPassword(email, password);
       if (error) throw new Error(error);
       return user;
@@ -68,6 +71,9 @@ export default function LoginForm() {
         title: 'Sign In Failed',
         description: error.message,
       });
+    },
+    onSettled: () => {
+      setLoading(false);
     }
   });
 

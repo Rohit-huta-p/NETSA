@@ -32,6 +32,7 @@ import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useLoaderStore } from '@/store/loaderStore';
 
 const formSchema = z
   .object({
@@ -118,6 +119,7 @@ export default function ArtistRegistrationForm() {
     const { toast } = useToast();
     const router = useRouter();
     const { setUser } = useUserStore();
+    const { setLoading } = useLoaderStore();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -160,6 +162,7 @@ export default function ArtistRegistrationForm() {
 
     const { mutate: signUp, isPending } = useMutation({
         mutationFn: async (values: z.infer<typeof formSchema>) => {
+            setLoading(true);
             const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
             const now = new Date();
@@ -211,7 +214,7 @@ export default function ArtistRegistrationForm() {
                 title: "Success!",
                 description: "Your artist account has been created.",
             });
-            router.push('/events');
+            window.location.href = '/events';
         },
         onError: (error) => {
             toast({
@@ -220,6 +223,9 @@ export default function ArtistRegistrationForm() {
                 description: error.message,
             });
         },
+        onSettled: () => {
+          setLoading(false);
+        }
     });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
