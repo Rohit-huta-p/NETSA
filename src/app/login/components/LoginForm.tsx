@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn } from 'lucide-react';
 import { signInWithEmailAndPassword } from '@/lib/firebase/auth';
@@ -23,6 +22,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
 import { getUserProfile } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -58,7 +58,8 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            router.push('/events');
+            // Force a hard refresh to ensure all state is correctly loaded
+            window.location.href = '/events';
         }
     },
     onError: (error) => {
