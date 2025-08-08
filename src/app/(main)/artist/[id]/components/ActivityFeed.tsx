@@ -9,7 +9,7 @@ export function ActivityFeed() {
   ];
 
   return (
-    <Card className="border-none shadow-none bg-transparent">
+    <Card>
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Recent Activity</CardTitle>
       </CardHeader>
