@@ -149,7 +149,7 @@ export async function addEvent(organizerId: string, eventData: any) {
         saves: 0,
         // Mock data for required nested objects
         organizerInfo: { name: 'Demo Org', rating: 5 },
-        hostInfo: { name: 'Demo Host', bio: 'Experienced host', credentials:[], experience: '5 years', rating: 5, totalParticipants: 0 },
+        hostInfo: { name: 'Demo Host', bio: 'Experienced host', credentials:[], experience: '5 years', rating: 5, totalParticipants: 0, profileImageUrl: '' },
         duration: { totalHours: 2, sessionsCount: 1, sessionDuration: 120, daysDuration: 1 },
         schedule: { startDate: new Date(), endDate: new Date(), sessions: [] },
         pricing: { amount: eventData.price, currency: 'USD', paymentType: 'full' }
@@ -177,5 +177,22 @@ export async function getGigs() {
     } catch (error: any) {
         console.error("Error fetching gigs: ", error.code, error.message);
         return { data: [], error: error.message };
+    }
+}
+
+export async function getEvent(eventId: string) {
+    try {
+        const docRef = doc(db, 'events', eventId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data() as Event;
+            const serializableData = convertTimestamps(data);
+            return { data: serializableData as Event, error: null };
+        } else {
+            return { data: null, error: 'No such document!' };
+        }
+    } catch (error: any) {
+        console.error("Error fetching event:", error);
+        return { data: null, error: error.message };
     }
 }

@@ -5,6 +5,7 @@ import { Clock, MapPin, Users, Heart } from "lucide-react";
 import Link from "next/link";
 
 interface EventCardProps {
+    id?: string;
     tag: string;
     tagColor: string;
     title: string;
@@ -17,7 +18,7 @@ interface EventCardProps {
     imageHint: string;
   }
 
-export function EventCard({ tag, tagColor, title, description, date, location, attendees, price, image, imageHint }: EventCardProps) {
+export function EventCard({ id, tag, tagColor, title, description, date, location, attendees, price, image, imageHint }: EventCardProps) {
     return (
       <div className="bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group border border-border/50 hover:border-primary/50">
         <div className="relative">
@@ -64,11 +65,9 @@ export function EventCard({ tag, tagColor, title, description, date, location, a
             )}
           </div>
           <Button asChild className="font-bold bg-gradient-to-r from-purple-500 to-orange-500 text-white">
-            <Link href="/events/1">Join Event</Link>
+            <Link href={`/events/${id}`}>View Details</Link>
           </Button>
         </div>
       </div>
     );
   }
-
-    
