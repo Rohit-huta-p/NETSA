@@ -76,11 +76,13 @@ export default function GigsPage() {
   
   useEffect(() => {
     if (typeof window !== 'undefined' && 'onLine' in navigator) {
-      setIsOffline(!navigator.onLine);
       const handleOnline = () => setIsOffline(false);
       const handleOffline = () => setIsOffline(true);
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
+      
+      // Set initial state
+      setIsOffline(!navigator.onLine);
 
       fetchGigs();
       
@@ -89,6 +91,7 @@ export default function GigsPage() {
           window.removeEventListener('offline', handleOffline);
       };
     } else {
+      // For server-side rendering or environments without navigator
       fetchGigs();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -159,5 +162,3 @@ export default function GigsPage() {
     </div>
   );
 }
-
-    
