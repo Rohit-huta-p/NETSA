@@ -289,8 +289,11 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="submit" 
-                                onClick={() => form.setValue('status', 'active')} 
+                                type="button" 
+                                onClick={() => {
+                                    form.setValue('status', 'active');
+                                    form.handleSubmit(processForm)();
+                                }} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
