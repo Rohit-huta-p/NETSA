@@ -2,69 +2,63 @@
 import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 
-// ============================================
-// COMPLETE PROFILE INTERFACES (POST-REGISTRATION)
-// ============================================
-
 interface Artist {
-  // System Generated
-  uid: string;
+  // Basic Info
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  profileImageUrl?: string;
+  
+  // Account Details
+  role: 'artist';
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  lastActive: Date;
-
-  // Essential Identity
-  firstName: string;
-  lastName: string;
-  email: string | null;
   
-  // Account Setup
-  role: 'artist';
-  
-  // Core Artist Info (Minimum viable)
-  artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
-  
-  // Basic Location (for matching)
-  city: string;
-  country: string;
-
-  // Personal Details
-  phoneNumber: string;
-  profileImageUrl: string;
+  // Personal Info
   dob?: Date;
   gender?: 'male' | 'female' | 'other';
-  languages: string[];
+  city?: string;
+  country?: string;
+  languages?: string[];
   
-  // Artist Profile Enhancement
-  bio: string;
-  experienceYears: number;
-  skills: string[];
-  styles: string[];
-  genres: string[];
-  instruments: string[]; // For musicians
-  otherSkill: string;
+  // Artist Profile
+  artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
+  otherArtistType?: string;
+  bio?: string;
+  experienceYears?: number;
   
-  // Professional Settings
+  // Skills & Expertise
+  skills?: string[];
+  styles?: string[]; // Dance styles, music genres, acting techniques
+  genres?: string[];
+  instruments?: string[]; // For musicians
+  otherSkill?: string;
+  
+  // Professional Info
   agencyAffiliated: boolean;
   availableForBooking: boolean;
-  preferredCities: string[];
+  preferredCities?: string[];
   travelReady: boolean;
   remoteWorkOk: boolean;
-  hourlyRate: number;
-  currency: string;
+  hourlyRate?: number;
+  currency?: string;
   
-  // Portfolio & Social
-  portfolioLinks: string;
-  resumeUrl: string;
-  socialMedia: {
-    instagram: string;
-    tiktok: string;
-    youtube: string;
-    spotify: string;
+  // Portfolio Links
+  portfolioLinks?: string;
+  resumeUrl?: string;
+  
+  // Social Media
+  socialMedia?: {
+    instagram?: string;
+    tiktok?: string;
+    youtube?: string;
+    spotify?: string;
   };
-
-  // Profile Statistics (System managed)
+  
+  // Profile Statistics
   stats: {
     eventsAttended: number;
     eventsHosted: number;
@@ -76,65 +70,53 @@ interface Artist {
   };
   
   // Activity Tracking
-  totalEarnings: number;
+  lastActive: Date;
+  totalEarnings?: number;
 }
 
+
 interface Organizer {
-  // System Generated
-  uid: string;
+  // Basic Info
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber?: string;
+  profileImageUrl?: string;
+  
+  // Account Details
+  role: 'organizer';
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  lastActive: Date;
-
-  // Essential Identity
-  firstName: string;
-  lastName: string;
-  email: string | null;
   
-  // Account Setup
-  role: 'organizer';
-
-  // Organization Basics
+  // Organization/Company Info
   organizationType: 'company' | 'individual' | 'agency' | 'institution' | 'event_management';
-  organizationName: string; 
-  
-  // Basic Location (for matching)
-  city: string;
-  country: string;
-
-  // Personal/Professional Details
-  phoneNumber: string;
-  profileImageUrl: string;
-  jobTitle: string;
-  
-  // Organization Enhancement
-  organizationDescription: string;
-  organizationWebsite: string;
-  organizationLogoUrl: string;
+  organizationName?: string; // Company name or individual brand name
+  jobTitle?: string;
+  organizationDescription?: string;
+  organizationWebsite?: string;
+  organizationLogoUrl?: string;
   industry?: 'entertainment' | 'advertising' | 'events' | 'theater' | 'film' | 'tv' | 'music' | 'education' | 'other';
   organizationSize?: 'individual' | 'small' | 'medium' | 'large' | 'enterprise';
   
-  // Professional Info
-  yearsInIndustry: number;
-  specialization: string[];
-  preferredArtistTypes: string[];
+  // Location
+  city?: string;
+  country?: string;
   
-  // Budget & Hiring Preferences
+  // Professional Info
+  yearsInIndustry?: number;
+  specialization?: string[]; // What types of artists they usually hire
+  preferredArtistTypes?: string[];
+  
+  // Budget & Preferences
   typicalBudgetRange?: {
     min: number;
     max: number;
     currency: string;
   };
   
-  // Social Media & Portfolio
-  socialMedia: {
-    linkedin: string;
-    instagram: string;
-    website: string;
-  };
-  
-  // Profile Statistics (System managed)
+  // Organizer Statistics
   stats: {
     opportunitiesPosted: number;
     eventsCreated: number;
@@ -146,8 +128,16 @@ interface Organizer {
     responseRate: number;
   };
   
+  // Social Media & Portfolio
+  socialMedia?: {
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
+  
   // Activity Tracking
-  totalSpent: number;
+  lastActive: Date;
+  totalSpent?: number;
 }
 
 

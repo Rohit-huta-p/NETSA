@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,7 @@ import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLoaderStore } from '@/store/loaderStore';
+import { User } from 'firebase/auth';
 
 const formSchema = z
   .object({
@@ -34,7 +35,12 @@ const formSchema = z
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters long'),
     confirmPassword: z.string(),
-    organizationType: z.enum(['company', 'individual', 'agency', 'institution', 'event_management']),
+    organizationType: z.enum(['company', 'individual', 'agency', 'institution', 'event_management'], {
+        required_error: "Please select an organization type."
+    }),
+    organizationName: z.string().optional(),
+    city: z.string().min(1, 'City is required'),
+    country: z.string().min(1, 'Country is required'),
     agreeToTerms: z.boolean().refine((val) => val, {
       message: 'You must agree to the terms and conditions',
     }),
@@ -42,7 +48,17 @@ const formSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
+  }).refine((data) => {
+    if (data.organizationType !== 'individual' && !data.organizationName) {
+        return false;
+    }
+    return true;
+  }, {
+    message: "Organization name is required for your selected organization type.",
+    path: ['organizationName'],
   });
+
+type OrganizerRegistrationFormValues = z.infer<typeof formSchema>;
 
 const organizationTypes = ['company', 'individual', 'agency', 'institution', 'event_management'];
 
@@ -52,7 +68,7 @@ export default function OrganizerRegistrationForm() {
   const { setUser } = useUserStore();
   const { setLoading } = useLoaderStore();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<OrganizerRegistrationFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: '',
@@ -61,46 +77,63 @@ export default function OrganizerRegistrationForm() {
       password: '',
       confirmPassword: '',
       organizationType: undefined,
+      organizationName: '',
+      city: '',
+      country: '',
       agreeToTerms: false,
     },
   });
 
+  const organizationType = form.watch('organizationType');
+
   const { mutate: signUp, isPending } = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
+    mutationFn: async (values: OrganizerRegistrationFormValues) => {
         setLoading(true);
         const { email, password } = values;
         const { user, error } = await signUpWithEmailAndPassword(email, password);
-        if (error) throw new Error(error);
-        if (!user) throw new Error("User not created");
-        return user;
+        if (error) {
+            throw new Error(error);
+        }
+        if (!user) {
+            throw new Error("User authentication failed.");
+        }
+        return { user, values };
     },
-    onSuccess: async (user) => {
-        const values = form.getValues();
-        const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
-
+    onSuccess: async ({ user, values }: { user: User, values: OrganizerRegistrationFormValues }) => {
         const now = new Date();
+        const { confirmPassword, agreeToTerms, ...registrationData } = values;
+        
         const finalProfileData = {
-          ...profileData,
-          email: user.email,
-          role: 'organizer' as const,
+          // System Generated
+          id: user.uid,
           isVerified: false,
           createdAt: now,
           updatedAt: now,
           lastActive: now,
+
+          // From Registration Form
+          ...registrationData,
+          email: user.email!,
+          role: 'organizer' as const,
+
+          // Defaults for Profile Completion
           phoneNumber: '',
           profileImageUrl: '',
-          organizationName: '',
           jobTitle: '',
           organizationDescription: '',
           organizationWebsite: '',
           organizationLogoUrl: '',
           industry: undefined,
           organizationSize: undefined,
-          city: '',
-          country: '',
           yearsInIndustry: 0,
           specialization: [],
           preferredArtistTypes: [],
+          typicalBudgetRange: undefined,
+          socialMedia: {
+            linkedin: '',
+            instagram: '',
+            website: '',
+          },
           stats: {
             opportunitiesPosted: 0,
             eventsCreated: 0,
@@ -111,56 +144,46 @@ export default function OrganizerRegistrationForm() {
             totalReviews: 0,
             responseRate: 0,
           },
-          socialMedia: {
-            linkedin: '',
-            instagram: '',
-            website: '',
-          },
           totalSpent: 0,
         };
         
-        await addUserProfile(user.uid, finalProfileData);
+        const { success, error } = await addUserProfile(user.uid, finalProfileData);
+
+        if (error || !success) {
+            throw new Error(error || "Could not create user profile.");
+        }
 
         const token = await user.getIdToken();
         Cookies.set('user-token', token, { expires: 1 });
-        const { data: newProfile } = await getUserProfile(user.uid);
         
-        if (newProfile) {
-          setUser({ ...user, ...newProfile });
-          toast({
-              title: "Welcome to TalentMatch!",
-              description: "Your organizer account has been created. Let's find some talent!",
-          });
-          window.location.href = '/events';
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Registration Failed",
-                description: "Could not create your user profile. Please try again.",
-            });
-        }
+        setUser({ ...user, ...finalProfileData });
+
+        toast({
+            title: "Welcome to TalentMatch!",
+            description: "Your organizer account has been created. Let's find some talent!",
+        });
+        window.location.href = '/events';
     },
     onError: async (error: any) => {
         toast({
             variant: "destructive",
             title: "Registration Error",
-            description: error.message.includes('email-already-in-use')
-                ? 'This email is already registered. Please log in.'
+            description: error.message.includes('auth/email-already-in-use')
+                ? 'An account with this email already exists. Please log in.'
                 : "An unexpected error occurred. Please try again.",
         });
     },
     onSettled: () => {
         setLoading(false);
     }
-});
+  });
 
-const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: OrganizerRegistrationFormValues) => {
     signUp(values);
-};
-
+  };
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <Link
         href="/register"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -169,10 +192,10 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
         Back to role selection
       </Link>
       <div className="text-center my-8">
-        <div className="inline-block p-4 bg-[#FFEDD5] rounded-full">
-          <Users className="w-10 h-10 text-[#FB7185]" />
+        <div className="inline-block p-4 bg-orange-100 rounded-full">
+          <Users className="w-10 h-10 text-orange-500" />
         </div>
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FB7185] to-[#EA580C] mt-4">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mt-4">
           Organizer Registration
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -191,10 +214,10 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
             <FormField control={form.control} name="email" render={({ field }) => (<FormItem><FormLabel>Email Address *</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>)} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField control={form.control} name="password" render={({ field }) => (<FormItem><FormLabel>Password *</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
+              <FormField control={form.control} name="password" render={({ field }) => (<FormItem><FormLabel>Password * (min 8 characters)</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="confirmPassword" render={({ field }) => (<FormItem><FormLabel>Confirm Password *</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
-
+            
             <FormField
                 control={form.control}
                 name="organizationType"
@@ -216,6 +239,15 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
                 )}
             />
             
+            {organizationType && organizationType !== 'individual' && (
+                 <FormField control={form.control} name="organizationName" render={({ field }) => (<FormItem><FormLabel>Organization Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+
             <FormField
               control={form.control}
               name="agreeToTerms"
