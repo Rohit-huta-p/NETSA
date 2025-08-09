@@ -38,6 +38,15 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .organizer-theme {
+    --primary: 15 85% 55%; /* Orange */
+    --primary-foreground: 0 0% 100%;
+    --accent: 336 82% 96%; /* Light Pink */
+    --accent-foreground: 336 85% 55%; /* Pink */
+    --ring: 15 85% 55%;
+  }
+
   .dark {
     --background: 273 15% 10%;
     --foreground: 0 0% 98%;
@@ -71,6 +80,14 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark.organizer-theme {
+    --primary: 18 95% 58%; /* Dark Orange */
+    --primary-foreground: 0 0% 100%;
+    --accent: 336 82% 15%; /* Dark Pink */
+    --accent-foreground: 336 85% 65%; /* Light Pink */
+    --ring: 18 95% 58%;
   }
 }
 
