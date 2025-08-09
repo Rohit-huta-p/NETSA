@@ -20,13 +20,13 @@ try {
 
 
 // Helper function to convert Firestore Timestamps to strings
-const convertTimestamps = (data: any) => {
+const convertTimestamps = (data: any): any => {
     if (!data) return data;
     const newData: { [key: string]: any } = {};
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
-            newData[key] = data[key].toDate().toISOString();
-        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
+            newData[key] = data[key].toDate(); // Convert to Date object, not string
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key]) && !(data[key] instanceof Date)) {
             newData[key] = convertTimestamps(data[key]);
         }
         else {
