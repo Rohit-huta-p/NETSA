@@ -82,7 +82,7 @@ export function Header() {
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                      <Avatar className="cursor-pointer">
-                        <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
+                        <AvatarImage src={user?.profileImageUrl} alt={user?.firstName || "User"} />
                         <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
@@ -98,9 +98,11 @@ export function Header() {
                                 </Link>
                             </DropdownMenuItem>
                             {user.role === 'organizer' && (
-                                <DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                  <Link href="/create">
                                     <CalendarPlus className="mr-2 h-4 w-4" />
-                                    <span>Create Event</span>
+                                    <span>Post Gig / Event</span>
+                                  </Link>
                                 </DropdownMenuItem>
                             )}
                             <DropdownMenuSeparator />
