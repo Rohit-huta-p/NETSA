@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
+import { signInWithEmailAndPassword, signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -68,7 +68,7 @@ export default function ArtistRegistrationForm() {
     const { mutate: signUp, isPending } = useMutation({
         mutationFn: async (values: z.infer<typeof formSchema>) => {
             setLoading(true);
-            const { email, password, confirmPassword, ...profileData } = values;
+            const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
             const now = new Date();
             const finalProfileData = {
@@ -85,7 +85,6 @@ export default function ArtistRegistrationForm() {
                 city: '',
                 country: '',
                 languages: [],
-                otherArtistType: '',
                 bio: '',
                 experienceYears: 0,
                 skills: [],
@@ -117,18 +116,14 @@ export default function ArtistRegistrationForm() {
                     profileViews: 0,
                     portfolioViews: 0,
                 },
+                totalEarnings: 0,
             };
             
             const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
-            if (authError && authError.includes('email-already-in-use')) {
-                // This case is handled in onError, but we throw a specific error for clarity.
-                throw new Error('This email is already registered. Please log in.');
-            }
+            
             if (authError) throw new Error(authError);
             if (!user) throw new Error("User not created");
 
-            // Check if a profile already exists. This can happen if account creation
-            // succeeded but profile creation failed on a previous attempt.
             const { data: existingProfile } = await getUserProfile(user.uid);
             if (!existingProfile) {
               await addUserProfile(user.uid, finalProfileData);
@@ -137,6 +132,7 @@ export default function ArtistRegistrationForm() {
             return user;
         },
         onSuccess: async (user) => {
+            if (!user) return;
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
             const { data } = await getUserProfile(user.uid);
@@ -148,7 +144,6 @@ export default function ArtistRegistrationForm() {
               });
               window.location.href = '/events';
             } else {
-              // This case should ideally not be reached due to the logic above, but it's a safeguard.
                toast({
                 variant: "destructive",
                 title: "Registration Failed",
@@ -156,12 +151,49 @@ export default function ArtistRegistrationForm() {
             });
             }
         },
-        onError: (error: any) => {
+        onError: async (error: any) => {
+          const values = form.getValues();
+          if (error.message.includes('email-already-in-use')) {
+            try {
+              // Attempt to sign in, as the user might already exist in Auth
+              const { user: signedInUser, error: signInError } = await signInWithEmailAndPassword(values.email, values.password);
+              if (signInError || !signedInUser) {
+                toast({
+                  variant: "destructive",
+                  title: "Registration Failed",
+                  description: "This email is already registered. If this is you, please check your password or use the 'Forgot Password' link on the login page.",
+                });
+                return;
+              }
+
+              // If sign-in is successful, check for a profile and create if missing
+              const { data: existingProfile } = await getUserProfile(signedInUser.uid);
+              if (!existingProfile) {
+                // This is an orphaned auth account. Let's fix it by creating the profile.
+                await signUp.mutateAsync(values);
+              } else {
+                // User is fully registered, just needs to log in.
+                toast({
+                  variant: "destructive",
+                  title: "Already Registered",
+                  description: "This email is already registered. Please log in.",
+                });
+                router.push('/login');
+              }
+            } catch (recoveryError: any) {
+              toast({
+                variant: "destructive",
+                title: "Uh oh! Something went wrong.",
+                description: "An unexpected error occurred. Please try again.",
+              });
+            }
+          } else {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",
                 description: error.message,
             });
+          }
         },
         onSettled: () => {
           setLoading(false);
