@@ -18,7 +18,7 @@ import {
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
 import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
-import { signInWithEmailAndPassword, signUpWithEmailAndPassword } from '@/lib/firebase/auth';
+import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
@@ -68,6 +68,14 @@ export default function OrganizerRegistrationForm() {
   const { mutate: signUp, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
+        const { email, password } = values;
+        const { user, error } = await signUpWithEmailAndPassword(email, password);
+        if (error) throw new Error(error);
+        if (!user) throw new Error("User not created");
+        return user;
+    },
+    onSuccess: async (user) => {
+        const values = form.getValues();
         const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
         const now = new Date();
@@ -110,24 +118,14 @@ export default function OrganizerRegistrationForm() {
           totalSpent: 0,
         };
         
-        const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
-        if (authError) throw new Error(authError);
-        if (!user) throw new Error("User not created");
+        await addUserProfile(user.uid, finalProfileData);
 
-        const { data: existingProfile } = await getUserProfile(user.uid);
-        if (!existingProfile) {
-          await addUserProfile(user.uid, finalProfileData);
-        }
-        
-        return user;
-    },
-    onSuccess: async (user) => {
-        if (!user) return;
         const token = await user.getIdToken();
         Cookies.set('user-token', token, { expires: 1 });
-        const { data } = await getUserProfile(user.uid);
-        if (data) {
-          setUser({ ...user, ...data });
+        const { data: newProfile } = await getUserProfile(user.uid);
+        
+        if (newProfile) {
+          setUser({ ...user, ...newProfile });
           toast({
               title: "Welcome to TalentMatch!",
               description: "Your organizer account has been created. Let's find some talent!",
@@ -142,48 +140,13 @@ export default function OrganizerRegistrationForm() {
         }
     },
     onError: async (error: any) => {
-      const values = form.getValues();
-      if (error.message.includes('email-already-in-use')) {
-         try {
-              // Attempt to sign in, as the user might already exist in Auth
-              const { user: signedInUser, error: signInError } = await signInWithEmailAndPassword(values.email, values.password);
-              if (signInError || !signedInUser) {
-                toast({
-                  variant: "destructive",
-                  title: "Registration Failed",
-                  description: "This email is already registered. If this is you, please check your password or use the 'Forgot Password' link on the login page.",
-                });
-                return;
-              }
-
-              // If sign-in is successful, check for a profile and create if missing
-              const { data: existingProfile } = await getUserProfile(signedInUser.uid);
-              if (!existingProfile) {
-                // This is an orphaned auth account. Let's fix it by creating the profile.
-                await signUp.mutateAsync(values);
-              } else {
-                // User is fully registered, just needs to log in.
-                toast({
-                  variant: "destructive",
-                  title: "Already Registered",
-                  description: "This email is already registered. Please log in.",
-                });
-                router.push('/login');
-              }
-            } catch (recoveryError: any) {
-              toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "An unexpected error occurred. Please try again.",
-              });
-            }
-      } else {
-        toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: error.message,
-        });
-      }
+      toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: error.message.includes('email-already-in-use')
+              ? 'This email is already registered. Please log in.'
+              : error.message,
+      });
     },
     onSettled: () => {
         setLoading(false);
