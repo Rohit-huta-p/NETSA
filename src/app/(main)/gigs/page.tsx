@@ -76,20 +76,23 @@ export default function GigsPage() {
   };
   
   useEffect(() => {
-    // Client-side only check
-    setIsOffline(!navigator.onLine);
-    fetchGigs();
+    // Client-side only check for offline status
+    if (typeof window !== 'undefined' && 'onLine' in navigator) {
+      setIsOffline(!navigator.onLine);
+      const handleOnline = () => setIsOffline(false);
+      const handleOffline = () => setIsOffline(true);
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
 
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-    };
+      // Initial fetch
+      fetchGigs();
+      
+      return () => {
+          window.removeEventListener('online', handleOnline);
+          window.removeEventListener('offline', handleOffline);
+      };
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -123,6 +126,7 @@ export default function GigsPage() {
                 {gigs.map((gig: Gig) => (
                   <EventCard 
                     key={gig.id || Math.random()} 
+                    id={gig.id}
                     tag={gig.type}
                     tagColor={tagColorMap[gig.type] || "bg-gray-200 text-gray-800"}
                     title={gig.title || 'Untitled Gig'}
