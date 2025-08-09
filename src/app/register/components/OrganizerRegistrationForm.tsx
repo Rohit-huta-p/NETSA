@@ -26,7 +26,7 @@ import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLoaderStore } from '@/store/loaderStore';
-import { User } from 'firebase/auth';
+import { handleAppError } from '@/lib/errorHandler';
 
 const formSchema = z
   .object({
@@ -161,12 +161,11 @@ export default function OrganizerRegistrationForm() {
             }
         },
         onError: async (error: any) => {
+            const errorMessage = handleAppError(error, 'Organizer Registration');
             toast({
                 variant: "destructive",
                 title: "Registration Error",
-                description: error.message.includes('email-already-in-use')
-                    ? 'An account with this email already exists. Please log in.'
-                    : "An unexpected error occurred. Please try again.",
+                description: errorMessage,
             });
         },
         onSettled: () => {

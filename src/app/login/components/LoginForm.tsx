@@ -22,8 +22,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
 import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
-import { useRouter } from 'next/navigation';
 import { useLoaderStore } from '@/store/loaderStore';
+import { handleAppError } from '@/lib/errorHandler';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -32,7 +32,6 @@ const formSchema = z.object({
 
 export default function LoginForm() {
   const { toast } = useToast();
-  const router = useRouter();
   const { setUser } = useUserStore();
   const { setLoading } = useLoaderStore();
 
@@ -55,16 +54,21 @@ export default function LoginForm() {
         if(user) {
             let { data, error } = await getUserProfile(user.uid);
             
+            // This is the recovery logic for "orphaned" accounts.
             if (error) {
-                // Profile doesn't exist, let's create a default one to recover the account.
+                toast({
+                    title: 'Account Recovery',
+                    description: "We're setting up your profile. Please wait a moment.",
+                });
                 const [firstName, lastName] = user.email?.split('@')[0].split('.') || ['New', 'User'];
                 const now = new Date();
+                // Create a default 'artist' profile. The user can later contact support to change roles if needed.
                 const defaultProfileData = {
                     id: user.uid,
                     firstName: firstName || 'New',
                     lastName: lastName || 'User',
                     email: user.email,
-                    role: 'artist' as const, // Default to artist, user can change later if needed.
+                    role: 'artist' as const,
                     isVerified: false,
                     createdAt: now,
                     updatedAt: now,
@@ -91,16 +95,8 @@ export default function LoginForm() {
                     currency: '',
                     portfolioLinks: '',
                     resumeUrl: '',
-                    socialMedia: {
-                        instagram: '',
-                        tiktok: '',
-                        youtube: '',
-                        spotify: '',
-                    },
-                    stats: {
-                        eventsAttended: 0, eventsHosted: 0, connectionsCount: 0,
-                        averageRating: 0, totalReviews: 0, profileViews: 0, portfolioViews: 0,
-                    },
+                    socialMedia: { instagram: '', tiktok: '', youtube: '', spotify: '' },
+                    stats: { eventsAttended: 0, eventsHosted: 0, connectionsCount: 0, averageRating: 0, totalReviews: 0, profileViews: 0, portfolioViews: 0 },
                     totalEarnings: 0,
                 };
                 await addUserProfile(user.uid, defaultProfileData);
@@ -114,6 +110,7 @@ export default function LoginForm() {
                     title: 'Sign In Failed',
                     description: 'Could not retrieve or create a user profile. Please contact support.',
                 });
+                setLoading(false);
                 return;
             }
             
@@ -128,10 +125,11 @@ export default function LoginForm() {
         }
     },
     onError: (error) => {
+      const errorMessage = handleAppError(error, 'Login');
       toast({
         variant: 'destructive',
         title: 'Sign In Failed',
-        description: error.message,
+        description: errorMessage,
       });
     },
     onSettled: () => {

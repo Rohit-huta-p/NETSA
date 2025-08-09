@@ -13,6 +13,7 @@ import { addEvent } from '@/lib/firebase/firestore';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { handleAppError } from '@/lib/errorHandler';
 
 const eventFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -53,8 +54,8 @@ export function EventForm() {
         toast({ title: 'Success!', description: 'Your event has been posted.' });
         router.push('/events');
     } catch (error) {
-        console.error("Failed to post event: ", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to post event. Please try again.' });
+        const errorMessage = handleAppError(error, 'Event Creation');
+        toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     }
   };
 

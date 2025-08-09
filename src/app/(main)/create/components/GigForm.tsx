@@ -13,6 +13,7 @@ import { addGig } from '@/lib/firebase/firestore';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { handleAppError } from '@/lib/errorHandler';
 
 const gigFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -52,8 +53,8 @@ export function GigForm() {
         toast({ title: 'Success!', description: 'Your gig has been posted.' });
         router.push('/gigs');
     } catch (error) {
-        console.error("Failed to post gig: ", error);
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to post gig. Please try again.' });
+        const errorMessage = handleAppError(error, 'Gig Creation');
+        toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     }
   };
 

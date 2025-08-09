@@ -26,6 +26,7 @@ import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLoaderStore } from '@/store/loaderStore';
+import { handleAppError } from '@/lib/errorHandler';
 
 const formSchema = z
   .object({
@@ -75,12 +76,12 @@ export default function ArtistRegistrationForm() {
             return user;
         },
         onSuccess: async (user) => {
-          console.log("USER: ",user)
             const values = form.getValues();
             const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
             const now = new Date();
             const finalProfileData = {
+                id: user.uid,
                 ...profileData,
                 email: user.email,
                 role: 'artist' as const,
@@ -149,13 +150,11 @@ export default function ArtistRegistrationForm() {
             }
         },
         onError: async (error: any) => {
-            console.log("Registration ERROR: ",error.message)
+            const errorMessage = handleAppError(error, 'Artist Registration');
             toast({
                 variant: "destructive",
                 title: "Registration Error",
-                description: error.message.includes('email-already-in-use')
-                    ? 'This email is already registered. Please log in.'
-                    : "An unexpected error occurred. Please try again.",
+                description: errorMessage,
             });
         },
         onSettled: () => {
