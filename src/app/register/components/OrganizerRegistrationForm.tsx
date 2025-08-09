@@ -104,18 +104,14 @@ export default function OrganizerRegistrationForm() {
         const { confirmPassword, agreeToTerms, password, ...registrationData } = values;
         
         const finalProfileData = {
-          // System Generated
           id: user.uid,
           isVerified: false,
           createdAt: now,
           updatedAt: now,
           lastActive: now,
-
-          // From Registration Form
           ...registrationData,
           role: 'organizer' as const,
-
-          // Defaults for Profile Completion
+          email: user.email,
           phoneNumber: '',
           profileImageUrl: '',
           jobTitle: '',
@@ -154,7 +150,7 @@ export default function OrganizerRegistrationForm() {
 
         const token = await user.getIdToken();
         Cookies.set('user-token', token, { expires: 1 });
-        const {data: newProfile} = await getUserProfile(user.uid)
+        const {data: newProfile} = await getUserProfile(user.uid);
         
         if (newProfile) {
             setUser({ ...user, ...newProfile });
