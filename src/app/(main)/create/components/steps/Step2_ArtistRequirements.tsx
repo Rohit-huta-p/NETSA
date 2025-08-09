@@ -74,7 +74,12 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                     <FormItem>
                         <FormLabel>Required Skills</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Popping, Locking, Choreography" {...field} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
+                            <Input 
+                                placeholder="e.g., Popping, Locking, Choreography" 
+                                {...field} 
+                                value={Array.isArray(field.value) ? field.value.join(', ') : ''}
+                                onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} 
+                            />
                         </FormControl>
                         <FormDescription>
                             Enter a comma-separated list of skills.
@@ -91,7 +96,12 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                     <FormItem>
                         <FormLabel>Required Styles</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Commercial, Contemporary" {...field} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
+                            <Input 
+                                placeholder="e.g., Commercial, Contemporary" 
+                                {...field} 
+                                value={Array.isArray(field.value) ? field.value.join(', ') : ''}
+                                onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} 
+                            />
                         </FormControl>
                         <FormDescription>
                             Enter a comma-separated list of styles.
