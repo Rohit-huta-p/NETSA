@@ -51,13 +51,13 @@ export function EventCard({ tag, tagColor, title, description, date, location, a
             </div>
             <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary" />
-                <span>{attendees} Attending</span>
+                <span>{attendees || 0} Attending</span>
             </div>
           </div>
         </div>
         <div className="p-5 border-t mt-auto flex justify-between items-center bg-muted/30">
           <div>
-            {price !== null ? (
+            {price !== null && price > 0 ? (
               <p className="text-xl font-bold text-foreground">${price}</p>
             ) : (
                 <p className="text-xl font-bold text-green-500">Free</p>

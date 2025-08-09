@@ -1,8 +1,22 @@
 
-import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
 import type { Gig, Event } from '@/lib/types';
+
+// Enable offline persistence
+try {
+    enableIndexedDbPersistence(db)
+      .catch((err) => {
+        if (err.code == 'failed-precondition') {
+          console.warn("Firestore offline persistence could not be enabled: Multiple tabs open.");
+        } else if (err.code == 'unimplemented') {
+          console.log("Firestore offline persistence is not available in this browser.");
+        }
+      });
+} catch (error) {
+    console.error("Error enabling Firestore offline persistence: ", error);
+}
 
 
 // Helper function to convert Firestore Timestamps to strings
@@ -140,7 +154,7 @@ export async function getGigs() {
         });
         return { data: gigsList as Gig[], error: null };
     } catch (error: any) {
-        console.error("Error fetching gigs: ", error);
+        console.error("Error fetching gigs: ", error.code, error.message);
         return { data: [], error: error.message };
     }
 }
