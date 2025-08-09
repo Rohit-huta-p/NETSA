@@ -178,7 +178,8 @@ export function GigForm() {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
+          const errorData = await response.json();
+          console.log("ERROR MESSAGE",errorData.message);
             throw new Error(errorData.message || 'Failed to create gig');
         }
 
