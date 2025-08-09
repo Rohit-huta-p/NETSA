@@ -28,8 +28,9 @@ export function useUser() {
                             ...data,
                         });
                     } else {
-                        // Handle case where user exists in Firebase Auth but not in Firestore
-                        console.error("Could not fetch user profile:", error);
+                        // Handle case where user exists in Firebase Auth but not in Firestore.
+                        // This can happen if profile creation failed.
+                        // Instead of logging an error, we'll clear the session.
                         clearUser();
                         Cookies.remove('user-token');
                     }
