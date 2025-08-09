@@ -1,6 +1,24 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
+
+// Helper function to convert Firestore Timestamps to strings
+const convertTimestamps = (data: any) => {
+    if (!data) return data;
+    const newData: { [key: string]: any } = {};
+    for (const key in data) {
+        if (data[key] instanceof Timestamp) {
+            newData[key] = data[key].toDate().toISOString();
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
+            newData[key] = convertTimestamps(data[key]);
+        }
+        else {
+            newData[key] = data[key];
+        }
+    }
+    return newData;
+};
+
 
 export async function addUserProfile(userId: string, data: any) {
   try {
@@ -16,7 +34,9 @@ export async function getUserProfile(userId: string) {
         const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            return { data: docSnap.data() as UserProfile, error: null };
+            const data = docSnap.data() as UserProfile;
+            const serializableData = convertTimestamps(data);
+            return { data: serializableData as UserProfile, error: null };
         } else {
             return { data: null, error: 'No such document!' };
         }

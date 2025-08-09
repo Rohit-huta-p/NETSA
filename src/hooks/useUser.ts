@@ -7,6 +7,24 @@ import Cookies from 'js-cookie';
 import { auth } from '@/lib/firebase/config';
 import { getUserProfile } from '@/lib/firebase/firestore';
 import { useUserStore } from '@/store/userStore';
+import { Timestamp } from 'firebase/firestore';
+
+// Helper function to convert Firestore Timestamps to strings
+const convertTimestamps = (data: any) => {
+    if (!data) return data;
+    const newData: { [key: string]: any } = {};
+    for (const key in data) {
+        if (data[key] instanceof Timestamp) {
+            newData[key] = data[key].toDate().toISOString();
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
+            newData[key] = convertTimestamps(data[key]);
+        }
+        else {
+            newData[key] = data[key];
+        }
+    }
+    return newData;
+};
 
 export function useUser() {
     const { user, setUser, loading, setLoading, clearUser } = useUserStore();
@@ -20,9 +38,10 @@ export function useUser() {
                     const { data, error } = await getUserProfile(authUser.uid);
                     
                     if (data) {
+                        const serializableData = convertTimestamps(data);
                         setUser({
                             ...authUser,
-                            ...data,
+                            ...serializableData,
                         });
                     } else {
                         // Handle case where user exists in Firebase Auth but not in Firestore.
