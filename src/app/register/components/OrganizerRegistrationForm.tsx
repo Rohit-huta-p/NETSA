@@ -86,100 +86,94 @@ export default function OrganizerRegistrationForm() {
 
   const organizationType = form.watch('organizationType');
 
-  const { mutate: signUp, isPending } = useMutation({
-    mutationFn: async (values: OrganizerRegistrationFormValues) => {
-        setLoading(true);
-        const { email, password } = values;
-        const { user, error } = await signUpWithEmailAndPassword(email, password);
-        if (error) {
-            throw new Error(error);
-        }
-        if (!user) {
-            throw new Error("User authentication failed.");
-        }
-        return { user, values };
-    },
-    onSuccess: async ({ user, values }: { user: User, values: OrganizerRegistrationFormValues }) => {
-        const now = new Date();
-        const { confirmPassword, agreeToTerms, password, ...registrationData } = values;
-        
-        const finalProfileData = {
-          id: user.uid,
-          isVerified: false,
-          createdAt: now,
-          updatedAt: now,
-          lastActive: now,
-          ...registrationData,
-          role: 'organizer' as const,
-          email: user.email,
-          phoneNumber: '',
-          profileImageUrl: '',
-          jobTitle: '',
-          organizationDescription: '',
-          organizationWebsite: '',
-          organizationLogoUrl: '',
-          industry: undefined,
-          organizationSize: undefined,
-          yearsInIndustry: 0,
-          specialization: [],
-          preferredArtistTypes: [],
-          typicalBudgetRange: { min: 0, max: 0, currency: 'USD'},
-          socialMedia: {
-            linkedin: '',
-            instagram: '',
-            website: '',
-          },
-          stats: {
-            opportunitiesPosted: 0,
-            eventsCreated: 0,
-            artistsHired: 0,
-            eventsOrganized: 0,
-            connectionsCount: 0,
-            averageRating: 0,
-            totalReviews: 0,
-            responseRate: 0,
-          },
-          totalSpent: 0,
-        };
-        
-        const { success, error } = await addUserProfile(user.uid, finalProfileData);
+    const { mutate: signUp, isPending } = useMutation({
+        mutationFn: async (values: z.infer<typeof formSchema>) => {
+            setLoading(true);
+            const { email, password } = values;
+            const { user, error } = await signUpWithEmailAndPassword(email, password);
+            if (error) throw new Error(error);
+            if (!user) throw new Error("User not created");
+            return user;
+        },
+        onSuccess: async (user) => {
+            const values = form.getValues();
+            const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
-        if (error || !success) {
-            throw new Error(error || "Could not create user profile.");
-        }
+            const now = new Date();
+            const finalProfileData = {
+                id: user.uid,
+                ...profileData,
+                email: user.email,
+                role: 'organizer' as const,
+                isVerified: false,
+                createdAt: now,
+                updatedAt: now,
+                lastActive: now,
+                phoneNumber: '',
+                profileImageUrl: '',
+                jobTitle: '',
+                organizationDescription: '',
+                organizationWebsite: '',
+                organizationLogoUrl: '',
+                industry: undefined,
+                organizationSize: undefined,
+                yearsInIndustry: 0,
+                specialization: [],
+                preferredArtistTypes: [],
+                typicalBudgetRange: { min: 0, max: 0, currency: 'USD'},
+                socialMedia: {
+                    linkedin: '',
+                    instagram: '',
+                    website: '',
+                },
+                stats: {
+                    opportunitiesPosted: 0,
+                    eventsCreated: 0,
+                    artistsHired: 0,
+                    eventsOrganized: 0,
+                    connectionsCount: 0,
+                    averageRating: 0,
+                    totalReviews: 0,
+                    responseRate: 0,
+                },
+                totalSpent: 0,
+            };
+            
+            await addUserProfile(user.uid, finalProfileData);
+            
+            const token = await user.getIdToken();
+            Cookies.set('user-token', token, { expires: 1 });
+            const { data: newProfile } = await getUserProfile(user.uid);
 
-        const token = await user.getIdToken();
-        Cookies.set('user-token', token, { expires: 1 });
-        const {data: newProfile} = await getUserProfile(user.uid);
-        
-        if (newProfile) {
-            setUser({ ...user, ...newProfile });
+            if (newProfile) {
+                setUser({ ...user, ...newProfile });
+                toast({
+                    title: "Welcome to TalentMatch!",
+                    description: "Your organizer account has been created. Let's find some talent!",
+                });
+                window.location.href = '/events';
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Registration Failed",
+                    description: "Could not create your user profile. Please try again.",
+                });
+            }
+        },
+        onError: async (error: any) => {
             toast({
-                title: "Welcome to TalentMatch!",
-                description: "Your organizer account has been created. Let's find some talent!",
-            });
-            window.location.href = '/events';
-        } else {
-             toast({
                 variant: "destructive",
-                title: "Registration Failed",
-                description: "Could not retrieve your user profile after creation. Please try logging in.",
+                title: "Registration Error",
+                description: error.message.includes('email-already-in-use')
+                    ? 'An account with this email already exists. Please log in.'
+                    : "An unexpected error occurred. Please try again.",
             });
+        },
+        onSettled: () => {
+          setLoading(false);
         }
-    },
-    onError: async (error: any) => {
-        toast({
-            variant: "destructive",
-            title: "Registration Error",
-            description: error.message.includes('auth/email-already-in-use')
-                ? 'An account with this email already exists. Please log in.'
-                : "An unexpected error occurred. Please try again.",
-        });
-    },
-    onSettled: () => {
-        setLoading(false);
-    }
-  });
+    });
+
 
   const onSubmit = (values: OrganizerRegistrationFormValues) => {
     signUp(values);
