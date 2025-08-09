@@ -141,13 +141,13 @@ export default function OrganizerRegistrationForm() {
         }
     },
     onError: async (error: any) => {
-      toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: error.message.includes('email-already-in-use')
-              ? 'This email is already registered. Please log in.'
-              : error.message,
-      });
+        toast({
+            variant: "destructive",
+            title: "Registration Error",
+            description: error.message.includes('email-already-in-use')
+                ? 'This email is already registered. Please log in.'
+                : "An unexpected error occurred. Please try again.",
+        });
     },
     onSettled: () => {
         setLoading(false);
