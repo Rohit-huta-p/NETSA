@@ -60,15 +60,16 @@ export default function LoginForm() {
                 const [firstName, lastName] = user.email?.split('@')[0].split('.') || ['New', 'User'];
                 const now = new Date();
                 const defaultProfileData = {
+                    id: user.uid,
                     firstName: firstName || 'New',
                     lastName: lastName || 'User',
                     email: user.email,
-                    role: 'artist' as const, // Default to artist, they can change it later.
+                    role: 'artist' as const, // Default to artist, user can change later if needed.
                     isVerified: false,
                     createdAt: now,
                     updatedAt: now,
                     lastActive: now,
-                    artistType: 'other',
+                    artistType: 'other' as const,
                     city: '',
                     country: '',
                     phoneNumber: '',

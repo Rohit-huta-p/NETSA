@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { addUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -101,7 +101,7 @@ export default function OrganizerRegistrationForm() {
     },
     onSuccess: async ({ user, values }: { user: User, values: OrganizerRegistrationFormValues }) => {
         const now = new Date();
-        const { confirmPassword, agreeToTerms, ...registrationData } = values;
+        const { confirmPassword, agreeToTerms, password, ...registrationData } = values;
         
         const finalProfileData = {
           // System Generated
@@ -113,7 +113,6 @@ export default function OrganizerRegistrationForm() {
 
           // From Registration Form
           ...registrationData,
-          email: user.email!,
           role: 'organizer' as const,
 
           // Defaults for Profile Completion
@@ -128,7 +127,7 @@ export default function OrganizerRegistrationForm() {
           yearsInIndustry: 0,
           specialization: [],
           preferredArtistTypes: [],
-          typicalBudgetRange: undefined,
+          typicalBudgetRange: { min: 0, max: 0, currency: 'USD'},
           socialMedia: {
             linkedin: '',
             instagram: '',
@@ -155,14 +154,22 @@ export default function OrganizerRegistrationForm() {
 
         const token = await user.getIdToken();
         Cookies.set('user-token', token, { expires: 1 });
+        const {data: newProfile} = await getUserProfile(user.uid)
         
-        setUser({ ...user, ...finalProfileData });
-
-        toast({
-            title: "Welcome to TalentMatch!",
-            description: "Your organizer account has been created. Let's find some talent!",
-        });
-        window.location.href = '/events';
+        if (newProfile) {
+            setUser({ ...user, ...newProfile });
+            toast({
+                title: "Welcome to TalentMatch!",
+                description: "Your organizer account has been created. Let's find some talent!",
+            });
+            window.location.href = '/events';
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Registration Failed",
+                description: "Could not retrieve your user profile after creation. Please try logging in.",
+            });
+        }
     },
     onError: async (error: any) => {
         toast({
