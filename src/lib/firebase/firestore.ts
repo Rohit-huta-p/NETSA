@@ -71,7 +71,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     }
     const now = new Date();
 
-    // Reconstructing dates that may have been stringified
+    // Reconstructing dates that may have been stringified during JSON transport
     const startDate = gigData.startDate ? new Date(gigData.startDate) : now;
     const endDate = gigData.endDate ? new Date(gigData.endDate) : undefined;
     const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
@@ -111,11 +111,11 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         duration: gigData.duration,
         timeCommitment: gigData.timeCommitment,
         compensation: {
-            type: gigData.compensation?.type || 'project',
-            amount: gigData.compensation?.amount,
-            currency: gigData.compensation?.currency || 'USD',
-            negotiable: gigData.compensation?.negotiable || false,
-            additionalBenefits: gigData.compensation?.additionalBenefits,
+            type: (gigData.compensation as any)?.type || 'project',
+            amount: (gigData.compensation as any)?.amount,
+            currency: (gigData.compensation as any)?.currency || 'USD',
+            negotiable: (gigData.compensation as any)?.negotiable || false,
+            additionalBenefits: (gigData.compensation as any)?.additionalBenefits,
         },
         maxApplications: gigData.maxApplications,
         applicationDeadline: applicationDeadline,
