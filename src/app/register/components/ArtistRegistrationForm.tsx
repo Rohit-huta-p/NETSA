@@ -75,6 +75,7 @@ export default function ArtistRegistrationForm() {
             return user;
         },
         onSuccess: async (user) => {
+          console.log("USER: ",user)
             const values = form.getValues();
             const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
 
@@ -148,6 +149,7 @@ export default function ArtistRegistrationForm() {
             }
         },
         onError: async (error: any) => {
+            console.log("Registration ERROR: ",error.message)
             toast({
                 variant: "destructive",
                 title: "Registration Error",

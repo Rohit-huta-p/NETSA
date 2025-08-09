@@ -22,9 +22,13 @@ const convertTimestamps = (data: any) => {
 
 export async function addUserProfile(userId: string, data: any) {
   try {
+    console.log("USERID: ",userId);
+    
     await setDoc(doc(db, "users", userId), data);
     return { success: true, error: null };
   } catch (error: any) {
+    console.log("ADD USER PROFILE ERROR: ",error.message);
+    
     return { success: false, error: error.message };
   }
 }
