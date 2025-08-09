@@ -120,24 +120,43 @@ export default function ArtistRegistrationForm() {
             };
             
             const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+            if (authError && authError.includes('email-already-in-use')) {
+                // This case is handled in onError, but we throw a specific error for clarity.
+                throw new Error('This email is already registered. Please log in.');
+            }
             if (authError) throw new Error(authError);
             if (!user) throw new Error("User not created");
 
-            await addUserProfile(user.uid, finalProfileData);
+            // Check if a profile already exists. This can happen if account creation
+            // succeeded but profile creation failed on a previous attempt.
+            const { data: existingProfile } = await getUserProfile(user.uid);
+            if (!existingProfile) {
+              await addUserProfile(user.uid, finalProfileData);
+            }
+            
             return user;
         },
         onSuccess: async (user) => {
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
             const { data } = await getUserProfile(user.uid);
-            setUser({ ...user, ...data });
-            toast({
-                title: "Welcome to TalentMatch!",
-                description: "Your artist account has been created. Let's find your next opportunity!",
+            if(data) {
+              setUser({ ...user, ...data });
+              toast({
+                  title: "Welcome to TalentMatch!",
+                  description: "Your artist account has been created. Let's find your next opportunity!",
+              });
+              window.location.href = '/events';
+            } else {
+              // This case should ideally not be reached due to the logic above, but it's a safeguard.
+               toast({
+                variant: "destructive",
+                title: "Registration Failed",
+                description: "Could not create your user profile. Please try again.",
             });
-            window.location.href = '/events';
+            }
         },
-        onError: (error) => {
+        onError: (error: any) => {
             toast({
                 variant: "destructive",
                 title: "Uh oh! Something went wrong.",

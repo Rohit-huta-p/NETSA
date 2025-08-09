@@ -110,24 +110,39 @@ export default function OrganizerRegistrationForm() {
         };
         
         const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
+        if (authError && authError.includes('email-already-in-use')) {
+            throw new Error('This email is already registered. Please log in.');
+        }
         if (authError) throw new Error(authError);
         if (!user) throw new Error("User not created");
 
-        await addUserProfile(user.uid, finalProfileData);
+        const { data: existingProfile } = await getUserProfile(user.uid);
+        if (!existingProfile) {
+          await addUserProfile(user.uid, finalProfileData);
+        }
+        
         return user;
     },
     onSuccess: async (user) => {
         const token = await user.getIdToken();
         Cookies.set('user-token', token, { expires: 1 });
         const { data } = await getUserProfile(user.uid);
-        setUser({ ...user, ...data });
-        toast({
-            title: "Welcome to TalentMatch!",
-            description: "Your organizer account has been created. Let's find some talent!",
-        });
-        window.location.href = '/events';
+        if (data) {
+          setUser({ ...user, ...data });
+          toast({
+              title: "Welcome to TalentMatch!",
+              description: "Your organizer account has been created. Let's find some talent!",
+          });
+          window.location.href = '/events';
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Registration Failed",
+                description: "Could not create your user profile. Please try again.",
+            });
+        }
     },
-    onError: (error) => {
+    onError: (error: any) => {
         toast({
             variant: "destructive",
             title: "Uh oh! Something went wrong.",
