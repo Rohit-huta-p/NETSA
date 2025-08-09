@@ -89,7 +89,8 @@ export function GigForm() {
     } catch (error) {
       const errorMessage = handleAppError(error, 'Gig Creation');
       toast({ variant: 'destructive', title: 'Error', description: errorMessage });
-      setIsSubmitting(false);
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
@@ -102,8 +103,8 @@ export function GigForm() {
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-        if (currentStep === steps.length - 2) { // Penultimate step
-            await form.handleSubmit(processForm)();
+        if (currentStep === steps.length - 2) { // Penultimate step, validate then process on next click
+             setCurrentStep(step => step + 1);
         } else {
             setCurrentStep(step => step + 1);
         }
@@ -165,6 +166,7 @@ export function GigForm() {
                 {/* Step 2: Artist Requirements */}
                 <div className={cn(currentStep === 1 ? "block" : "hidden")}>
                     <h2 className="text-lg font-medium mb-4">Artist Requirements</h2>
+                    {/* Simplified for brevity, add more fields as needed based on schema */}
                     <FormField control={form.control} name="experienceLevel" render={({ field }) => (<FormItem><FormLabel>Experience Level</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select required experience level" /></SelectTrigger></FormControl><SelectContent><SelectItem value="beginner">Beginner</SelectItem><SelectItem value="intermediate">Intermediate</SelectItem><SelectItem value="advanced">Advanced</SelectItem><SelectItem value="professional">Professional</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                 </div>
                 
@@ -205,18 +207,18 @@ export function GigForm() {
             
             {currentStep === steps.length - 1 ? (
                 <div className="flex gap-4">
-                    <Button type="button" onClick={() => { form.setValue('status', 'draft'); processForm(form.getValues()); }} disabled={isSubmitting} variant="secondary">
+                    <Button type="button" onClick={() => { form.setValue('status', 'draft'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} variant="secondary">
                         {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Save as Draft
                     </Button>
-                    <Button type="button" onClick={() => { form.setValue('status', 'active'); processForm(form.getValues()); }} disabled={isSubmitting} className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
+                    <Button type="button" onClick={() => { form.setValue('status', 'active'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
                         {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Publish Gig
                     </Button>
                 </div>
             ) : (
                 <Button type="button" onClick={next} disabled={isSubmitting}>
-                    Next Step
+                    {currentStep === steps.length - 2 ? 'Review & Finish' : 'Next Step'}
                     <ChevronRight className="w-4 h-4 ml-2" />
                 </Button>
             )}
@@ -225,3 +227,5 @@ export function GigForm() {
     </div>
   );
 }
+
+    
