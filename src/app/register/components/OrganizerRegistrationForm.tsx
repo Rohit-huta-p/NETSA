@@ -81,6 +81,7 @@ export default function OrganizerRegistrationForm() {
         const now = new Date();
         const finalProfileData = {
           ...profileData,
+          email: user.email,
           role: 'organizer' as const,
           isVerified: false,
           createdAt: now,

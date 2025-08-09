@@ -24,44 +24,44 @@ interface Artist {
   
   // Core Artist Info (Minimum viable)
   artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
-  otherArtistType?: string; // Only if artistType is 'other'
   
   // Basic Location (for matching)
   city: string;
   country: string;
 
   // Personal Details
-  phoneNumber?: string;
-  profileImageUrl?: string;
+  phoneNumber: string;
+  profileImageUrl: string;
   dob?: Date;
   gender?: 'male' | 'female' | 'other';
-  languages?: string[];
+  languages: string[];
   
   // Artist Profile Enhancement
-  bio?: string;
-  experienceYears?: number;
-  skills?: string[];
-  styles?: string[];
-  genres?: string[];
-  instruments?: string[]; // For musicians
+  bio: string;
+  experienceYears: number;
+  skills: string[];
+  styles: string[];
+  genres: string[];
+  instruments: string[]; // For musicians
+  otherSkill: string;
   
   // Professional Settings
-  agencyAffiliated?: boolean;
-  availableForBooking?: boolean;
-  preferredCities?: string[];
-  travelReady?: boolean;
-  remoteWorkOk?: boolean;
-  hourlyRate?: number;
-  currency?: string;
+  agencyAffiliated: boolean;
+  availableForBooking: boolean;
+  preferredCities: string[];
+  travelReady: boolean;
+  remoteWorkOk: boolean;
+  hourlyRate: number;
+  currency: string;
   
   // Portfolio & Social
-  portfolioLinks?: string;
-  resumeUrl?: string;
-  socialMedia?: {
-    instagram?: string;
-    tiktok?: string;
-    youtube?: string;
-    spotify?: string;
+  portfolioLinks: string;
+  resumeUrl: string;
+  socialMedia: {
+    instagram: string;
+    tiktok: string;
+    youtube: string;
+    spotify: string;
   };
 
   // Profile Statistics (System managed)
@@ -76,7 +76,7 @@ interface Artist {
   };
   
   // Activity Tracking
-  totalEarnings?: number;
+  totalEarnings: number;
 }
 
 interface Organizer {
@@ -97,28 +97,28 @@ interface Organizer {
 
   // Organization Basics
   organizationType: 'company' | 'individual' | 'agency' | 'institution' | 'event_management';
-  organizationName?: string; // Required if not 'individual'
+  organizationName: string; 
   
   // Basic Location (for matching)
   city: string;
   country: string;
 
   // Personal/Professional Details
-  phoneNumber?: string;
-  profileImageUrl?: string;
-  jobTitle?: string;
+  phoneNumber: string;
+  profileImageUrl: string;
+  jobTitle: string;
   
   // Organization Enhancement
-  organizationDescription?: string;
-  organizationWebsite?: string;
-  organizationLogoUrl?: string;
+  organizationDescription: string;
+  organizationWebsite: string;
+  organizationLogoUrl: string;
   industry?: 'entertainment' | 'advertising' | 'events' | 'theater' | 'film' | 'tv' | 'music' | 'education' | 'other';
   organizationSize?: 'individual' | 'small' | 'medium' | 'large' | 'enterprise';
   
   // Professional Info
-  yearsInIndustry?: number;
-  specialization?: string[];
-  preferredArtistTypes?: string[];
+  yearsInIndustry: number;
+  specialization: string[];
+  preferredArtistTypes: string[];
   
   // Budget & Hiring Preferences
   typicalBudgetRange?: {
@@ -128,10 +128,10 @@ interface Organizer {
   };
   
   // Social Media & Portfolio
-  socialMedia?: {
-    linkedin?: string;
-    instagram?: string;
-    website?: string;
+  socialMedia: {
+    linkedin: string;
+    instagram: string;
+    website: string;
   };
   
   // Profile Statistics (System managed)
@@ -147,7 +147,7 @@ interface Organizer {
   };
   
   // Activity Tracking
-  totalSpent?: number;
+  totalSpent: number;
 }
 
 

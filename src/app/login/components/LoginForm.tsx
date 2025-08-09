@@ -56,15 +56,14 @@ export default function LoginForm() {
             let { data, error } = await getUserProfile(user.uid);
             
             if (error) {
-                // Profile doesn't exist, let's create a default one.
-                // This handles orphaned auth accounts.
+                // Profile doesn't exist, let's create a default one to recover the account.
                 const [firstName, lastName] = user.email?.split('@')[0].split('.') || ['New', 'User'];
                 const now = new Date();
                 const defaultProfileData = {
                     firstName: firstName || 'New',
                     lastName: lastName || 'User',
                     email: user.email,
-                    role: 'artist' as const, // Default to artist, they can change it later
+                    role: 'artist' as const, // Default to artist, they can change it later.
                     isVerified: false,
                     createdAt: now,
                     updatedAt: now,
@@ -72,10 +71,36 @@ export default function LoginForm() {
                     artistType: 'other',
                     city: '',
                     country: '',
+                    phoneNumber: '',
+                    profileImageUrl: '',
+                    languages: [],
+                    bio: '',
+                    experienceYears: 0,
+                    skills: [],
+                    styles: [],
+                    genres: [],
+                    instruments: [],
+                    otherSkill: '',
+                    agencyAffiliated: false,
+                    availableForBooking: true,
+                    preferredCities: [],
+                    travelReady: false,
+                    remoteWorkOk: false,
+                    hourlyRate: 0,
+                    currency: '',
+                    portfolioLinks: '',
+                    resumeUrl: '',
+                    socialMedia: {
+                        instagram: '',
+                        tiktok: '',
+                        youtube: '',
+                        spotify: '',
+                    },
                     stats: {
                         eventsAttended: 0, eventsHosted: 0, connectionsCount: 0,
                         averageRating: 0, totalReviews: 0, profileViews: 0, portfolioViews: 0,
-                    }
+                    },
+                    totalEarnings: 0,
                 };
                 await addUserProfile(user.uid, defaultProfileData);
                 const { data: newData } = await getUserProfile(user.uid);

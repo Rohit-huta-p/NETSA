@@ -81,6 +81,7 @@ export default function ArtistRegistrationForm() {
             const now = new Date();
             const finalProfileData = {
                 ...profileData,
+                email: user.email,
                 role: 'artist' as const,
                 isVerified: false,
                 createdAt: now,
@@ -88,8 +89,6 @@ export default function ArtistRegistrationForm() {
                 lastActive: now,
                 phoneNumber: '',
                 profileImageUrl: '',
-                dob: undefined,
-                gender: undefined,
                 city: '',
                 country: '',
                 languages: [],
