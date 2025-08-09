@@ -82,7 +82,7 @@ export function Header() {
              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                      <Avatar className="cursor-pointer">
-                        <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
+                        <AvatarImage src={user?.profileImageUrl || undefined} alt={user?.firstName || "User"} />
                         <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
