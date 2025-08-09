@@ -57,7 +57,11 @@ export default function EventsPage() {
     try {
       const { data, error: fetchError } = await getEvents();
       if (fetchError) {
-        setError("Failed to load events. Please check your Firestore rules or try again later.");
+        if (fetchError.includes('permission-denied') || fetchError.includes('insufficient permissions')) {
+          setError("You don't have permission to view these events. Please check your Firestore security rules.");
+        } else {
+          setError("Failed to load events. Please try again later.");
+        }
       } else {
         setEvents(data);
       }
