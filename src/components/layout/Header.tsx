@@ -4,17 +4,35 @@
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Search, Bell } from "lucide-react";
+import { Menu, Search, Bell, User as UserIcon, CalendarPlus, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useUser } from "@/hooks/useUser";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { auth } from "@/lib/firebase/config";
+import { signOut } from "firebase/auth";
+import { useUserStore } from "@/store/userStore";
+import { useRouter } from "next/navigation";
 
 
 export function Header() {
     const { user } = useUser();
-    console.log("User ",user);
+    const { clearUser } = useUserStore();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+      await signOut(auth);
+      clearUser();
+      router.push('/login');
+    };
     
     return (
       <header className="bg-card border-b border-border">
@@ -36,7 +54,6 @@ export function Header() {
                   <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
                   <Link href="/events" className="hover:text-primary">Events</Link>
                   <Link href="#" className="hover:text-primary">Community</Link>
-                  <Link href="#" className="hover:text-primary">Create Event</Link>
                 </nav>
               </SheetContent>
             </Sheet>
@@ -48,7 +65,6 @@ export function Header() {
               <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
               <Link href="/events" className="hover:text-primary">Events</Link>
               <Link href="#" className="hover:text-primary">Community</Link>
-              <Link href="#" className="hover:text-primary font-bold text-primary">Create Event</Link>
             </nav>
           </div>
           <div className="flex-1 flex justify-center px-4">
@@ -63,12 +79,46 @@ export function Header() {
               <Bell className="w-6 h-6 text-muted-foreground" />
               <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500" />
             </Button>
-            <Link href={user ? `/artist/${user.uid}` : '/login'}>
-                <Avatar>
-                  <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
-                  <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
-                </Avatar>
-            </Link>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                     <Avatar className="cursor-pointer">
+                        <AvatarImage src={user?.profileImageUrl || "https://github.com/shadcn.png"} alt={user?.firstName || "User"} />
+                        <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
+                    </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                    {user ? (
+                        <>
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href={`/artist/${user.uid}`}>
+                                    <UserIcon className="mr-2 h-4 w-4" />
+                                    <span>Profile</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            {user.role === 'organizer' && (
+                                <DropdownMenuItem>
+                                    <CalendarPlus className="mr-2 h-4 w-4" />
+                                    <span>Create Event</span>
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Logout</span>
+                            </DropdownMenuItem>
+                        </>
+                    ) : (
+                         <DropdownMenuItem asChild>
+                            <Link href="/login">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Login</span>
+                            </Link>
+                        </DropdownMenuItem>
+                    )}
+                </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
