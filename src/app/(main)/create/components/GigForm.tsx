@@ -23,12 +23,12 @@ const gigSchema = z.object({
   // Step 1
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
-  type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration']),
+  type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration'], { required_error: 'Gig type is required.' }),
   category: z.string().min(2, 'Category is required'),
   // Step 2 is auto-filled
   // Step 3
-  artistType: z.array(z.string()).min(1, 'At least one artist type is required'),
-  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'professional']),
+  artistType: z.array(z.string()).min(1, 'At least one artist type is required').optional(),
+  experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'professional'], { required_error: 'Experience level is required.' }),
   // Step 4
   location: z.object({
     city: z.string().min(2, 'City is required'),
@@ -37,8 +37,12 @@ const gigSchema = z.object({
   }),
   // Step 5
   compensation: z.object({
-    type: z.enum(['hourly', 'daily', 'project', 'revenue_share']),
-    amount: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive().optional()),
+    type: z.enum(['hourly', 'daily', 'project', 'revenue_share'], { required_error: 'Compensation type is required.' }),
+    amount: z.preprocess((a) => {
+        const str = z.string().parse(a);
+        if (str === '') return undefined;
+        return parseInt(str, 10);
+    }, z.number().positive().optional()),
     negotiable: z.boolean(),
   }),
   // Step 8
@@ -94,7 +98,8 @@ export function GigForm() {
     }
   };
 
-  type FieldName = keyof GigFormValues;
+  type FieldName = keyof GigFormValues | `location.${"city" | "country"}` | `compensation.${"type" | "amount"}`;
+
 
   const next = async () => {
     const fields = steps[currentStep].fields;
@@ -103,11 +108,7 @@ export function GigForm() {
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-        if (currentStep === steps.length - 2) { // Penultimate step, validate then process on next click
-             setCurrentStep(step => step + 1);
-        } else {
-            setCurrentStep(step => step + 1);
-        }
+        setCurrentStep(step => step + 1);
     }
   };
 
@@ -151,7 +152,7 @@ export function GigForm() {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
                 {/* Step 1: Basic Details */}
-                <div className={cn(currentStep === 0 ? "block" : "hidden")}>
+                <div className={cn("block", { "hidden": currentStep !== 0 })}>
                     <h2 className="text-lg font-medium mb-4">Basic Gig Details</h2>
                     <div className="space-y-4">
                         <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Gig Title</FormLabel><FormControl><Input placeholder="e.g., Lead Dancer for Music Video" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -164,23 +165,23 @@ export function GigForm() {
                 </div>
 
                 {/* Step 2: Artist Requirements */}
-                <div className={cn(currentStep === 1 ? "block" : "hidden")}>
+                <div className={cn("block", { "hidden": currentStep !== 1 })}>
                     <h2 className="text-lg font-medium mb-4">Artist Requirements</h2>
                     {/* Simplified for brevity, add more fields as needed based on schema */}
                     <FormField control={form.control} name="experienceLevel" render={({ field }) => (<FormItem><FormLabel>Experience Level</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select required experience level" /></SelectTrigger></FormControl><SelectContent><SelectItem value="beginner">Beginner</SelectItem><SelectItem value="intermediate">Intermediate</SelectItem><SelectItem value="advanced">Advanced</SelectItem><SelectItem value="professional">Professional</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                 </div>
                 
                 {/* Step 3: Location */}
-                <div className={cn(currentStep === 2 ? "block" : "hidden")}>
+                <div className={cn("block", { "hidden": currentStep !== 2 })}>
                     <h2 className="text-lg font-medium mb-4">Location & Schedule</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <FormField control={form.control} name="location.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input placeholder="e.g., New York" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="location.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormMessage>)} />
+                        <FormField control={form.control} name="location.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     </div>
                 </div>
 
                 {/* Step 4: Compensation */}
-                 <div className={cn(currentStep === 3 ? "block" : "hidden")}>
+                 <div className={cn("block", { "hidden": currentStep !== 3 })}>
                     <h2 className="text-lg font-medium mb-4">Compensation</h2>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <FormField control={form.control} name="compensation.type" render={({ field }) => (<FormItem><FormLabel>Compensation Type</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select payment model" /></SelectTrigger></FormControl><SelectContent><SelectItem value="hourly">Hourly</SelectItem><SelectItem value="daily">Daily</SelectItem><SelectItem value="project">Project-based</SelectItem><SelectItem value="revenue_share">Revenue Share</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
@@ -189,7 +190,7 @@ export function GigForm() {
                  </div>
 
                  {/* Step 5: Review & Publish */}
-                 <div className={cn(currentStep === 4 ? "block" : "hidden")}>
+                 <div className={cn("block", { "hidden": currentStep !== 4 })}>
                     <h2 className="text-2xl font-bold mb-4">Review Your Gig</h2>
                     <p className="text-muted-foreground mb-6">You're ready to post! Review the details below. You can save it as a draft to edit later, or publish it now to start receiving applications.</p>
                     {/* Add a summary of the gig details here */}
@@ -208,11 +209,11 @@ export function GigForm() {
             {currentStep === steps.length - 1 ? (
                 <div className="flex gap-4">
                     <Button type="button" onClick={() => { form.setValue('status', 'draft'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} variant="secondary">
-                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Save as Draft
                     </Button>
                     <Button type="button" onClick={() => { form.setValue('status', 'active'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
-                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Publish Gig
                     </Button>
                 </div>
