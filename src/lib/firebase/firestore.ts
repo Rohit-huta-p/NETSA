@@ -180,6 +180,23 @@ export async function getGigs() {
     }
 }
 
+export async function getEvents() {
+    try {
+        const eventsCollection = collection(db, 'events');
+        const eventSnapshot = await getDocs(eventsCollection);
+        const eventsList = eventSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const serializableData = convertTimestamps(data);
+            return { id: doc.id, ...serializableData };
+        });
+        return { data: eventsList as Event[], error: null };
+    } catch (error: any) {
+        console.error("Error fetching events: ", error.code, error.message);
+        return { data: [], error: error.message };
+    }
+}
+
+
 export async function getEvent(eventId: string) {
     try {
         const docRef = doc(db, 'events', eventId);
