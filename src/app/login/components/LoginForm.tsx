@@ -20,7 +20,7 @@ import { LogIn } from 'lucide-react';
 import { signInWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useMutation } from '@tanstack/react-query';
 import { useUserStore } from '@/store/userStore';
-import { getUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { useLoaderStore } from '@/store/loaderStore';
@@ -53,12 +53,40 @@ export default function LoginForm() {
     },
     onSuccess: async (user) => {
         if(user) {
-            const { data, error } = await getUserProfile(user.uid);
-            if (error || !data) {
-                toast({
+            let { data, error } = await getUserProfile(user.uid);
+            
+            if (error) {
+                // Profile doesn't exist, let's create a default one.
+                // This handles orphaned auth accounts.
+                const [firstName, lastName] = user.email?.split('@')[0].split('.') || ['New', 'User'];
+                const now = new Date();
+                const defaultProfileData = {
+                    firstName: firstName || 'New',
+                    lastName: lastName || 'User',
+                    email: user.email,
+                    role: 'artist' as const, // Default to artist, they can change it later
+                    isVerified: false,
+                    createdAt: now,
+                    updatedAt: now,
+                    lastActive: now,
+                    artistType: 'other',
+                    city: '',
+                    country: '',
+                    stats: {
+                        eventsAttended: 0, eventsHosted: 0, connectionsCount: 0,
+                        averageRating: 0, totalReviews: 0, profileViews: 0, portfolioViews: 0,
+                    }
+                };
+                await addUserProfile(user.uid, defaultProfileData);
+                const { data: newData } = await getUserProfile(user.uid);
+                data = newData;
+            }
+
+            if (!data) {
+                 toast({
                     variant: 'destructive',
                     title: 'Sign In Failed',
-                    description: 'Could not find a user profile. Please register first.',
+                    description: 'Could not retrieve or create a user profile. Please contact support.',
                 });
                 return;
             }

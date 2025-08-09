@@ -14,12 +14,9 @@ export function useUser() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (authUser: User | null) => {
             if (authUser) {
-                // If we have an authenticated user but no profile in the zustand store,
-                // it means the user was likely already logged in from a previous session.
-                // We'll fetch their profile and populate the store.
                 if (!user || user.uid !== authUser.uid) {
                     const token = await authUser.getIdToken();
-                    Cookies.set('user-token', token, { expires: 1 }); // Refresh cookie
+                    Cookies.set('user-token', token, { expires: 1 });
                     const { data, error } = await getUserProfile(authUser.uid);
                     
                     if (data) {
@@ -36,16 +33,13 @@ export function useUser() {
                     }
                 }
             } else {
-                // No authenticated user found in Firebase Auth.
                 clearUser();
                 Cookies.remove('user-token');
             }
             setLoading(false);
         });
 
-        // Cleanup subscription on unmount
         return () => unsubscribe();
-    // This effect should only run once on mount to set up the listener.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
