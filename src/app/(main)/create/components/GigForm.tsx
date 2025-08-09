@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
@@ -125,7 +125,7 @@ export function GigForm() {
       requiredStyles: [],
       experienceLevel: undefined,
       ageRange: { min: undefined, max: undefined },
-      genderPreference: undefined,
+      genderPreference: 'any',
       physicalRequirements: '',
       location: {
         city: '',
@@ -141,7 +141,7 @@ export function GigForm() {
       compensation: {
         type: undefined,
         amount: undefined,
-        currency: '',
+        currency: 'USD',
         negotiable: false,
         additionalBenefits: [],
       },
@@ -243,7 +243,7 @@ export function GigForm() {
             </ol>
         </nav>
 
-        <Form {...form}>
+        <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
                 <div className={cn({ hidden: currentStep !== 0 })}>
                     <Step1_BasicDetails form={form} />
@@ -289,11 +289,8 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="button" 
-                                onClick={() => {
-                                    form.setValue('status', 'active');
-                                    form.handleSubmit(processForm)();
-                                }} 
+                                type="submit" 
+                                onClick={() => form.setValue('status', 'active')} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
@@ -310,7 +307,7 @@ export function GigForm() {
                     </div>
                 </div>
             </form>
-        </Form>
+        </FormProvider>
     </div>
   );
 }

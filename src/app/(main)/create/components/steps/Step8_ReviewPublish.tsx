@@ -9,7 +9,7 @@ export default function Step8_ReviewPublish() {
     const values = getValues();
 
     const renderArray = (arr: any) => {
-        if (Array.isArray(arr) && arr.length > 0 && arr[0] !== '') {
+        if (Array.isArray(arr) && arr.length > 0 && arr[0] !== '' && arr[0] !== undefined) {
             return arr.join(', ');
         }
         return 'Not specified';
