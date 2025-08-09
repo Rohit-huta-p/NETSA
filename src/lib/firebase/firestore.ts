@@ -1,5 +1,5 @@
 
-import { doc, getDoc, setDoc, Timestamp, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
 import type { Gig, Event } from '@/lib/types';
@@ -126,5 +126,21 @@ export async function addEvent(organizerId: string, eventData: any) {
     } catch (e: any) {
         console.error("Error adding event: ", e);
         return { success: false, id: null, error: e.message };
+    }
+}
+
+export async function getGigs() {
+    try {
+        const gigsCollection = collection(db, 'gigs');
+        const gigSnapshot = await getDocs(gigsCollection);
+        const gigsList = gigSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const serializableData = convertTimestamps(data);
+            return { id: doc.id, ...serializableData };
+        });
+        return { data: gigsList as Gig[], error: null };
+    } catch (error: any) {
+        console.error("Error fetching gigs: ", error);
+        return { data: [], error: error.message };
     }
 }
