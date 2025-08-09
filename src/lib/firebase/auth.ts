@@ -11,9 +11,11 @@ import { auth } from "./config";
  */
 export async function signUpWithEmailAndPassword(email, password) {
   try {
+    console.log("signUpWithEmailAndPassword: ",email, password);
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return { user: userCredential.user, error: null };
   } catch (error) {
+    console.log("Error signing in: ", error.message);
     return { user: null, error: error.message };
   }
 }
