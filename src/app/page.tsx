@@ -86,7 +86,7 @@ export default function Home() {
       },
       {
           icon: <Heart className="w-8 h-8 text-primary" />,
-          title: "Find Opportunities",
+          title: "Find Gigs",
           description: "Discover gigs, auditions, and performance opportunities tailored to your style and experience."
       },
   ];

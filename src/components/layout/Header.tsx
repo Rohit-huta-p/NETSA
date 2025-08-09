@@ -51,7 +51,7 @@ export function Header() {
                      <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                      <span className="text-2xl font-bold text-foreground">Netsa</span>
                   </Link>
-                  <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
+                  <Link href="/gigs" className="hover:text-primary">Gigs</Link>
                   <Link href="/events" className="hover:text-primary">Events</Link>
                   <Link href="#" className="hover:text-primary">Community</Link>
                 </nav>
@@ -62,7 +62,7 @@ export function Header() {
                  <span className="text-2xl font-bold text-foreground">Netsa</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
-              <Link href="/opportunities" className="hover:text-primary">Opportunities</Link>
+              <Link href="/gigs" className="hover:text-primary">Gigs</Link>
               <Link href="/events" className="hover:text-primary">Events</Link>
               <Link href="#" className="hover:text-primary">Community</Link>
             </nav>
@@ -92,7 +92,7 @@ export function Header() {
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                                <Link href={`/artist/${user.uid}`}>
+                                <Link href={`/artist/${user.id}`}>
                                     <UserIcon className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
                                 </Link>

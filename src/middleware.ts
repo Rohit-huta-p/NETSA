@@ -11,7 +11,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const protectedRoutes = ['/events', '/opportunities', '/workshops', '/artist'];
+  const protectedRoutes = ['/events', '/gigs', '/workshops', '/artist'];
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isRoot = pathname === '/';

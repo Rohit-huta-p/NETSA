@@ -118,7 +118,7 @@ interface Organizer {
   
   // Organizer Statistics
   stats: {
-    opportunitiesPosted: number;
+    gigsPosted: number;
     eventsCreated: number;
     artistsHired: number;
     eventsOrganized: number;

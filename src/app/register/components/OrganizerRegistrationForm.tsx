@@ -116,7 +116,7 @@ export default function OrganizerRegistrationForm() {
                 organizationWebsite: '',
                 organizationLogoUrl: '',
                 industry: 'other' as const,
-                organizationSize: 'small' as const,
+                organizationSize: 'individual' as const,
                 yearsInIndustry: 0,
                 specialization: [],
                 preferredArtistTypes: [],
@@ -127,7 +127,7 @@ export default function OrganizerRegistrationForm() {
                     website: '',
                 },
                 stats: {
-                    opportunitiesPosted: 0,
+                    gigsPosted: 0,
                     eventsCreated: 0,
                     artistsHired: 0,
                     eventsOrganized: 0,
