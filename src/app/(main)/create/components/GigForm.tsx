@@ -20,6 +20,7 @@ import Step4_Compensation from './steps/Step4_Compensation';
 import Step6_ApplicationSettings from './steps/Step6_ApplicationSettings';
 import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
 import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
+import { auth } from '@/lib/firebase/config';
 
 const emptyStringToUndefined = z.literal('').transform(() => undefined);
 
@@ -160,13 +161,13 @@ export function GigForm() {
   });
 
   const processForm = async (values: GigFormValues) => {
-    if (!user || user.role !== 'organizer') {
+    if (!user || user.role !== 'organizer' || !auth.currentUser) {
       toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be an organizer to post a gig.' });
       return;
     }
     setIsSubmitting(true);
     try {
-        const token = await user.getIdToken();
+        const token = await auth.currentUser.getIdToken();
         const response = await fetch('/api/gigs', {
             method: 'POST',
             headers: {
@@ -207,7 +208,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -242,7 +243,7 @@ export function GigForm() {
         </nav>
 
         <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(processForm)}>
                  {currentStep === 0 && <Step1_BasicDetails form={form} />}
                  {currentStep === 1 && <Step2_ArtistRequirements form={form} />}
                  {currentStep === 2 && <Step3_LocationSchedule form={form} />}
@@ -273,11 +274,13 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="submit"
+                                type="submit" 
+                                onClick={() => form.setValue('status', 'active')} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
-                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Publish Gig'}
+                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Publish Gig
                             </Button>
                         </div>
                     ) : (
@@ -293,5 +296,3 @@ export function GigForm() {
     </div>
   );
 }
-
-    

@@ -15,7 +15,7 @@ export default function Step4_Compensation({ form }: Step4_CompensationProps) {
             <h2 className="text-lg font-medium">Compensation</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField control={form.control} name="compensation.type" render={({ field }) => (<FormItem><FormLabel>Compensation Type *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select payment model" /></SelectTrigger></FormControl><SelectContent><SelectItem value="hourly">Hourly</SelectItem><SelectItem value="daily">Daily</SelectItem><SelectItem value="project">Project-based</SelectItem><SelectItem value="revenue_share">Revenue Share</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="compensation.amount" render={({ field }) => (<FormItem><FormLabel>Amount</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="compensation.amount" render={({ field }) => (<FormItem><FormLabel>Amount</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <FormField control={form.control} name="compensation.currency" render={({ field }) => (<FormItem><FormLabel>Currency</FormLabel><FormControl><Input placeholder="e.g., USD, EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -47,7 +47,7 @@ export default function Step4_Compensation({ form }: Step4_CompensationProps) {
                     <FormItem>
                         <FormLabel>Additional Benefits</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Travel, Accommodation" {...field} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
+                            <Input placeholder="e.g., Travel, Accommodation" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
                         </FormControl>
                         <FormDescription>
                             Enter a comma-separated list of benefits.
@@ -59,4 +59,3 @@ export default function Step4_Compensation({ form }: Step4_CompensationProps) {
         </div>
     );
 }
-    
