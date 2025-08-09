@@ -114,46 +114,46 @@ export function GigForm() {
     resolver: zodResolver(gigFormSchema),
     mode: 'onChange',
     defaultValues: {
-      title: '',
-      description: '',
-      type: undefined,
-      category: '',
-      tags: [],
-      artistType: [],
-      requiredSkills: [],
-      requiredStyles: [],
-      experienceLevel: undefined,
-      ageRange: { min: undefined, max: undefined },
+      title: 'Lead Dancer for Major Music Video',
+      description: 'Seeking a highly skilled and charismatic lead dancer for a music video for a major recording artist. Must have experience with commercial hip-hop and be able to learn choreography quickly.',
+      type: 'performance',
+      category: 'Music Video',
+      tags: ['hip-hop', 'commercial', 'lead role'],
+      artistType: ['Dancer', 'Actor'],
+      requiredSkills: ['Popping', 'Locking', 'Improvisation'],
+      requiredStyles: ['Commercial Hip-Hop', 'Contemporary'],
+      experienceLevel: 'professional',
+      ageRange: { min: 18, max: 30 },
       genderPreference: 'any',
-      physicalRequirements: '',
+      physicalRequirements: 'Athletic build, height 5\'8" - 6\'2"',
       location: {
-        city: '',
-        country: '',
-        venue: '',
-        address: '',
+        city: 'Los Angeles',
+        country: 'USA',
+        venue: 'Starlight Studios',
+        address: '123 Fake Street, Hollywood',
         isRemote: false,
       },
-      startDate: undefined,
-      endDate: undefined,
-      duration: '',
-      timeCommitment: '',
+      startDate: new Date(new Date().setDate(new Date().getDate() + 14)), // Two weeks from now
+      endDate: new Date(new Date().setDate(new Date().getDate() + 21)), // Three weeks from now
+      duration: '5 shoot days',
+      timeCommitment: 'Full-time during shoot week',
       compensation: {
-        type: undefined,
-        amount: undefined,
+        type: 'project',
+        amount: 5000,
         currency: 'USD',
-        negotiable: false,
-        additionalBenefits: [],
+        negotiable: true,
+        additionalBenefits: ['Catering provided', 'Travel stipend'],
       },
-      maxApplications: undefined,
-      applicationDeadline: undefined,
+      maxApplications: 100,
+      applicationDeadline: new Date(new Date().setDate(new Date().getDate() + 7)), // One week from now
       mediaRequirements: {
-        needsHeadshots: false,
+        needsHeadshots: true,
         needsFullBody: false,
-        needsVideoReel: false,
+        needsVideoReel: true,
         needsAudioSample: false,
-        specificRequirements: '',
+        specificRequirements: 'Please submit a 1-2 minute dance reel showcasing your commercial work.',
       },
-      isUrgent: false,
+      isUrgent: true,
       isFeatured: false,
       expiresAt: undefined,
       status: 'active',
@@ -161,8 +161,8 @@ export function GigForm() {
   });
 
   const processForm = async (values: GigFormValues) => {
-    if (!user || user.role !== 'organizer' || !auth.currentUser) {
-      toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be an organizer to post a gig.' });
+    if (!auth.currentUser) {
+      toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
       return;
     }
     setIsSubmitting(true);
@@ -275,8 +275,11 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="submit" 
-                                onClick={() => form.setValue('status', 'active')} 
+                                type="button" 
+                                onClick={() => {
+                                    form.setValue('status', 'active');
+                                    form.handleSubmit(processForm)();
+                                }} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
