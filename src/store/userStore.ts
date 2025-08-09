@@ -2,63 +2,69 @@
 import { create } from 'zustand';
 import type { User } from 'firebase/auth';
 
+// ============================================
+// COMPLETE PROFILE INTERFACES (POST-REGISTRATION)
+// ============================================
+
 interface Artist {
-  // Basic Info
+  // System Generated
   uid: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phoneNumber?: string;
-  profileImageUrl?: string;
-  
-  // Account Details
-  role: 'artist';
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+  lastActive: Date;
+
+  // Essential Identity
+  firstName: string;
+  lastName: string;
+  email: string | null;
   
-  // Personal Info
+  // Account Setup
+  role: 'artist';
+  
+  // Core Artist Info (Minimum viable)
+  artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
+  otherArtistType?: string; // Only if artistType is 'other'
+  
+  // Basic Location (for matching)
+  city: string;
+  country: string;
+
+  // Personal Details
+  phoneNumber?: string;
+  profileImageUrl?: string;
   dob?: Date;
   gender?: 'male' | 'female' | 'other';
-  city?: string;
-  country?: string;
   languages?: string[];
   
-  // Artist Profile
-  artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
-  otherArtistType?: string;
+  // Artist Profile Enhancement
   bio?: string;
   experienceYears?: number;
-  
-  // Skills & Expertise
   skills?: string[];
-  styles?: string[]; // Dance styles, music genres, acting techniques
+  styles?: string[];
   genres?: string[];
   instruments?: string[]; // For musicians
-  otherSkill?: string;
   
-  // Professional Info
-  agencyAffiliated: boolean;
-  availableForBooking: boolean;
+  // Professional Settings
+  agencyAffiliated?: boolean;
+  availableForBooking?: boolean;
   preferredCities?: string[];
-  travelReady: boolean;
-  remoteWorkOk: boolean;
+  travelReady?: boolean;
+  remoteWorkOk?: boolean;
   hourlyRate?: number;
   currency?: string;
   
-  // Portfolio Links
+  // Portfolio & Social
   portfolioLinks?: string;
   resumeUrl?: string;
-  
-  // Social Media
   socialMedia?: {
     instagram?: string;
     tiktok?: string;
     youtube?: string;
     spotify?: string;
   };
-  
-  // Profile Statistics
+
+  // Profile Statistics (System managed)
   stats: {
     eventsAttended: number;
     eventsHosted: number;
@@ -70,52 +76,65 @@ interface Artist {
   };
   
   // Activity Tracking
-  lastActive: Date;
   totalEarnings?: number;
 }
 
 interface Organizer {
-  // Basic Info
+  // System Generated
   uid: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  phoneNumber?: string;
-  profileImageUrl?: string;
-  
-  // Account Details
-  role: 'organizer';
   isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
+  lastActive: Date;
+
+  // Essential Identity
+  firstName: string;
+  lastName: string;
+  email: string | null;
   
-  // Organization/Company Info
+  // Account Setup
+  role: 'organizer';
+
+  // Organization Basics
   organizationType: 'company' | 'individual' | 'agency' | 'institution' | 'event_management';
-  organizationName?: string; // Company name or individual brand name
+  organizationName?: string; // Required if not 'individual'
+  
+  // Basic Location (for matching)
+  city: string;
+  country: string;
+
+  // Personal/Professional Details
+  phoneNumber?: string;
+  profileImageUrl?: string;
   jobTitle?: string;
+  
+  // Organization Enhancement
   organizationDescription?: string;
   organizationWebsite?: string;
   organizationLogoUrl?: string;
   industry?: 'entertainment' | 'advertising' | 'events' | 'theater' | 'film' | 'tv' | 'music' | 'education' | 'other';
   organizationSize?: 'individual' | 'small' | 'medium' | 'large' | 'enterprise';
   
-  // Location
-  city?: string;
-  country?: string;
-  
   // Professional Info
   yearsInIndustry?: number;
-  specialization?: string[]; // What types of artists they usually hire
+  specialization?: string[];
   preferredArtistTypes?: string[];
   
-  // Budget & Preferences
+  // Budget & Hiring Preferences
   typicalBudgetRange?: {
     min: number;
     max: number;
     currency: string;
   };
   
-  // Organizer Statistics
+  // Social Media & Portfolio
+  socialMedia?: {
+    linkedin?: string;
+    instagram?: string;
+    website?: string;
+  };
+  
+  // Profile Statistics (System managed)
   stats: {
     opportunitiesPosted: number;
     eventsCreated: number;
@@ -127,15 +146,7 @@ interface Organizer {
     responseRate: number;
   };
   
-  // Social Media & Portfolio
-  socialMedia?: {
-    linkedin?: string;
-    instagram?: string;
-    website?: string;
-  };
-  
   // Activity Tracking
-  lastActive: Date;
   totalSpent?: number;
 }
 

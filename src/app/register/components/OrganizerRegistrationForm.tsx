@@ -68,12 +68,12 @@ export default function OrganizerRegistrationForm() {
   const { mutate: signUp, isPending } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
         setLoading(true);
-        const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
+        const { email, password, confirmPassword, ...profileData } = values;
 
         const now = new Date();
         const finalProfileData = {
           ...profileData,
-          role: 'organizer',
+          role: 'organizer' as const,
           isVerified: false,
           createdAt: now,
           updatedAt: now,
@@ -113,8 +113,7 @@ export default function OrganizerRegistrationForm() {
         if (authError) throw new Error(authError);
         if (!user) throw new Error("User not created");
 
-        const { error: profileError } = await addUserProfile(user.uid, finalProfileData);
-        if (profileError) throw new Error(profileError);
+        await addUserProfile(user.uid, finalProfileData);
         return user;
     },
     onSuccess: async (user) => {

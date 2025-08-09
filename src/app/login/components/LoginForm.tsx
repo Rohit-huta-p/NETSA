@@ -53,15 +53,23 @@ export default function LoginForm() {
     },
     onSuccess: async (user) => {
         if(user) {
+            const { data, error } = await getUserProfile(user.uid);
+            if (error || !data) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Sign In Failed',
+                    description: 'Could not find a user profile. Please register first.',
+                });
+                return;
+            }
+            
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
-            const { data } = await getUserProfile(user.uid);
             setUser({ ...user, ...data });
             toast({
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            // Force a hard refresh to ensure all state is correctly loaded
             window.location.href = '/events';
         }
     },
