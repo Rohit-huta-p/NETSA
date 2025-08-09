@@ -67,12 +67,12 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
 
     if (error || !organizerProfile || organizerProfile.role !== 'organizer') {
-        throw new Error("Invalid organizer profile.");
+        throw new Error("Invalid organizer profile or permissions.");
     }
+    const now = new Date();
 
     const fullGigData: Gig = {
         id: '', // Firestore will generate this
-        ...gigData,
         organizerId: organizerId,
         organizerInfo: {
             name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
@@ -81,28 +81,63 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
             organizationLogoUrl: organizerProfile.organizationLogoUrl || '',
             rating: organizerProfile.stats?.averageRating || 0,
         },
-        artistType: [],
-        experienceLevel: 'beginner',
+        // Step 1: Basic Details
+        title: gigData.title || 'Untitled Gig',
+        description: gigData.description || '',
+        type: gigData.type || 'performance',
+        category: gigData.category || '',
+        // Step 3: Artist Requirements
+        artistType: gigData.artistType || [],
+        requiredSkills: gigData.requiredSkills || [],
+        requiredStyles: gigData.requiredStyles || [],
+        experienceLevel: gigData.experienceLevel || 'beginner',
+        ageRange: { min: gigData.ageRange?.min || 18, max: gigData.ageRange?.max || 99 },
+        genderPreference: gigData.genderPreference || 'any',
+        physicalRequirements: gigData.physicalRequirements || '',
+        // Step 4: Location & Schedule
         location: {
-            city: gigData.city || '',
-            country: gigData.country || '',
-            isRemote: false
+            city: gigData.location?.city || '',
+            country: gigData.location?.country || '',
+            venue: gigData.location?.venue || '',
+            address: gigData.location?.address || '',
+            isRemote: gigData.location?.isRemote || false,
         },
-        startDate: new Date(),
+        startDate: gigData.startDate ? new Date(gigData.startDate) : now,
+        endDate: gigData.endDate ? new Date(gigData.endDate) : undefined,
+        duration: gigData.duration || '',
+        timeCommitment: gigData.timeCommitment || '',
+        // Step 5: Compensation
         compensation: {
-            type: gigData.compensationType || 'project',
-            amount: gigData.compensationAmount || 0,
-            negotiable: true,
+            type: gigData.compensation?.type || 'project',
+            amount: gigData.compensation?.amount || 0,
+            currency: gigData.compensation?.currency || 'USD',
+            negotiable: gigData.compensation?.negotiable || false,
+            additionalBenefits: gigData.compensation?.additionalBenefits || [],
         },
+        // Step 6: Application Settings
+        maxApplications: gigData.maxApplications || undefined,
+        applicationDeadline: gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined,
+        // Step 7: Media Requirements
+        mediaRequirements: {
+            needsHeadshots: gigData.mediaRequirements?.needsHeadshots || false,
+            needsFullBody: gigData.mediaRequirements?.needsFullBody || false,
+            needsVideoReel: gigData.mediaRequirements?.needsVideoReel || false,
+            needsAudioSample: gigData.mediaRequirements?.needsAudioSample || false,
+            specificRequirements: gigData.mediaRequirements?.specificRequirements || '',
+        },
+        // Step 8: Publishing
+        status: gigData.status || 'draft',
+        isUrgent: gigData.isUrgent || false,
+        isFeatured: gigData.isFeatured || false,
+        tags: gigData.tags || [],
+        expiresAt: gigData.expiresAt ? new Date(gigData.expiresAt) : undefined,
+        // System-managed fields
         currentApplications: 0,
-        status: 'active',
-        isUrgent: false,
-        isFeatured: false,
         views: 0,
         applications: 0,
         saves: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
     };
     
     try {
