@@ -1,5 +1,35 @@
 
 
+export interface GetGigsQuery {
+  page?: number;
+  limit?: number;
+  category?: string;
+  artistType?: string[];
+  location?: string;
+  compensation_min?: number;
+  compensation_max?: number;
+  experience_level?: string;
+  is_remote?: boolean;
+  start_date_from?: string;
+  start_date_to?: string;
+  search?: string;
+  sort?: 'newest' | 'oldest' | 'compensation_high' | 'compensation_low' | 'deadline';
+}
+export interface GetGigsResponse {
+  gigs: Gig[];
+  total: number;
+  hasMore: boolean;
+  currentPage: number;
+  totalPages: number;
+  filters: {
+    categories: string[];
+    locations: string[];
+    artistTypes: string[];
+    experienceLevels: string[];
+    compensationRanges: { min: number; max: number; currency: string }[];
+  };
+}
+
 export interface Gig {
     id: string;
     // Basic Info
@@ -198,3 +228,5 @@ export interface Event {
     createdAt: Date;
     updatedAt: Date;
 }
+
+    

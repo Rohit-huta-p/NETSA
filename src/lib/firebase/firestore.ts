@@ -1,8 +1,8 @@
 
-import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence, query, where, orderBy, limit, startAfter, getCountFromServer } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
-import type { Gig, Event } from '@/lib/types';
+import type { Gig, Event, GetGigsQuery } from '@/lib/types';
 
 // Enable offline persistence
 try {
@@ -106,7 +106,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         compensation: {
             type: gigData.compensation?.type || 'project',
             amount: gigData.compensation?.amount,
-            currency: gigData.compensation?.currency,
+            currency: gigData.compensation?.currency || 'USD',
             negotiable: gigData.compensation?.negotiable || false,
             additionalBenefits: gigData.compensation?.additionalBenefits,
         },
@@ -164,21 +164,115 @@ export async function addEvent(organizerId: string, eventData: any) {
     }
 }
 
-export async function getGigs() {
+export async function getGigs(filters: GetGigsQuery) {
+    const {
+        page = 1,
+        limit = 10,
+        category,
+        artistType,
+        location,
+        compensation_min,
+        compensation_max,
+        experience_level,
+        is_remote,
+        start_date_from,
+        start_date_to,
+        search,
+        sort = 'newest'
+    } = filters;
+
     try {
-        const gigsCollection = collection(db, 'gigs');
-        const gigSnapshot = await getDocs(gigsCollection);
-        const gigsList = gigSnapshot.docs.map(doc => {
+        let q = query(collection(db, 'gigs'));
+        const constraints = [];
+
+        // --- FILTERING ---
+        if (category) constraints.push(where('category', '==', category));
+        if (artistType && artistType.length > 0) constraints.push(where('artistType', 'array-contains-any', artistType));
+        if (location) constraints.push(where('location.city', '==', location));
+        if (experience_level) constraints.push(where('experienceLevel', '==', experience_level));
+        if (is_remote !== undefined) constraints.push(where('location.isRemote', '==', is_remote));
+        
+        // Date range
+        if (start_date_from) constraints.push(where('startDate', '>=', new Date(start_date_from)));
+        if (start_date_to) constraints.push(where('startDate', '<=', new Date(start_date_to)));
+        
+        // Compensation range - Firestore cannot query ranges on different fields. This requires post-processing or a different data structure.
+        // For now, we will filter by minimum compensation only if it's provided.
+        if (compensation_min !== undefined) constraints.push(where('compensation.amount', '>=', compensation_min));
+        if (compensation_max !== undefined) constraints.push(where('compensation.amount', '<=', compensation_max));
+
+
+        // --- SORTING ---
+        switch (sort) {
+            case 'oldest':
+                constraints.push(orderBy('createdAt', 'asc'));
+                break;
+            case 'compensation_high':
+                constraints.push(orderBy('compensation.amount', 'desc'));
+                break;
+            case 'compensation_low':
+                constraints.push(orderBy('compensation.amount', 'asc'));
+                break;
+            case 'deadline':
+                constraints.push(orderBy('applicationDeadline', 'asc'));
+                break;
+            case 'newest':
+            default:
+                constraints.push(orderBy('createdAt', 'desc'));
+                break;
+        }
+
+        const finalQuery = query(collection(db, 'gigs'), ...constraints);
+        
+        // --- PAGINATION ---
+        const totalGigsSnapshot = await getCountFromServer(finalQuery);
+        const total = totalGigsSnapshot.data().count;
+
+        const totalPages = Math.ceil(total / limit);
+        const currentPage = Math.max(1, page);
+        const hasMore = currentPage < totalPages;
+        
+        let paginatedQuery = query(finalQuery, limit(limit));
+
+        if (page > 1) {
+            const lastVisibleDocQuery = query(finalQuery, limit((page - 1) * limit));
+            const lastVisibleDocSnapshot = await getDocs(lastVisibleDocQuery);
+            const lastVisible = lastVisibleDocSnapshot.docs[lastVisibleDocSnapshot.docs.length - 1];
+            if (lastVisible) {
+                paginatedQuery = query(finalQuery, startAfter(lastVisible), limit(limit));
+            }
+        }
+        
+        const gigsSnapshot = await getDocs(paginatedQuery);
+        const gigsList = gigsSnapshot.docs.map(doc => {
             const data = doc.data();
             const serializableData = convertTimestamps(data);
             return { id: doc.id, ...serializableData };
-        });
-        return { data: gigsList as Gig[], error: null };
+        }) as Gig[];
+        
+        // TODO: Aggregate filters dynamically
+        const response = {
+            gigs: gigsList,
+            total,
+            hasMore,
+            currentPage,
+            totalPages,
+            filters: {
+                categories: [],
+                locations: [],
+                artistTypes: [],
+                experienceLevels: [],
+                compensationRanges: [],
+            }
+        };
+
+        return { data: response, error: null };
     } catch (error: any) {
         console.error("Error fetching gigs: ", error.code, error.message);
-        return { data: [], error: error.message };
+        return { data: null, error: error.message };
     }
 }
+
 
 export async function getEvents() {
     try {
@@ -213,3 +307,5 @@ export async function getEvent(eventId: string) {
         return { data: null, error: error.message };
     }
 }
+
+    

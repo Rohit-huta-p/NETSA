@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
 import { EventCard } from "@/components/dashboard/EventCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
-import { getGigs } from "@/lib/firebase/firestore";
-import type { Gig } from "@/lib/types";
+import type { Gig, GetGigsResponse } from "@/lib/types";
 import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -47,7 +46,7 @@ function GigCardSkeleton() {
 
 
 export default function GigsPage() {
-  const [gigs, setGigs] = useState<Gig[]>([]);
+  const [gigsResponse, setGigsResponse] = useState<GetGigsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(false);
@@ -56,19 +55,19 @@ export default function GigsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const { data, error: fetchError } = await getGigs();
-      if (fetchError) {
-        // Specifically check for permission errors.
-        if (fetchError.includes('permission-denied') || fetchError.includes('insufficient permissions')) {
-             setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
+      const response = await fetch('/api/gigs');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to load gigs');
+      }
+      const data: GetGigsResponse = await response.json();
+      setGigsResponse(data);
+    } catch (e: any) {
+        if (e.message.includes('permission-denied') || e.message.includes('insufficient permissions')) {
+          setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
         } else {
             setError("Failed to load gigs. Please try again later.");
         }
-      } else {
-        setGigs(data);
-      }
-    } catch (e: any) {
-        setError("An unexpected error occurred. Please try again.");
         console.error(e);
     } finally {
       setIsLoading(false);
@@ -76,7 +75,6 @@ export default function GigsPage() {
   };
   
   useEffect(() => {
-    // Client-side only check for offline status
     if (typeof window !== 'undefined' && 'onLine' in navigator) {
       setIsOffline(!navigator.onLine);
       const handleOnline = () => setIsOffline(false);
@@ -84,16 +82,19 @@ export default function GigsPage() {
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
 
-      // Initial fetch
       fetchGigs();
       
       return () => {
           window.removeEventListener('online', handleOnline);
           window.removeEventListener('offline', handleOffline);
       };
+    } else {
+      fetchGigs();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const gigs = gigsResponse?.gigs || [];
 
   return (
     <div className=" min-h-screen bg-background font-body ">
@@ -107,7 +108,7 @@ export default function GigsPage() {
           )}
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-bold text-foreground">
-              {isLoading ? 'Searching for Gigs...' : `${gigs.length} Gigs Found`}
+              {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
             </h2>
           </div>
           <div className="relative">
@@ -158,3 +159,5 @@ export default function GigsPage() {
     </div>
   );
 }
+
+    
