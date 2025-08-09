@@ -50,7 +50,7 @@ export default function GigsPage() {
   const [gigs, setGigs] = useState<Gig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isOffline, setIsOffline] = useState(false);
 
   const fetchGigs = async () => {
     setIsLoading(true);
@@ -76,6 +76,8 @@ export default function GigsPage() {
   };
   
   useEffect(() => {
+    // Client-side only check
+    setIsOffline(!navigator.onLine);
     fetchGigs();
 
     const handleOnline = () => setIsOffline(false);
