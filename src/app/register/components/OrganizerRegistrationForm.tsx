@@ -17,7 +17,6 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { Textarea } from '../../../components/ui/textarea';
 import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
@@ -30,41 +29,12 @@ import { useLoaderStore } from '@/store/loaderStore';
 
 const formSchema = z
   .object({
-    // Basic Info
     firstName: z.string().min(1, 'First name is required'),
     lastName: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
-    phoneNumber: z.string().optional(),
-    profileImageUrl: z.string().url('Invalid URL').optional(),
-
-    // Account Details
     password: z.string().min(8, 'Password must be at least 8 characters long'),
     confirmPassword: z.string(),
-
-    // Organization Info
     organizationType: z.enum(['company', 'individual', 'agency', 'institution', 'event_management']),
-    organizationName: z.string().optional(),
-    jobTitle: z.string().optional(),
-    organizationDescription: z.string().optional(),
-    organizationWebsite: z.string().url('Invalid URL').optional(),
-    organizationLogoUrl: z.string().url('Invalid URL').optional(),
-    industry: z.enum(['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'education', 'other']).optional(),
-    organizationSize: z.enum(['individual', 'small', 'medium', 'large', 'enterprise']).optional(),
-
-    // Location
-    city: z.string().optional(),
-    country: z.string().optional(),
-
-    // Professional Info
-    yearsInIndustry: z.coerce.number().optional(),
-    specialization: z.array(z.string()).optional(),
-    preferredArtistTypes: z.array(z.string()).optional(),
-
-    // Social Media
-    linkedin: z.string().optional(),
-    instagram: z.string().optional(),
-    website: z.string().optional(),
-
     agreeToTerms: z.boolean().refine((val) => val, {
       message: 'You must agree to the terms and conditions',
     }),
@@ -75,8 +45,6 @@ const formSchema = z
   });
 
 const organizationTypes = ['company', 'individual', 'agency', 'institution', 'event_management'];
-const industries = ['entertainment', 'advertising', 'events', 'theater', 'film', 'tv', 'music', 'education', 'other'];
-const organizationSizes = ['individual', 'small', 'medium', 'large', 'enterprise'];
 
 export default function OrganizerRegistrationForm() {
   const { toast } = useToast();
@@ -92,21 +60,8 @@ export default function OrganizerRegistrationForm() {
       email: '',
       password: '',
       confirmPassword: '',
-      specialization: [],
-      preferredArtistTypes: [],
+      organizationType: undefined,
       agreeToTerms: false,
-      phoneNumber: '',
-      profileImageUrl: '',
-      organizationName: '',
-      jobTitle: '',
-      organizationDescription: '',
-      organizationWebsite: '',
-      organizationLogoUrl: '',
-      city: '',
-      country: '',
-      linkedin: '',
-      instagram: '',
-      website: '',
     },
   });
 
@@ -123,6 +78,20 @@ export default function OrganizerRegistrationForm() {
           createdAt: now,
           updatedAt: now,
           lastActive: now,
+          phoneNumber: '',
+          profileImageUrl: '',
+          organizationName: '',
+          jobTitle: '',
+          organizationDescription: '',
+          organizationWebsite: '',
+          organizationLogoUrl: '',
+          industry: undefined,
+          organizationSize: undefined,
+          city: '',
+          country: '',
+          yearsInIndustry: 0,
+          specialization: [],
+          preferredArtistTypes: [],
           stats: {
             opportunitiesPosted: 0,
             eventsCreated: 0,
@@ -134,16 +103,12 @@ export default function OrganizerRegistrationForm() {
             responseRate: 0,
           },
           socialMedia: {
-            linkedin: profileData.linkedin,
-            instagram: profileData.instagram,
-            website: profileData.website,
+            linkedin: '',
+            instagram: '',
+            website: '',
           },
         };
         
-        delete (finalProfileData as any).linkedin;
-        delete (finalProfileData as any).instagram;
-        delete (finalProfileData as any).website;
-
         const { user, error: authError } = await signUpWithEmailAndPassword(email, password);
         if (authError) throw new Error(authError);
         if (!user) throw new Error("User not created");
@@ -158,8 +123,8 @@ export default function OrganizerRegistrationForm() {
         const { data } = await getUserProfile(user.uid);
         setUser({ ...user, ...data });
         toast({
-            title: "Success!",
-            description: "Your organizer account has been created.",
+            title: "Welcome to TalentMatch!",
+            description: "Your organizer account has been created. Let's find some talent!",
         });
         window.location.href = '/events';
     },
@@ -181,7 +146,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
 
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-lg mx-auto">
       <Link
         href="/register"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -197,14 +162,13 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
           Organizer Registration
         </h1>
         <p className="text-muted-foreground mt-2">
-          Find the perfect talent for your next project
+          Find the perfect talent for your next project.
         </p>
       </div>
 
       <div className="bg-card p-8 sm:p-10 rounded-lg border shadow-sm">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <h2 className="text-2xl font-bold text-center">Your Profile</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField control={form.control} name="firstName" render={({ field }) => (<FormItem><FormLabel>First Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
               <FormField control={form.control} name="lastName" render={({ field }) => (<FormItem><FormLabel>Last Name *</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -217,21 +181,16 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
               <FormField control={form.control} name="confirmPassword" render={({ field }) => (<FormItem><FormLabel>Confirm Password *</FormLabel><FormControl><Input type="password" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
 
-            <FormField control={form.control} name="phoneNumber" render={({ field }) => (<FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input type="tel" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="profileImageUrl" render={({ field }) => (<FormItem><FormLabel>Upload Profile Image URL</FormLabel><FormControl><Input placeholder="https://your-domain.com/profile.jpg" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <hr className="my-8" />
-
-            <h2 className="text-2xl font-bold text-center">Organization Information</h2>
             <FormField
                 control={form.control}
                 name="organizationType"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Organization Type *</FormLabel>
+                    <FormLabel>You are registering as a... *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                         <SelectTrigger>
-                            <SelectValue placeholder="Select your organization type" />
+                            <SelectValue placeholder="Select your role type" />
                         </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -242,37 +201,7 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
                     </FormItem>
                 )}
             />
-            <FormField control={form.control} name="organizationName" render={({ field }) => (<FormItem><FormLabel>Organization/Brand Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="jobTitle" render={({ field }) => (<FormItem><FormLabel>Your Job Title</FormLabel><FormControl><Input placeholder="e.g. Casting Manager" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="organizationDescription" render={({ field }) => (<FormItem><FormLabel>Organization Description</FormLabel><FormControl><Textarea placeholder="Tell us about your organization..." {...field}/></FormControl><FormMessage /></FormItem>)}/>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="organizationWebsite" render={({ field }) => (<FormItem><FormLabel>Organization Website</FormLabel><FormControl><Input placeholder="https://companyname.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="organizationLogoUrl" render={({ field }) => (<FormItem><FormLabel>Organization Logo URL</FormLabel><FormControl><Input placeholder="https://companyname.com/logo.png" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="industry" render={({ field }) => (<FormItem><FormLabel>Industry</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select industry" /></SelectTrigger></FormControl><SelectContent>{industries.map(i => <SelectItem key={i} value={i} className="capitalize">{i}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="organizationSize" render={({ field }) => (<FormItem><FormLabel>Organization Size</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select organization size" /></SelectTrigger></FormControl><SelectContent>{organizationSizes.map(s => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}</SelectContent></Select><FormMessage /></FormItem>)} />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField control={form.control} name="city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input placeholder="e.g. New York" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g. USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-
-            <hr className="my-8" />
-            <h2 className="text-2xl font-bold text-center">Professional Details</h2>
-            <FormField control={form.control} name="yearsInIndustry" render={({ field }) => (<FormItem><FormLabel>Years in Industry</FormLabel><FormControl><Input type="number" placeholder="e.g. 10" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="specialization" render={({ field }) => (<FormItem><FormLabel>Specialization (comma separated)</FormLabel><FormControl><Input placeholder="e.g. Dancers, Actors" {...field} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} /></FormControl><FormMessage /></FormItem>)} />
-            <FormField control={form.control} name="preferredArtistTypes" render={({ field }) => (<FormItem><FormLabel>Preferred Artist Types (comma separated)</FormLabel><FormControl><Input placeholder="e.g. Contemporary Dancers, Voice Actors" {...field} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} /></FormControl><FormMessage /></FormItem>)} />
-
-            <hr className="my-8" />
-            <h2 className="text-2xl font-bold text-center">Social Media</h2>
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField control={form.control} name="linkedin" render={({ field }) => (<FormItem><FormLabel>LinkedIn</FormLabel><FormControl><Input placeholder="e.g. linkedin.com/in/username" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="instagram" render={({ field }) => (<FormItem><FormLabel>Instagram</FormLabel><FormControl><Input placeholder="e.g. instagram.com/company" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                <FormField control={form.control} name="website" render={({ field }) => (<FormItem><FormLabel>Website</FormLabel><FormControl><Input placeholder="e.g. yourcompany.com" {...field} /></FormControl><FormMessage /></FormItem>)} />
-            </div>
-
-
+            
             <FormField
               control={form.control}
               name="agreeToTerms"
@@ -292,13 +221,6 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
                         className="text-primary hover:underline"
                       >
                         Terms of Service
-                      </Link>{' '}
-                      and{' '}
-                      <Link
-                        href="/privacy"
-                        className="text-primary hover:underline"
-                      >
-                        Privacy Policy
                       </Link>
                     </FormLabel>
                     <FormMessage />
@@ -323,5 +245,3 @@ const onSubmit = (values: z.infer<typeof formSchema>) => {
     </div>
   );
 }
-
-    

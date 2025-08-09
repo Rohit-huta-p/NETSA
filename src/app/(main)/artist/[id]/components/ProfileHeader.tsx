@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Star, Edit, Camera } from "lucide-react";
-import { UserProfile } from "@/store/userStore";
+import type { UserProfile } from "@/store/userStore";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
@@ -20,6 +20,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   ]
 
   const skills = artist.skills || ["Contemporary", "Hip-Hop", "Ballet", "Jazz", "Choreography"];
+
+  if (artist.role !== 'artist') return null;
 
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
