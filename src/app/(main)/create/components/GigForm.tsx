@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, UseFormReturn } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -20,22 +20,22 @@ import { cn } from '@/lib/utils';
 import { Gig } from '@/lib/types';
 
 const gigSchema = z.object({
-  // Step 1
+  // Step 1: Basic Details
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
   type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration'], { required_error: 'Gig type is required.' }),
   category: z.string().min(2, 'Category is required'),
-  // Step 2 is auto-filled
-  // Step 3
-  artistType: z.array(z.string()).min(1, 'At least one artist type is required').optional(),
+  
+  // Step 2: Artist Requirements
   experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'professional'], { required_error: 'Experience level is required.' }),
-  // Step 4
+  
+  // Step 3: Location & Schedule
   location: z.object({
     city: z.string().min(2, 'City is required'),
     country: z.string().min(2, 'Country is required'),
-    isRemote: z.boolean(),
   }),
-  // Step 5
+  
+  // Step 4: Compensation
   compensation: z.object({
     type: z.enum(['hourly', 'daily', 'project', 'revenue_share'], { required_error: 'Compensation type is required.' }),
     amount: z.preprocess((a) => {
@@ -43,9 +43,9 @@ const gigSchema = z.object({
         if (str === '') return undefined;
         return parseInt(str, 10);
     }, z.number().positive().optional()),
-    negotiable: z.boolean(),
   }),
-  // Step 8
+  
+  // This will be set on the final step
   status: z.enum(['draft', 'active']),
 });
 
@@ -54,9 +54,9 @@ type GigFormValues = z.infer<typeof gigSchema>;
 
 const steps = [
   { id: 'Step 1', name: 'Basic Details', fields: ['title', 'description', 'type', 'category'] },
-  { id: 'Step 2', name: 'Artist Requirements', fields: ['artistType', 'experienceLevel'] },
-  { id: 'Step 3', name: 'Location & Schedule' },
-  { id: 'Step 4', name: 'Compensation', fields: ['compensation.type', 'compensation.amount', 'compensation.negotiable'] },
+  { id: 'Step 2', name: 'Artist Requirements', fields: ['experienceLevel'] },
+  { id: 'Step 3', name: 'Location & Schedule', fields: ['location.city', 'location.country'] },
+  { id: 'Step 4', name: 'Compensation', fields: ['compensation.type', 'compensation.amount'] },
   { id: 'Step 5', name: 'Review & Publish' },
 ];
 
@@ -69,13 +69,12 @@ export function GigForm() {
 
   const form = useForm<GigFormValues>({
     resolver: zodResolver(gigSchema),
+    mode: 'onChange',
     defaultValues: {
       title: '',
       description: '',
       category: '',
-      artistType: [],
-      location: { city: '', country: '', isRemote: false },
-      compensation: { negotiable: false },
+      location: { city: '', country: '' },
       status: 'active',
     },
   });
@@ -98,8 +97,7 @@ export function GigForm() {
     }
   };
 
-  type FieldName = keyof GigFormValues | `location.${"city" | "country"}` | `compensation.${"type" | "amount"}`;
-
+  type FieldName = keyof GigFormValues | 'location.city' | 'location.country' | 'compensation.type' | 'compensation.amount';
 
   const next = async () => {
     const fields = steps[currentStep].fields;
@@ -120,7 +118,6 @@ export function GigForm() {
 
   return (
     <div>
-        {/* Stepper */}
         <nav aria-label="Progress">
             <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0 mb-8">
                 {steps.map((step, index) => (
@@ -152,28 +149,25 @@ export function GigForm() {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
                 {/* Step 1: Basic Details */}
-                <div className={cn("block", { "hidden": currentStep !== 0 })}>
-                    <h2 className="text-lg font-medium mb-4">Basic Gig Details</h2>
-                    <div className="space-y-4">
-                        <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Gig Title</FormLabel><FormControl><Input placeholder="e.g., Lead Dancer for Music Video" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the gig, responsibilities, and what you're looking for." {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Gig Type</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="performance">Performance</SelectItem><SelectItem value="photoshoot">Photoshoot</SelectItem><SelectItem value="recording">Recording</SelectItem><SelectItem value="event">Event Staff</SelectItem><SelectItem value="audition">Audition</SelectItem><SelectItem value="modeling">Modeling</SelectItem><SelectItem value="teaching">Teaching</SelectItem><SelectItem value="collaboration">Collaboration</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
-                            <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input placeholder="e.g., Hip-Hop, Commercial" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                        </div>
+                <div className={cn("block space-y-4", { "hidden": currentStep !== 0 })}>
+                    <h2 className="text-lg font-medium">Basic Gig Details</h2>
+                    <FormField control={form.control} name="title" render={({ field }) => (<FormItem><FormLabel>Gig Title</FormLabel><FormControl><Input placeholder="e.g., Lead Dancer for Music Video" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <FormField control={form.control} name="description" render={({ field }) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="Describe the gig, responsibilities, and what you're looking for." {...field} /></FormControl><FormMessage /></FormItem>)} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <FormField control={form.control} name="type" render={({ field }) => (<FormItem><FormLabel>Gig Type</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select a type" /></SelectTrigger></FormControl><SelectContent><SelectItem value="performance">Performance</SelectItem><SelectItem value="photoshoot">Photoshoot</SelectItem><SelectItem value="recording">Recording</SelectItem><SelectItem value="event">Event Staff</SelectItem><SelectItem value="audition">Audition</SelectItem><SelectItem value="modeling">Modeling</SelectItem><SelectItem value="teaching">Teaching</SelectItem><SelectItem value="collaboration">Collaboration</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                        <FormField control={form.control} name="category" render={({ field }) => (<FormItem><FormLabel>Category</FormLabel><FormControl><Input placeholder="e.g., Hip-Hop, Commercial" {...field} /></FormControl><FormMessage /></FormItem>)} />
                     </div>
                 </div>
 
                 {/* Step 2: Artist Requirements */}
-                <div className={cn("block", { "hidden": currentStep !== 1 })}>
-                    <h2 className="text-lg font-medium mb-4">Artist Requirements</h2>
-                    {/* Simplified for brevity, add more fields as needed based on schema */}
+                <div className={cn("block space-y-4", { "hidden": currentStep !== 1 })}>
+                    <h2 className="text-lg font-medium">Artist Requirements</h2>
                     <FormField control={form.control} name="experienceLevel" render={({ field }) => (<FormItem><FormLabel>Experience Level</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select required experience level" /></SelectTrigger></FormControl><SelectContent><SelectItem value="beginner">Beginner</SelectItem><SelectItem value="intermediate">Intermediate</SelectItem><SelectItem value="advanced">Advanced</SelectItem><SelectItem value="professional">Professional</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                 </div>
                 
                 {/* Step 3: Location */}
-                <div className={cn("block", { "hidden": currentStep !== 2 })}>
-                    <h2 className="text-lg font-medium mb-4">Location & Schedule</h2>
+                <div className={cn("block space-y-4", { "hidden": currentStep !== 2 })}>
+                    <h2 className="text-lg font-medium">Location & Schedule</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <FormField control={form.control} name="location.city" render={({ field }) => (<FormItem><FormLabel>City</FormLabel><FormControl><Input placeholder="e.g., New York" {...field} /></FormControl><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="location.country" render={({ field }) => (<FormItem><FormLabel>Country</FormLabel><FormControl><Input placeholder="e.g., USA" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -181,8 +175,8 @@ export function GigForm() {
                 </div>
 
                 {/* Step 4: Compensation */}
-                 <div className={cn("block", { "hidden": currentStep !== 3 })}>
-                    <h2 className="text-lg font-medium mb-4">Compensation</h2>
+                 <div className={cn("block space-y-4", { "hidden": currentStep !== 3 })}>
+                    <h2 className="text-lg font-medium">Compensation</h2>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <FormField control={form.control} name="compensation.type" render={({ field }) => (<FormItem><FormLabel>Compensation Type</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select payment model" /></SelectTrigger></FormControl><SelectContent><SelectItem value="hourly">Hourly</SelectItem><SelectItem value="daily">Daily</SelectItem><SelectItem value="project">Project-based</SelectItem><SelectItem value="revenue_share">Revenue Share</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
                         <FormField control={form.control} name="compensation.amount" render={({ field }) => (<FormItem><FormLabel>Compensation Amount ($)</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} /></FormControl><FormMessage /></FormItem>)} />
@@ -193,12 +187,10 @@ export function GigForm() {
                  <div className={cn("block", { "hidden": currentStep !== 4 })}>
                     <h2 className="text-2xl font-bold mb-4">Review Your Gig</h2>
                     <p className="text-muted-foreground mb-6">You're ready to post! Review the details below. You can save it as a draft to edit later, or publish it now to start receiving applications.</p>
-                    {/* Add a summary of the gig details here */}
                  </div>
             </form>
         </Form>
         
-        {/* Navigation */}
         <div className="mt-8 pt-5">
             <div className="flex justify-between">
             <Button type="button" onClick={prev} disabled={currentStep === 0 || isSubmitting} variant="outline">
@@ -208,11 +200,27 @@ export function GigForm() {
             
             {currentStep === steps.length - 1 ? (
                 <div className="flex gap-4">
-                    <Button type="button" onClick={() => { form.setValue('status', 'draft'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} variant="secondary">
+                    <Button 
+                        type="button" 
+                        onClick={() => {
+                            form.setValue('status', 'draft');
+                            form.handleSubmit(processForm)();
+                        }} 
+                        disabled={isSubmitting} 
+                        variant="secondary"
+                    >
                         {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Save as Draft
                     </Button>
-                    <Button type="button" onClick={() => { form.setValue('status', 'active'); form.handleSubmit(processForm)(); }} disabled={isSubmitting} className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
+                    <Button 
+                        type="button" 
+                        onClick={() => {
+                            form.setValue('status', 'active');
+                            form.handleSubmit(processForm)();
+                        }} 
+                        disabled={isSubmitting} 
+                        className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
+                    >
                         {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Publish Gig
                     </Button>
@@ -228,5 +236,3 @@ export function GigForm() {
     </div>
   );
 }
-
-    
