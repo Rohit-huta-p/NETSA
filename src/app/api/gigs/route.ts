@@ -1,7 +1,32 @@
 
 import { NextResponse } from 'next/server';
-import { getGigs } from '@/lib/firebase/firestore';
+import { getGigs, addGig } from '@/lib/firebase/firestore';
 import { GetGigsQuery } from '@/lib/types';
+import { auth } from 'firebase-admin';
+
+async function getAuthUser(request: Request) {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader) return null;
+    const token = authHeader.split('Bearer ')[1];
+    if (!token) return null;
+
+    try {
+        // This requires firebase-admin setup on the server, which is not present.
+        // For now, this is a conceptual placeholder. A real implementation would need
+        // the admin SDK to verify tokens.
+        // const decodedToken = await auth().verifyIdToken(token);
+        // return decodedToken;
+
+        // In absence of admin sdk, we'll just decode for uid, but this is INSECURE for production
+        const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+        return { uid: decoded.user_id };
+
+    } catch (error) {
+        console.error("Error verifying auth token:", error);
+        return null;
+    }
+}
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -35,4 +60,35 @@ export async function GET(request: Request) {
   }
 }
 
+
+export async function POST(request: Request) {
+    const user = await getAuthUser(request);
     
+    if (!user) {
+        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const gigData = await request.json();
+        
+        // The addGig function in firestore.ts already checks for organizer role.
+        const { success, id, error } = await addGig(user.uid, gigData);
+
+        if (error) {
+            return NextResponse.json({ message: 'Error creating gig', error }, { status: 400 });
+        }
+
+        if (!success) {
+            return NextResponse.json({ message: 'Failed to create gig' }, { status: 500 });
+        }
+
+        return NextResponse.json({ message: 'Gig created successfully', gigId: id }, { status: 201 });
+
+    } catch (err: any) {
+         if (err instanceof SyntaxError) {
+            return NextResponse.json({ message: 'Invalid JSON in request body' }, { status: 400 });
+        }
+        console.error("POST /api/gigs error:", err);
+        return NextResponse.json({ message: 'An unexpected error occurred', error: err.message }, { status: 500 });
+    }
+}

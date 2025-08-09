@@ -71,6 +71,13 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     }
     const now = new Date();
 
+    // Reconstructing dates that may have been stringified
+    const startDate = gigData.startDate ? new Date(gigData.startDate) : now;
+    const endDate = gigData.endDate ? new Date(gigData.endDate) : undefined;
+    const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
+    const expiresAt = gigData.expiresAt ? new Date(gigData.expiresAt) : undefined;
+
+
     const fullGigData: Gig = {
         id: '', // Firestore will generate this
         organizerId: organizerId,
@@ -99,8 +106,8 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
             address: gigData.location?.address,
             isRemote: gigData.location?.isRemote || false,
         },
-        startDate: gigData.startDate ? new Date(gigData.startDate) : now,
-        endDate: gigData.endDate ? new Date(gigData.endDate) : undefined,
+        startDate: startDate,
+        endDate: endDate,
         duration: gigData.duration,
         timeCommitment: gigData.timeCommitment,
         compensation: {
@@ -111,7 +118,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
             additionalBenefits: gigData.compensation?.additionalBenefits,
         },
         maxApplications: gigData.maxApplications,
-        applicationDeadline: gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined,
+        applicationDeadline: applicationDeadline,
         mediaRequirements: gigData.mediaRequirements,
         status: gigData.status || 'draft',
         isUrgent: gigData.isUrgent || false,
@@ -123,7 +130,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         saves: 0,
         createdAt: now,
         updatedAt: now,
-        expiresAt: gigData.expiresAt ? new Date(gigData.expiresAt) : undefined,
+        expiresAt: expiresAt,
     };
     
     try {

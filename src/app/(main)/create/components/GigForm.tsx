@@ -7,14 +7,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
-import { addGig } from '@/lib/firebase/firestore';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { handleAppError } from '@/lib/errorHandler';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Gig } from '@/lib/types';
 import Step1_BasicDetails from './steps/Step1_BasicDetails';
 import Step2_ArtistRequirements from './steps/Step2_ArtistRequirements';
 import Step3_LocationSchedule from './steps/Step3_LocationSchedule';
@@ -70,7 +68,11 @@ const gigFormSchema = z.object({
   }),
   
   // Step 6
-  maxApplications: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive().optional()),
+  maxApplications: z.preprocess((a) => {
+      const str = z.string().parse(a);
+      if (str === '') return undefined;
+      return parseInt(str, 10);
+  }, z.number().positive().optional()),
   applicationDeadline: z.date().optional(),
 
   // Step 7
@@ -137,7 +139,21 @@ export function GigForm() {
     }
     setIsSubmitting(true);
     try {
-      await addGig(user.id, values as Partial<Gig>);
+        const token = await user.getIdToken();
+        const response = await fetch('/api/gigs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(values)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create gig');
+        }
+
       toast({ title: 'Success!', description: 'Your gig has been posted.' });
       router.push('/gigs');
     } catch (error) {
