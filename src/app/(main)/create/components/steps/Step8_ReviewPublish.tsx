@@ -8,7 +8,12 @@ export default function Step8_ReviewPublish() {
     const { getValues } = useFormContext();
     const values = getValues();
 
-    const renderArray = (arr: string[] | undefined) => arr && arr.length > 0 ? arr.join(', ') : 'Not specified';
+    const renderArray = (arr: any) => {
+        if (Array.isArray(arr) && arr.length > 0 && arr[0] !== '') {
+            return arr.join(', ');
+        }
+        return 'Not specified';
+    }
 
     const renderMediaRequirements = (reqs: any) => {
         if (!reqs) return 'Not specified';

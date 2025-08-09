@@ -266,51 +266,51 @@ export function GigForm() {
                  <div className={cn({ hidden: currentStep !== 6 })}>
                     <Step8_ReviewPublish />
                  </div>
+
+                <div className="mt-8 pt-5">
+                    <div className="flex justify-between">
+                    <Button type="button" onClick={prev} disabled={currentStep === 0 || isSubmitting} variant="outline">
+                        <ChevronLeft className="w-4 h-4 mr-2" />
+                        Back
+                    </Button>
+                    
+                    {currentStep === steps.length - 1 ? (
+                        <div className="flex gap-4">
+                            <Button 
+                                type="button" 
+                                onClick={() => {
+                                    form.setValue('status', 'draft');
+                                    form.handleSubmit(processForm)();
+                                }} 
+                                disabled={isSubmitting} 
+                                variant="secondary"
+                            >
+                                {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Save as Draft
+                            </Button>
+                            <Button 
+                                type="button" 
+                                onClick={() => {
+                                    form.setValue('status', 'active');
+                                    form.handleSubmit(processForm)();
+                                }} 
+                                disabled={isSubmitting} 
+                                className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
+                            >
+                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Publish Gig
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button type="button" onClick={next} disabled={isSubmitting}>
+                            {currentStep === steps.length - 2 ? 'Review & Finish' : 'Next Step'}
+                            <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    )}
+                    </div>
+                </div>
             </form>
         </Form>
-        
-        <div className="mt-8 pt-5">
-            <div className="flex justify-between">
-            <Button type="button" onClick={prev} disabled={currentStep === 0 || isSubmitting} variant="outline">
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
-            </Button>
-            
-            {currentStep === steps.length - 1 ? (
-                <div className="flex gap-4">
-                    <Button 
-                        type="button" 
-                        onClick={() => {
-                            form.setValue('status', 'draft');
-                            form.handleSubmit(processForm)();
-                        }} 
-                        disabled={isSubmitting} 
-                        variant="secondary"
-                    >
-                        {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Save as Draft
-                    </Button>
-                    <Button 
-                        type="button" 
-                        onClick={() => {
-                            form.setValue('status', 'active');
-                            form.handleSubmit(processForm)();
-                        }} 
-                        disabled={isSubmitting} 
-                        className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
-                    >
-                        {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Publish Gig
-                    </Button>
-                </div>
-            ) : (
-                <Button type="button" onClick={next} disabled={isSubmitting}>
-                    {currentStep === steps.length - 2 ? 'Review & Finish' : 'Next Step'}
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-            )}
-            </div>
-        </div>
     </div>
   );
 }
