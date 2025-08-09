@@ -307,5 +307,3 @@ export async function getEvent(eventId: string) {
         return { data: null, error: error.message };
     }
 }
-
-    

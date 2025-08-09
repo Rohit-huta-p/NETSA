@@ -4,11 +4,20 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-export default function Step5_ReviewPublish() {
+export default function Step8_ReviewPublish() {
     const { getValues } = useFormContext();
     const values = getValues();
 
     const renderArray = (arr: string[] | undefined) => arr && arr.length > 0 ? arr.join(', ') : 'Not specified';
+
+    const renderMediaRequirements = (reqs: any) => {
+        if (!reqs) return 'Not specified';
+        const needed = Object.entries(reqs)
+            .filter(([key, value]) => key.startsWith('needs') && value === true)
+            .map(([key]) => key.replace('needs', ''));
+        if (needed.length === 0) return 'None';
+        return needed.join(', ');
+    }
 
     return (
         <div className="space-y-8">
@@ -81,6 +90,25 @@ export default function Step5_ReviewPublish() {
                              <div><p className="text-muted-foreground">Benefits</p><p className="font-medium">{renderArray(values.compensation?.additionalBenefits)}</p></div>
                         </div>
                     </div>
+
+                     <Separator />
+
+                     <div>
+                        <h3 className="font-semibold text-lg mb-2">Application & Media</h3>
+                         <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div><p className="text-muted-foreground">Deadline</p><p className="font-medium">{values.applicationDeadline ? new Date(values.applicationDeadline).toLocaleDateString() : 'Not specified'}</p></div>
+                             <div><p className="text-muted-foreground">Max Applicants</p><p className="font-medium">{values.maxApplications || 'Unlimited'}</p></div>
+                             <div>
+                                <p className="text-muted-foreground">Media Required</p>
+                                <p className="font-medium">{renderMediaRequirements(values.mediaRequirements)}</p>
+                             </div>
+                        </div>
+                        <div className="mt-4">
+                            <p className="text-muted-foreground text-sm">Specific Media Instructions</p>
+                            <p className="text-sm font-medium mt-1">{values.mediaRequirements?.specificRequirements || 'None specified.'}</p>
+                        </div>
+                    </div>
+
                 </CardContent>
             </Card>
         </div>

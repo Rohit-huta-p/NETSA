@@ -19,7 +19,9 @@ import Step1_BasicDetails from './steps/Step1_BasicDetails';
 import Step2_ArtistRequirements from './steps/Step2_ArtistRequirements';
 import Step3_LocationSchedule from './steps/Step3_LocationSchedule';
 import Step4_Compensation from './steps/Step4_Compensation';
-import Step5_ReviewPublish from './steps/Step5_ReviewPublish';
+import Step6_ApplicationSettings from './steps/Step6_ApplicationSettings';
+import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
+import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
 
 const gigFormSchema = z.object({
   // Step 1
@@ -27,6 +29,7 @@ const gigFormSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters'),
   type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration'], { required_error: 'Gig type is required.' }),
   category: z.string().min(2, 'Category is required'),
+  tags: z.array(z.string()).optional(),
 
   // Step 2
   artistType: z.array(z.string()).min(1, 'At least one artist type is required'),
@@ -66,6 +69,23 @@ const gigFormSchema = z.object({
     additionalBenefits: z.array(z.string()).optional(),
   }),
   
+  // Step 6
+  maxApplications: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive().optional()),
+  applicationDeadline: z.date().optional(),
+
+  // Step 7
+  mediaRequirements: z.object({
+    needsHeadshots: z.boolean().default(false),
+    needsFullBody: z.boolean().default(false),
+    needsVideoReel: z.boolean().default(false),
+    needsAudioSample: z.boolean().default(false),
+    specificRequirements: z.string().optional(),
+  }).optional(),
+
+  // Step 8
+  isUrgent: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
+  expiresAt: z.date().optional(),
   status: z.enum(['draft', 'active']),
 });
 
@@ -75,9 +95,11 @@ type GigFormValues = z.infer<typeof gigFormSchema>;
 const steps = [
   { id: 'Step 1', name: 'Basic Details', fields: ['title', 'description', 'type', 'category'] },
   { id: 'Step 2', name: 'Artist Requirements', fields: ['experienceLevel', 'artistType'] },
-  { id: 'Step 3', name: 'Location & Schedule', fields: ['location.city', 'location.country', 'startDate'] },
+  { id: 'Step 3', 'name': 'Location & Schedule', fields: ['location.city', 'location.country', 'startDate'] },
   { id: 'Step 4', name: 'Compensation', fields: ['compensation.type'] },
-  { id: 'Step 5', name: 'Review & Publish' },
+  { id: 'Step 5', name: 'Application Settings' },
+  { id: 'Step 6', name: 'Media Requirements' },
+  { id: 'Step 7', name: 'Review & Publish' },
 ];
 
 export function GigForm() {
@@ -98,6 +120,13 @@ export function GigForm() {
       location: { city: '', country: '', isRemote: false },
       status: 'active',
       compensation: { negotiable: false },
+      mediaRequirements: {
+        needsHeadshots: false,
+        needsFullBody: false,
+        needsVideoReel: false,
+        needsAudioSample: false,
+        specificRequirements: '',
+      }
     },
   });
 
@@ -123,9 +152,10 @@ export function GigForm() {
 
   const next = async () => {
     const fields = steps[currentStep].fields;
-    const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
-
-    if (!output) return;
+    if (fields) {
+        const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
+        if (!output) return;
+    }
 
     if (currentStep < steps.length - 1) {
         setCurrentStep(step => step + 1);
@@ -183,7 +213,13 @@ export function GigForm() {
                     <Step4_Compensation form={form} />
                  </div>
                  <div className={cn({ hidden: currentStep !== 4 })}>
-                    <Step5_ReviewPublish />
+                    <Step6_ApplicationSettings form={form} />
+                 </div>
+                 <div className={cn({ hidden: currentStep !== 5 })}>
+                    <Step7_MediaRequirements form={form} />
+                 </div>
+                 <div className={cn({ hidden: currentStep !== 6 })}>
+                    <Step8_ReviewPublish />
                  </div>
             </form>
         </Form>
