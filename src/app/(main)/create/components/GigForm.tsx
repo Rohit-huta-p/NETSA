@@ -21,6 +21,12 @@ import Step6_ApplicationSettings from './steps/Step6_ApplicationSettings';
 import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
 import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
 
+const emptyStringToUndefined = z.literal('').transform(() => undefined);
+
+function asOptionalField<T extends z.ZodTypeAny>(schema: T) {
+  return schema.optional().or(emptyStringToUndefined);
+}
+
 const gigFormSchema = z.object({
   // Step 1
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -35,8 +41,8 @@ const gigFormSchema = z.object({
   requiredStyles: z.array(z.string()).optional(),
   experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'professional'], { required_error: 'Experience level is required.' }),
   ageRange: z.object({
-      min: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive().optional()),
-      max: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive().optional()),
+      min: asOptionalField(z.coerce.number().positive()),
+      max: asOptionalField(z.coerce.number().positive()),
   }).optional(),
   genderPreference: z.enum(['male', 'female', 'any', 'non-binary']).optional(),
   physicalRequirements: z.string().optional(),
@@ -57,22 +63,14 @@ const gigFormSchema = z.object({
   // Step 4
   compensation: z.object({
     type: z.enum(['hourly', 'daily', 'project', 'revenue_share'], { required_error: 'Compensation type is required.' }),
-    amount: z.preprocess((a) => {
-        const str = z.string().parse(a);
-        if (str === '') return undefined;
-        return parseInt(str, 10);
-    }, z.number().positive().optional()),
+    amount: asOptionalField(z.coerce.number().positive()),
     currency: z.string().optional(),
     negotiable: z.boolean().default(false),
     additionalBenefits: z.array(z.string()).optional(),
   }),
   
   // Step 6
-  maxApplications: z.preprocess((a) => {
-      const str = z.string().parse(a);
-      if (str === '') return undefined;
-      return parseInt(str, 10);
-  }, z.number().positive().optional()),
+  maxApplications: asOptionalField(z.coerce.number().positive()),
   applicationDeadline: z.date().optional(),
 
   // Step 7
@@ -183,7 +181,7 @@ export function GigForm() {
             throw new Error(errorData.message || 'Failed to create gig');
         }
 
-      toast({ title: 'Success!', description: 'Your gig has been posted.' });
+      toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
       router.push('/gigs');
     } catch (error) {
       const errorMessage = handleAppError(error, 'Gig Creation');
@@ -209,7 +207,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -245,27 +243,13 @@ export function GigForm() {
 
         <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(processForm)} className="space-y-8">
-                <div className={cn({ hidden: currentStep !== 0 })}>
-                    <Step1_BasicDetails form={form} />
-                </div>
-                <div className={cn({ hidden: currentStep !== 1 })}>
-                    <Step2_ArtistRequirements form={form} />
-                </div>
-                <div className={cn({ hidden: currentStep !== 2 })}>
-                    <Step3_LocationSchedule form={form} />
-                </div>
-                 <div className={cn({ hidden: currentStep !== 3 })}>
-                    <Step4_Compensation form={form} />
-                 </div>
-                 <div className={cn({ hidden: currentStep !== 4 })}>
-                    <Step6_ApplicationSettings form={form} />
-                 </div>
-                 <div className={cn({ hidden: currentStep !== 5 })}>
-                    <Step7_MediaRequirements form={form} />
-                 </div>
-                 <div className={cn({ hidden: currentStep !== 6 })}>
-                    <Step8_ReviewPublish />
-                 </div>
+                 {currentStep === 0 && <Step1_BasicDetails form={form} />}
+                 {currentStep === 1 && <Step2_ArtistRequirements form={form} />}
+                 {currentStep === 2 && <Step3_LocationSchedule form={form} />}
+                 {currentStep === 3 && <Step4_Compensation form={form} />}
+                 {currentStep === 4 && <Step6_ApplicationSettings form={form} />}
+                 {currentStep === 5 && <Step7_MediaRequirements form={form} />}
+                 {currentStep === 6 && <Step8_ReviewPublish />}
 
                 <div className="mt-8 pt-5">
                     <div className="flex justify-between">
@@ -289,16 +273,11 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="button" 
-                                onClick={() => {
-                                    form.setValue('status', 'active');
-                                    form.handleSubmit(processForm)();
-                                }} 
+                                type="submit"
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
-                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Publish Gig
+                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Publish Gig'}
                             </Button>
                         </div>
                     ) : (
@@ -314,3 +293,5 @@ export function GigForm() {
     </div>
   );
 }
+
+    
