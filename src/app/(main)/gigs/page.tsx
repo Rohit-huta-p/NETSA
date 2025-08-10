@@ -10,6 +10,7 @@ import type { Gig, GetGigsResponse } from "@/lib/types";
 import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
+import { auth } from '@/lib/firebase/config';
 
 // A simple mapping for tag colors based on gig type.
 const tagColorMap: { [key: string]: string } = {
@@ -56,7 +57,18 @@ export default function GigsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axios.get('/api/gigs');
+      const user = auth.currentUser;
+      if (!user) {
+        setError("You must be logged in to view gigs.");
+        setIsLoading(false);
+        return;
+      }
+      const token = await user.getIdToken();
+      const response = await axios.get('/api/gigs', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setGigsResponse(response.data);
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
@@ -64,32 +76,40 @@ export default function GigsPage() {
         } else {
             setError(e.response?.data?.message || "Failed to load gigs. Please try again later.");
         }
-        console.error(e);
+        console.error("gigs/page.tsx: Error fetching gigs:", e);
     } finally {
       setIsLoading(false);
     }
   };
   
   useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
     if (typeof window !== 'undefined' && 'onLine' in navigator) {
-      const handleOnline = () => setIsOffline(false);
-      const handleOffline = () => setIsOffline(true);
+      setIsOffline(!navigator.onLine);
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
-      
-      // Set initial state
-      setIsOffline(!navigator.onLine);
-
-      fetchGigs();
-      
-      return () => {
-          window.removeEventListener('online', handleOnline);
-          window.removeEventListener('offline', handleOffline);
-      };
-    } else {
-      // For server-side rendering or environments without navigator
-      fetchGigs();
     }
+
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        fetchGigs();
+      } else {
+        // Handle case where user logs out
+        setIsLoading(false);
+        setGigsResponse(null);
+        setError("Please log in to see available gigs.");
+      }
+    });
+
+    return () => {
+      if (typeof window !== 'undefined' && 'onLine' in navigator) {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      }
+      unsubscribe();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
