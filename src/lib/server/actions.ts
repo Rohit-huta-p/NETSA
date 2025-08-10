@@ -86,6 +86,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
     const startDate = gigData.startDate ? new Date(gigData.startDate) : now;
     const endDate = gigData.endDate ? new Date(gigData.endDate) : undefined;
     const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
+    const expiresAt = gigData.expiresAt ? new Date(gigData.expiresAt) : undefined;
     
     const fullGigData: Omit<Gig, 'id'> = {
         organizerId: organizerId,
@@ -138,7 +139,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
         saves: 0,
         createdAt: now,
         updatedAt: now,
-        expiresAt: gigData.expiresAt ? new Date(gigData.expiresAt) : undefined,
+        expiresAt: expiresAt,
     };
     
     // Firestore does not accept `undefined` values.
@@ -187,15 +188,15 @@ export async function addEvent(organizerId: string, eventData: Partial<Event>): 
         category: eventData.category || 'workshop',
         skillLevel: eventData.skillLevel || 'all_levels',
         location: {
-            type: (eventData.location as any)?.type || eventData.locationType || 'in_person',
-            city: (eventData.location as any)?.city || eventData.city || '',
-            country: (eventData.location as any)?.country || eventData.country || '',
-            venue: (eventData.location as any)?.venue || eventData.venue || '',
+            type: (eventData as any).locationType || 'in_person',
+            city: (eventData as any).city || '',
+            country: (eventData as any).country || '',
+            venue: (eventData as any).venue || '',
         },
         pricing: {
-            amount: (eventData.pricing as any)?.amount ?? eventData.price ?? 0,
+            amount: (eventData as any).price ?? 0,
             currency: 'USD',
-            paymentType: ((eventData.pricing as any)?.amount ?? eventData.price ?? 0) > 0 ? 'full' : 'free',
+            paymentType: ((eventData as any).price ?? 0) > 0 ? 'full' : 'free',
         },
         schedule: {
             startDate: eventData.startDate ? new Date(eventData.startDate) : now,
@@ -204,7 +205,7 @@ export async function addEvent(organizerId: string, eventData: Partial<Event>): 
         },
         maxParticipants: eventData.maxParticipants || 10,
         organizerId: organizerId,
-        hostId: organizerId,
+        hostId: organizerId, // Assuming organizer is the host
         createdAt: now,
         updatedAt: now,
         status: eventData.status || 'draft',
