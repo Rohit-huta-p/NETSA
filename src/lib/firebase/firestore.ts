@@ -87,7 +87,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     
     if (organizerProfile.role !== 'organizer') {
         console.error(`firestore.ts: addGig failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
-        return { success: false, id: null, error: "Invalid organizer profile or permissions." };
+        return { success: false, id: null, error: "Invalid user role. Only organizers can post gigs." };
     }
     
     console.log("firestore.ts: Organizer profile validated for ID:", organizerId);
@@ -141,13 +141,13 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
             additionalBenefits: (gigData.compensation as any)?.additionalBenefits,
         },
         maxApplications: gigData.maxApplications,
+        currentApplications: 0,
         applicationDeadline: applicationDeadline,
         mediaRequirements: gigData.mediaRequirements,
         status: gigData.status || 'draft',
         isUrgent: gigData.isUrgent || false,
         isFeatured: gigData.isFeatured || false,
         tags: gigData.tags || [],
-        currentApplications: 0,
         views: 0,
         applications: 0,
         saves: 0,
@@ -178,7 +178,7 @@ export async function addEvent(organizerId: string, eventData: any) {
     
     if (organizerProfile.role !== 'organizer') {
         console.error(`firestore.ts: addEvent failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
-        return { success: false, id: null, error: "Invalid organizer profile or permissions." };
+        return { success: false, id: null, error: "Invalid user role. Only organizers can post events." };
     }
 
     const now = new Date();
