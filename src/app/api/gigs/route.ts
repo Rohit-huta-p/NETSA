@@ -5,16 +5,19 @@ import { GetGigsQuery } from '@/lib/types';
 import { authAdmin } from '@/lib/firebase/admin';
 
 async function getAuthUser(request: NextRequest) {
+    console.log("api/gigs/route.ts: getAuthUser called");
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        console.error("api/gigs/route.ts: No Authorization header or incorrect format.");
         return null;
     }
     const token = authHeader.split('Bearer ')[1];
     try {
         const decodedToken = await authAdmin.verifyIdToken(token);
+        console.log("api/gigs/route.ts: Token verified successfully for UID:", decodedToken.uid);
         return decodedToken;
     } catch (error) {
-        console.error("Error verifying auth token in API route:", error);
+        console.error("api/gigs/route.ts: Error verifying auth token:", error);
         return null;
     }
 }
@@ -53,33 +56,40 @@ export async function GET(request: NextRequest) {
 
 
 export async function POST(request: NextRequest) {
+    console.log("api/gigs/route.ts: POST handler initiated.");
     const user = await getAuthUser(request);
 
     if (!user || !user.uid) {
+        console.error("api/gigs/route.ts: POST handler failed - Unauthorized user.");
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     try {
         const gigData = await request.json();
+        console.log("api/gigs/route.ts: Gig data received for user:", user.uid);
         
         const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
+            console.error("api/gigs/route.ts: addGig function returned an error:", error);
             // The addGig function now throws specific errors, which we can pass on.
             return NextResponse.json({ message: error }, { status: 400 });
         }
 
         if (!success) {
+            console.error("api/gigs/route.ts: addGig function returned success=false.");
             return NextResponse.json({ message: 'Failed to create gig due to a server error.' }, { status: 500 });
         }
 
+        console.log("api/gigs/route.ts: Gig created successfully with ID:", id);
         return NextResponse.json({ message: 'Gig created successfully', gigId: id }, { status: 201 });
 
     } catch (err: any) {
          if (err instanceof SyntaxError) {
+            console.error("api/gigs/route.ts: Invalid JSON in request body.");
             return NextResponse.json({ message: 'Invalid JSON in request body' }, { status: 400 });
         }
-        console.error("POST /api/gigs error:", err);
+        console.error("api/gigs/route.ts: Unexpected error in POST handler:", err);
         return NextResponse.json({ message: 'An unexpected error occurred', error: err.message }, { status: 500 });
     }
 }

@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -139,26 +139,25 @@ export default function OrganizerRegistrationForm() {
                 totalSpent: 0,
             };
             
-            await addUserProfile(user.uid, finalProfileData);
+            const { data: newProfile, error: profileError } = await addUserProfile(user.uid, finalProfileData);
+            
+            if (profileError || !newProfile) {
+                 toast({
+                    variant: "destructive",
+                    title: "Registration Failed",
+                    description: profileError || "Could not create your user profile. Please try again.",
+                });
+                return;
+            }
             
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
-            const { data: newProfile } = await getUserProfile(user.uid);
-
-            if (newProfile) {
-                setUser({ ...user, ...newProfile });
-                toast({
-                    title: "Welcome to TalentMatch!",
-                    description: "Your organizer account has been created. Let's find some talent!",
-                });
-                window.location.href = '/events';
-            } else {
-                toast({
-                    variant: "destructive",
-                    title: "Registration Failed",
-                    description: "Could not create your user profile. Please try again.",
-                });
-            }
+            setUser({ ...user, ...newProfile });
+            toast({
+                title: "Welcome to TalentMatch!",
+                description: "Your organizer account has been created. Let's find some talent!",
+            });
+            window.location.href = '/events';
         },
         onError: async (error: any) => {
             const errorMessage = handleAppError(error, 'Organizer Registration');

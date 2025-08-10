@@ -162,13 +162,16 @@ export function GigForm() {
   });
 
   const processForm = async (values: GigFormValues) => {
+    console.log("GigForm.tsx: processForm called with values:", values);
     if (!auth.currentUser) {
-      toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
-      return;
+        console.error("GigForm.tsx: No authenticated user found.");
+        toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
+        return;
     }
     setIsSubmitting(true);
     try {
         const token = await auth.currentUser.getIdToken();
+        console.log("GigForm.tsx: Token retrieved for user:", auth.currentUser.uid);
         
         await axios.post('/api/gigs', values, {
             headers: {
@@ -179,6 +182,7 @@ export function GigForm() {
         toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
         router.push('/gigs');
     } catch (error: any) {
+        console.error("GigForm.tsx: Error in processForm:", error);
         const errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
         toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {

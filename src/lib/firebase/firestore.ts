@@ -39,41 +39,52 @@ const convertTimestamps = (data: any): any => {
 
 
 export async function addUserProfile(userId: string, data: any) {
+  console.log("firestore.ts: addUserProfile called for userId:", userId);
   try {
     await setDoc(doc(db, "users", userId), data);
-    return { success: true, error: null };
+    console.log("firestore.ts: addUserProfile successful for userId:", userId);
+    return { data: data, success: true, error: null };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    console.error("firestore.ts: addUserProfile failed for userId:", userId, "Error:", error.message);
+    return { data: null, success: false, error: error.message };
   }
 }
 
 export async function getUserProfile(userId: string) {
+    console.log("firestore.ts: getUserProfile called for userId:", userId);
     try {
         const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
+            console.log("firestore.ts: getUserProfile found document for userId:", userId);
             const data = docSnap.data() as UserProfile;
             const serializableData = convertTimestamps(data);
             return { data: serializableData as UserProfile, error: null };
         } else {
+            console.warn("firestore.ts: getUserProfile found no document for userId:", userId);
             return { data: null, error: 'No such document!' };
         }
     } catch (error: any) {
-        console.error("Error fetching user profile:", error);
+        console.error("firestore.ts: getUserProfile failed for userId:", userId, "Error:", error.message);
         return { data: null, error: error.message };
     }
 }
 
 export async function addGig(organizerId: string, gigData: Partial<Gig>) {
+    console.log("firestore.ts: addGig called for organizerId:", organizerId);
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
 
     if (error || !organizerProfile) {
+        console.error("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
         return { success: false, id: null, error: "Organizer profile not found." };
     }
     
     if (organizerProfile.role !== 'organizer') {
+        console.error(`firestore.ts: addGig failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
         return { success: false, id: null, error: "Invalid organizer profile or permissions." };
     }
+    
+    console.log("firestore.ts: Organizer profile validated for ID:", organizerId);
 
     const now = new Date();
 
@@ -140,10 +151,12 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     };
     
     try {
+        console.log("firestore.ts: Attempting to add gig document to Firestore.");
         const docRef = await addDoc(collection(db, "gigs"), fullGigData);
+        console.log("firestore.ts: Gig document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
     } catch (e: any) {
-        console.error("Error adding gig: ", e);
+        console.error("firestore.ts: Error adding gig document:", e);
         return { success: false, id: null, error: e.message };
     }
 }
