@@ -19,17 +19,21 @@ try {
 }
 
 
-// Helper function to convert Firestore Timestamps to strings
+// Helper function to convert Firestore Timestamps to Date objects
 const convertTimestamps = (data: any): any => {
     if (!data) return data;
     const newData: { [key: string]: any } = {};
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
-            newData[key] = data[key].toDate(); // Convert to Date object, not string
-        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key]) && !(data[key] instanceof Date)) {
+            newData[key] = data[key].toDate();
+        } else if (data[key] instanceof Date) {
+            // If it's already a Date object, keep it as is.
+            newData[key] = data[key];
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
+            // Recursively convert for nested objects
             newData[key] = convertTimestamps(data[key]);
-        }
-        else {
+        } else {
+            // Assign all other data types as they are
             newData[key] = data[key];
         }
     }
@@ -174,7 +178,7 @@ export async function addEvent(organizerId: string, eventData: any) {
 export async function getGigs(filters: GetGigsQuery) {
     const {
         page = 1,
-        limit = 10,
+        limit: limitParam = 10,
         category,
         artistType,
         location,
@@ -189,7 +193,6 @@ export async function getGigs(filters: GetGigsQuery) {
     } = filters;
 
     try {
-        let q = query(collection(db, 'gigs'));
         const constraints = [];
 
         // --- FILTERING ---
@@ -235,18 +238,18 @@ export async function getGigs(filters: GetGigsQuery) {
         const totalGigsSnapshot = await getCountFromServer(finalQuery);
         const total = totalGigsSnapshot.data().count;
 
-        const totalPages = Math.ceil(total / limit);
+        const totalPages = Math.ceil(total / limitParam);
         const currentPage = Math.max(1, page);
         const hasMore = currentPage < totalPages;
         
-        let paginatedQuery = query(finalQuery, limit(limit));
+        let paginatedQuery = query(finalQuery, limit(limitParam));
 
         if (page > 1) {
-            const lastVisibleDocQuery = query(finalQuery, limit((page - 1) * limit));
+            const lastVisibleDocQuery = query(finalQuery, limit((page - 1) * limitParam));
             const lastVisibleDocSnapshot = await getDocs(lastVisibleDocQuery);
             const lastVisible = lastVisibleDocSnapshot.docs[lastVisibleDocSnapshot.docs.length - 1];
             if (lastVisible) {
-                paginatedQuery = query(finalQuery, startAfter(lastVisible), limit(limit));
+                paginatedQuery = query(finalQuery, startAfter(lastVisible), limit(limitParam));
             }
         }
         
