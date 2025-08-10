@@ -144,9 +144,10 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
     
     // Firestore does not accept `undefined` values.
     // We need to remove keys that have an undefined value.
-    const cleanGigData = Object.fromEntries(
-      Object.entries(fullGigData).filter(([_, v]) => v !== undefined)
-    );
+    const cleanGigData: { [key: string]: any } = { ...fullGigData };
+    if (cleanGigData.expiresAt === undefined) {
+      delete cleanGigData.expiresAt;
+    }
 
     try {
         console.log("actions.ts (SERVER): Attempting to add gig document to Firestore.");
@@ -166,7 +167,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
  * @param eventData The event data from the client.
  * @returns An object with success status, new event ID, or an error.
  */
-export async function addEvent(organizerId: string, eventData: Partial<Event>): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
+export async function addEvent(organizerId: string, eventData: any): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
     console.log("actions.ts (SERVER): addEvent called for organizerId:", organizerId);
     const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
 
@@ -188,15 +189,15 @@ export async function addEvent(organizerId: string, eventData: Partial<Event>): 
         category: eventData.category || 'workshop',
         skillLevel: eventData.skillLevel || 'all_levels',
         location: {
-            type: (eventData as any).locationType || 'in_person',
-            city: (eventData as any).city || '',
-            country: (eventData as any).country || '',
-            venue: (eventData as any).venue || '',
+            type: eventData.locationType || 'in_person',
+            city: eventData.city || '',
+            country: eventData.country || '',
+            venue: eventData.venue || '',
         },
         pricing: {
-            amount: (eventData as any).price ?? 0,
+            amount: eventData.price ?? 0,
             currency: 'USD',
-            paymentType: ((eventData as any).price ?? 0) > 0 ? 'full' : 'free',
+            paymentType: (eventData.price ?? 0) > 0 ? 'full' : 'free',
         },
         schedule: {
             startDate: eventData.startDate ? new Date(eventData.startDate) : now,

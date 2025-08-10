@@ -27,17 +27,16 @@ export function handleAppError(error: unknown, context?: string): string {
   // Log the full error to the console for debugging purposes.
   console.error(`Error [${context || 'General'}]:`, error);
 
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-      return (error as { message: string }).message;
-  }
-
   if (error instanceof FirebaseError) {
     return FIREBASE_AUTH_ERROR_MESSAGES[error.code] || DEFAULT_ERROR_MESSAGE;
   }
   
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+      const message = (error as { message: string }).message;
+      if (message) return message;
+  }
+
   if (error instanceof Error) {
-    // For generic JS errors, you might want to show their message in some cases
-    // but a default message is often safer for the user.
     return error.message || DEFAULT_ERROR_MESSAGE;
   }
   
