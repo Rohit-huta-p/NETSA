@@ -144,13 +144,11 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
     
     // Firestore does not accept `undefined` values.
     // We need to remove keys that have an undefined value.
-    const cleanGigData: { [key: string]: any } = { ...fullGigData };
-    if (cleanGigData.expiresAt === undefined) {
-      delete cleanGigData.expiresAt;
-    }
+    const cleanGigData = JSON.parse(JSON.stringify(fullGigData));
+
 
     try {
-        console.log("actions.ts (SERVER): Attempting to add gig document to Firestore.");
+        console.log("actions.ts (SERVER): Attempting to add gig document to Firestore with data:", cleanGigData);
         const docRef = await dbAdmin.collection("gigs").add(cleanGigData);
         console.log("actions.ts (SERVER): Gig document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
@@ -168,7 +166,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
  * @returns An object with success status, new event ID, or an error.
  */
 export async function addEvent(organizerId: string, eventData: any): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
-    console.log("actions.ts (SERVER): addEvent called for organizerId:", organizerId);
+    console.log("actions.ts (SERVER): addEvent called for organizerId:", organizerId, "with data:", eventData);
     const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
 
     if (error || !organizerProfile) {
@@ -180,6 +178,8 @@ export async function addEvent(organizerId: string, eventData: any): Promise<{ s
         console.error(`actions.ts (SERVER): addEvent failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
         return { success: false, id: null, error: new Error("Invalid user role. Only organizers can post events.") };
     }
+    
+    console.log("actions.ts (SERVER): Organizer profile validated for ID:", organizerId);
 
     const now = new Date();
     
@@ -234,12 +234,11 @@ export async function addEvent(organizerId: string, eventData: any): Promise<{ s
         isFeatured: false,
     };
 
-    const cleanEventData = Object.fromEntries(
-      Object.entries(fullEventData).filter(([_, v]) => v !== undefined)
-    );
+    const cleanEventData = JSON.parse(JSON.stringify(fullEventData));
+
 
     try {
-        console.log("actions.ts (SERVER): Attempting to add event document to Firestore.");
+        console.log("actions.ts (SERVER): Attempting to add event document to Firestore with data:", cleanEventData);
         const docRef = await dbAdmin.collection("events").add(cleanEventData);
         console.log("actions.ts (SERVER): Event document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };

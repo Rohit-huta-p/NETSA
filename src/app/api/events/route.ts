@@ -33,12 +33,12 @@ export async function POST(request: NextRequest) {
 
     try {
         const eventData = await request.json();
-        console.log("api/events/route.ts: Event data received for user:", user.uid);
+        console.log("api/events/route.ts: Event data received for user:", user.uid, eventData);
         
         const { success, id, error } = await addEvent(user.uid, eventData);
 
         if (error) {
-            console.error("api/events/route.ts: addEvent function returned an error:", error);
+            console.error("api/events/route.ts: addEvent function returned an error:", error.message);
             return NextResponse.json({ message: error.message || 'An unknown error occurred during event creation.' }, { status: 400 });
         }
 
