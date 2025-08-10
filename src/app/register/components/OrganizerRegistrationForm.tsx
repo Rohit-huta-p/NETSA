@@ -20,14 +20,13 @@ import { Input } from '../../../components/ui/input';
 import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import Cookies from 'js-cookie';
 import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLoaderStore } from '@/store/loaderStore';
 import { handleAppError } from '@/lib/errorHandler';
-import { UserProfile } from '@/store/userStore';
+import type { UserProfile } from '@/store/userStore';
 
 const formSchema = z
   .object({
@@ -89,10 +88,12 @@ export default function OrganizerRegistrationForm() {
     const { mutate: signUp, isPending } = useMutation({
         mutationFn: async (values: z.infer<typeof formSchema>) => {
             setLoading(true);
+            console.log("OrganizerRegistrationForm.tsx: Starting registration process...");
             const { email, password } = values;
             const { user, error } = await signUpWithEmailAndPassword(email, password);
             if (error) throw new Error(error);
             if (!user) throw new Error("User not created");
+            console.log("OrganizerRegistrationForm.tsx: Firebase Auth user created with UID:", user.uid);
 
             const { confirmPassword, agreeToTerms, ...profileData } = values;
 
@@ -136,15 +137,18 @@ export default function OrganizerRegistrationForm() {
                 totalSpent: 0,
             };
             
+            console.log("OrganizerRegistrationForm.tsx: Attempting to create user profile in Firestore for UID:", user.uid);
             const { data: newProfile, error: profileError } = await addUserProfile(user.uid, finalProfileData);
             
             if (profileError || !newProfile) {
                  throw new Error(profileError || "Could not create your user profile. Please try again.");
             }
+            console.log("OrganizerRegistrationForm.tsx: Firestore profile created successfully.");
 
             return { user, newProfile };
         },
         onSuccess: async ({ user, newProfile }) => {
+            console.log("OrganizerRegistrationForm.tsx: Registration success. Setting user state and redirecting.");
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
             setUser({ ...user, ...newProfile });
@@ -163,6 +167,7 @@ export default function OrganizerRegistrationForm() {
             });
         },
         onSettled: () => {
+          console.log("OrganizerRegistrationForm.tsx: Registration mutation settled.");
           setLoading(false);
         }
     });

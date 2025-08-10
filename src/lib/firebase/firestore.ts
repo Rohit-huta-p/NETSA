@@ -54,6 +54,10 @@ export async function addUserProfile(userId: string, data: any) {
 
 export async function getUserProfile(userId: string) {
     console.log("firestore.ts: getUserProfile called for userId:", userId);
+    if (!userId) {
+        console.error("firestore.ts: getUserProfile called with undefined or null userId.");
+        return { data: null, error: "Invalid user ID provided." };
+    }
     try {
         const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
