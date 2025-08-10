@@ -1,7 +1,6 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { authAdmin } from './lib/firebase/admin';
 
 // List of routes that require authentication
 const protectedRoutes = ['/events', '/gigs', '/workshops', '/artist', '/create'];
@@ -16,26 +15,12 @@ export async function middleware(request: NextRequest) {
   const isProtectedApiRoute = protectedApiRoutes.some(route => pathname.startsWith(route));
   if (isProtectedApiRoute) {
       const authHeader = request.headers.get('Authorization');
+      // The middleware's job is just to check for the presence of the header.
+      // The API route itself will handle the verification.
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
           return NextResponse.json({ message: 'Unauthorized: No or invalid token format' }, { status: 401 });
       }
-
-      const token = authHeader.split('Bearer ')[1];
-      try {
-          const decodedToken = await authAdmin.verifyIdToken(token);
-          const requestHeaders = new Headers(request.headers);
-          requestHeaders.set('x-user-id', decodedToken.uid);
-
-          return NextResponse.next({
-            request: {
-              headers: requestHeaders,
-            },
-          });
-
-      } catch (error) {
-          console.error("Error verifying auth token in middleware:", error);
-          return NextResponse.json({ message: 'Unauthorized: Invalid token' }, { status: 401 });
-      }
+      return NextResponse.next();
   }
 
   // --- Page Route Protection ---

@@ -4,7 +4,22 @@ import { getGigs, addGig } from '@/lib/firebase/firestore';
 import { GetGigsQuery } from '@/lib/types';
 import { authAdmin } from '@/lib/firebase/admin';
 
-export async function GET(request: Request) {
+async function getAuthUser(request: NextRequest) {
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return null;
+    }
+    const token = authHeader.split('Bearer ')[1];
+    try {
+        const decodedToken = await authAdmin.verifyIdToken(token);
+        return decodedToken;
+    } catch (error) {
+        console.error("Error verifying auth token in API route:", error);
+        return null;
+    }
+}
+
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
   const query: GetGigsQuery = {
@@ -38,16 +53,15 @@ export async function GET(request: Request) {
 
 
 export async function POST(request: NextRequest) {
-    const userId = request.headers.get('x-user-id');
-
-    if (!userId) {
-        return NextResponse.json({ message: 'Unauthorized: No user ID found in headers' }, { status: 401 });
+    const user = await getAuthUser(request);
+    if (!user || !user.uid) {
+        return NextResponse.json({ message: 'Unauthorized: Invalid token or user not found.' }, { status: 401 });
     }
 
     try {
         const gigData = await request.json();
         
-        const { success, id, error } = await addGig(userId, gigData);
+        const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
             return NextResponse.json({ message: 'An unexpected error occurred', error: error }, { status: 400 });
