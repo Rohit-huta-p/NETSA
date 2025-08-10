@@ -3,9 +3,12 @@
 import { notFound } from "next/navigation";
 import { getUserProfile_Admin } from "@/lib/server/actions";
 import { ProfileHeader } from "./components/ProfileHeader";
-import { ProfileTabs } from "./components/ProfileTabs";
 import { Suspense } from "react";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
+import { PortfolioGallery } from "./components/PortfolioGallery";
+import { ActivityFeed } from "./components/ActivityFeed";
+import { EventsList } from "./components/EventsList";
+import { Testimonials } from "./components/Testimonials";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
   // Use the admin version of the function for server-side rendering
@@ -17,10 +20,13 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
   }
 
   return (
-    <>
+    <div className="space-y-8">
       <ProfileHeader artist={artist} />
-      <ProfileTabs artist={artist} />
-    </>
+      <PortfolioGallery />
+      <ActivityFeed />
+      <EventsList />
+      <Testimonials />
+    </div>
   )
 }
 

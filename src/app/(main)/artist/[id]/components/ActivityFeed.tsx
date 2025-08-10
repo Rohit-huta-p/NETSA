@@ -15,20 +15,18 @@ export function ActivityFeed() {
       </CardHeader>
       <CardContent className="space-y-4">
         {activities.map((activity, index) => (
-            <Card key={index} className="p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-muted p-3 rounded-lg">
-                            <Drama className="w-6 h-6 text-muted-foreground" />
-                        </div>
-                        <div>
-                            <p className="font-semibold">{activity.title}</p>
-                            <p className="text-sm text-muted-foreground">{activity.date} • {activity.status}</p>
-                        </div>
+            <div key={index} className="p-4 border rounded-lg shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="bg-muted p-3 rounded-lg">
+                        <Drama className="w-6 h-6 text-muted-foreground" />
                     </div>
-                    <Badge variant="outline" className="font-medium">{activity.status}</Badge>
+                    <div>
+                        <p className="font-semibold">{activity.title}</p>
+                        <p className="text-sm text-muted-foreground">{activity.date} • {activity.status}</p>
+                    </div>
                 </div>
-            </Card>
+                <Badge variant="outline" className="font-medium">{activity.status}</Badge>
+            </div>
         ))}
       </CardContent>
     </Card>

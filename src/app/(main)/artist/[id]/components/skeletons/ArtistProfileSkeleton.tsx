@@ -1,12 +1,15 @@
 
+
 import { ProfileHeaderSkeleton } from "./ProfileHeaderSkeleton";
-import { ProfileTabsSkeleton } from "./ProfileTabsSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ArtistProfileSkeleton() {
   return (
-    <div>
+    <div className="space-y-8">
       <ProfileHeaderSkeleton />
-      <ProfileTabsSkeleton />
+      <Skeleton className="h-64 w-full" />
+      <Skeleton className="h-48 w-full" />
+      <Skeleton className="h-32 w-full" />
     </div>
   );
 }
