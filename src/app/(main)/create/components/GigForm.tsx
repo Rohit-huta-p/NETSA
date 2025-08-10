@@ -187,12 +187,12 @@ export function GigForm() {
         router.push('/gigs');
 
     } catch (error: any) {
-        console.error("GigForm.tsx: Error during gig submission:", error);
+        console.error("GigForm.tsx: Full error object during gig submission:", error);
         
         let errorMessage: string;
         if (axios.isAxiosError(error)) {
-          console.error("GigForm.tsx: Server responded with error:", error.response?.data);
-          errorMessage = handleAppError(error.response?.data || error.message, 'Gig Creation');
+          console.error("GigForm.tsx: Server responded with error data:", error.response?.data);
+          errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
         } else {
           errorMessage = handleAppError(error.message, 'Gig Creation');
         }
@@ -220,7 +220,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 

@@ -91,7 +91,8 @@ export async function POST(request: NextRequest) {
 
         if (error) {
             console.error("api/gigs/route.ts: addGig function returned an error:", error);
-            return NextResponse.json({ message: error }, { status: 400 });
+            // Ensure a consistent error message format
+            return NextResponse.json({ message: error.message || error }, { status: 400 });
         }
 
         if (!success) {
