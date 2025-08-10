@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -53,13 +52,18 @@ export function EventForm() {
     resolver: zodResolver(eventFormSchema),
     mode: 'onChange',
     defaultValues: {
-      title: 'Beginner Contemporary Workshop',
-      description: 'Join us for a 2-hour workshop covering the fundamentals of contemporary dance. No prior experience needed!',
-      city: 'New York',
+      title: 'Advanced Hip-Hop Masterclass with Pro Dancers',
+      description: 'This is a test event description. Join us for an intensive workshop focusing on advanced choreography, musicality, and performance skills in hip-hop dance. This session is designed for experienced dancers looking to push their boundaries.',
+      category: 'masterclass',
+      skillLevel: 'advanced',
+      locationType: 'in_person',
+      venue: 'Starlight Dance Studio',
+      city: 'Los Angeles',
       country: 'USA',
-      price: 25,
-      maxParticipants: 20,
-      status: 'active'
+      price: 75,
+      startDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+      maxParticipants: 25,
+      status: 'active',
     },
   });
 
