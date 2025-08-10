@@ -36,16 +36,17 @@ export function useUser() {
         const unsubscribe = onAuthStateChanged(auth, async (authUser: User | null) => {
             if (authUser) {
                 console.log("useUser.ts: onAuthStateChanged - User is authenticated with UID:", authUser.uid);
-                if (!user || user.uid !== authUser.uid) {
+                // Only re-fetch if the user in state is not the same as the auth user
+                if (!user || user.id !== authUser.uid) {
                     console.log("useUser.ts: App state user is stale or different. Fetching profile for UID:", authUser.uid);
+                    setLoading(true);
                     const token = await authUser.getIdToken();
                     Cookies.set('user-token', token, { expires: 1 });
                     
                     let { data, error } = await getUserProfile(authUser.uid);
                     
                     if (error || !data) {
-                        console.warn("useUser.ts: User profile not found in Firestore for UID:", authUser.uid, "Error:", error);
-                        console.log("useUser.ts: Attempting to recover by creating a default profile.");
+                        console.warn("useUser.ts: User profile not found for UID:", authUser.uid, "Attempting to recover by creating a default profile.");
                         toast({
                             title: 'Setting up your profile...',
                             description: "We couldn't find a profile for your account, so we're creating one now.",
@@ -59,12 +60,13 @@ export function useUser() {
                             id: authUser.uid,
                             firstName: firstName || 'Recovered',
                             lastName: lastName || 'User',
-                            email: authUser.email,
-                            role: 'artist' as const,
+                            email: authUser.email!,
+                            role: 'artist' as const, // Default to artist, can be changed
                             isVerified: false,
                             createdAt: now,
                             updatedAt: now,
                             lastActive: now,
+                            // Add other necessary fields for a default artist to avoid type errors
                             artistType: 'other' as const,
                             agencyAffiliated: false,
                             availableForBooking: true,
@@ -97,6 +99,7 @@ export function useUser() {
                         setUser({
                             ...authUser,
                             ...serializableData,
+                            id: authUser.uid, // ensure id is set from authUser
                         });
                     }
                 } else {

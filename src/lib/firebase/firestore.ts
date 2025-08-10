@@ -77,14 +77,15 @@ export async function getUserProfile(userId: string) {
 }
 
 export async function addGig(organizerId: string, gigData: Partial<Gig>) {
-    console.log("firestore.ts: addGig called for organizerId:", organizerId);
+    console.log(`firestore.ts: addGig called. Attempting to find profile for organizerId: ${organizerId}`);
 
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
     if (error || !organizerProfile) {
-        console.error("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
+        console.error(`firestore.ts: addGig failed - Organizer profile not found for ID: ${organizerId}. Error: ${error || 'No data returned'}`);
         return { success: false, id: null, error: "Organizer profile not found." };
     }
     
+    console.log(`firestore.ts: Found organizer profile for ${organizerProfile.firstName} ${organizerProfile.lastName}. Role: ${organizerProfile.role}`);
     if (organizerProfile.role !== 'organizer') {
         console.error(`firestore.ts: addGig failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
         return { success: false, id: null, error: "Invalid user role. Only organizers can post gigs." };
@@ -106,9 +107,9 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         organizerId: organizerId,
         organizerInfo: {
             name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
-            organization: organizerProfile.organizationName || 'Individual',
+            organization: (organizerProfile as any).organizationName || 'Individual',
             profileImageUrl: organizerProfile.profileImageUrl || '',
-            organizationLogoUrl: organizerProfile.organizationLogoUrl || '',
+            organizationLogoUrl: (organizerProfile as any).organizationLogoUrl || '',
             rating: organizerProfile.stats?.averageRating || 0,
         },
         title: gigData.title || 'Untitled Gig',
@@ -195,7 +196,7 @@ export async function addEvent(organizerId: string, eventData: any) {
         organizerInfo: { 
             name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
             rating: organizerProfile.stats?.averageRating || 0,
-            organization: organizerProfile.organizationName,
+            organization: (organizerProfile as any).organizationName,
         },
         hostInfo: { 
             name: `${organizerProfile.firstName} ${organizerProfile.lastName}`, 
