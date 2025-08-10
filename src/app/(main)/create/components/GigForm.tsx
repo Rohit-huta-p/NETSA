@@ -168,7 +168,6 @@ export function GigForm() {
     setIsSubmitting(true);
     try {
         const token = await auth.currentUser.getIdToken();
-        console.log("TOKEN GIG FORM PROCESSFORM(): ",token)
         const response = await fetch('/api/gigs', {
             method: 'POST',
             headers: {
@@ -180,7 +179,6 @@ export function GigForm() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.log("ERROR MESSAGE",errorData.message);
             throw new Error(errorData.message || 'Failed to create gig');
         }
 

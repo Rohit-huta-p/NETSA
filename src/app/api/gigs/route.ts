@@ -68,11 +68,9 @@ export async function POST(request: Request) {
     try {
         const gigData = await request.json();
         
-        // The addGig function in firestore.ts already checks for organizer role.
         const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
-            // Forward the specific error message from addGig
             return NextResponse.json({ message: 'An unexpected error occurred', error: error }, { status: 400 });
         }
 
