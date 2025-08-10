@@ -1,30 +1,8 @@
 
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { getGigs, addGig } from '@/lib/firebase/firestore';
 import { GetGigsQuery } from '@/lib/types';
 import { authAdmin } from '@/lib/firebase/admin';
-
-async function getAuthUser(request: Request) {
-    const authHeader = request.headers.get('Authorization');
-    if (!authHeader) {
-        console.error("No authorization header found.");
-        return null;
-    }
-    const token = authHeader.split('Bearer ')[1];
-    if (!token) {
-        console.error("No token found in authorization header.");
-        return null;
-    }
-
-    try {
-        const decodedToken = await authAdmin.verifyIdToken(token);
-        return { uid: decodedToken.uid };
-    } catch (error) {
-        console.error("Error verifying auth token:", error);
-        return null;
-    }
-}
-
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -59,16 +37,17 @@ export async function GET(request: Request) {
 }
 
 
-export async function POST(request: Request) {
-    const user = await getAuthUser(request);
-    if (!user || !user.uid) {
-        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+export async function POST(request: NextRequest) {
+    const userId = request.headers.get('x-user-id');
+
+    if (!userId) {
+        return NextResponse.json({ message: 'Unauthorized: No user ID found in headers' }, { status: 401 });
     }
 
     try {
         const gigData = await request.json();
         
-        const { success, id, error } = await addGig(user.uid, gigData);
+        const { success, id, error } = await addGig(userId, gigData);
 
         if (error) {
             return NextResponse.json({ message: 'An unexpected error occurred', error: error }, { status: 400 });
