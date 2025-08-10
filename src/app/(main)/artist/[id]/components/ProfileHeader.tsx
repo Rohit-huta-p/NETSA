@@ -21,8 +21,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   const skills = artist.skills || ["Contemporary", "Hip-Hop", "Ballet", "Jazz", "Choreography"];
 
-  if (artist.role !== 'artist') return null;
-
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
       <div className="flex flex-col md:flex-row gap-8">
