@@ -3,34 +3,27 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can read their own profile and can only write to their own profile.
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId;
-    }
 
-    // Rules for the 'gigs' collection
+    // Gigs should be publicly readable, but only writeable by the organizer who owns it.
     match /gigs/{gigId} {
-      // Allow any authenticated user to get a single gig or list all gigs.
-      allow get, list: if request.auth != null;
-      
-      // Only allow users with an 'organizer' role to create gigs.
-      allow create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'organizer';
-      
-      // Only allow the original organizer to update or delete their own gig.
+      allow list, get: if true;
+      allow create: if request.auth != null && request.resource.data.organizerId == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.organizerId == request.auth.uid;
     }
-
-    // Rules for the 'events' collection
+    
+    // Events should be publicly readable, but only writeable by the organizer who owns it.
     match /events/{eventId} {
-       // Allow any authenticated user to get a single event or list all events.
-      allow get, list: if request.auth != null;
+       allow list, get: if true;
+       allow create: if request.auth != null && request.resource.data.organizerId == request.auth.uid;
+       allow update, delete: if request.auth != null && resource.data.organizerId == request.auth.uid;
+    }
 
-      // Only allow users with an 'organizer' role to create events.
-      allow create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'organizer';
-      
-      // Only allow the original organizer to update or delete their own event.
-      allow update, delete: if request.auth != null && resource.data.organizerId == request.auth.uid;
+    // Users can only read other profiles if they are logged in.
+    // A user can only create/update their own profile.
+    match /users/{userId} {
+      allow get: if request.auth != null;
+      allow list: if request.auth != null;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
