@@ -1,16 +1,17 @@
 
 import { notFound } from "next/navigation";
-import { getUserProfile } from "@/lib/firebase/firestore";
+import { getUserProfile_Admin } from "@/lib/firebase/admin-firestore";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileTabs } from "./components/ProfileTabs";
 import { Suspense } from "react";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
-  const { data: artist, error } = await getUserProfile(artistId);
+  // Use the admin version of the function for server-side rendering
+  const { data: artist, error } = await getUserProfile_Admin(artistId);
 
   if (error || !artist) {
-    console.error(error);
+    console.error(`ArtistProfileContent: Failed to load profile for ${artistId}. Reason:`, error);
     notFound();
   }
 
