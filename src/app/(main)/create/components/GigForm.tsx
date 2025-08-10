@@ -21,6 +21,7 @@ import Step6_ApplicationSettings from './steps/Step6_ApplicationSettings';
 import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
 import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
 import { auth } from '@/lib/firebase/config';
+import axios from 'axios';
 
 const emptyStringToUndefined = z.literal('').transform(() => undefined);
 
@@ -168,25 +169,18 @@ export function GigForm() {
     setIsSubmitting(true);
     try {
         const token = await auth.currentUser.getIdToken();
-        const response = await fetch('/api/gigs', {
-            method: 'POST',
+        
+        await axios.post('/api/gigs', values, {
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(values)
+            }
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to create gig');
-        }
-
-      toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
-      router.push('/gigs');
-    } catch (error) {
-      const errorMessage = handleAppError(error, 'Gig Creation');
-      toast({ variant: 'destructive', title: 'Error', description: errorMessage });
+        toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
+        router.push('/gigs');
+    } catch (error: any) {
+        const errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
+        toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
         setIsSubmitting(false);
     }
@@ -208,7 +202,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 

@@ -9,6 +9,7 @@ import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionC
 import type { Gig, GetGigsResponse } from "@/lib/types";
 import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
+import axios from 'axios';
 
 // A simple mapping for tag colors based on gig type.
 const tagColorMap: { [key: string]: string } = {
@@ -55,18 +56,13 @@ export default function GigsPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/gigs');
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to load gigs');
-      }
-      const data: GetGigsResponse = await response.json();
-      setGigsResponse(data);
+      const response = await axios.get('/api/gigs');
+      setGigsResponse(response.data);
     } catch (e: any) {
-        if (e.message.includes('permission-denied') || e.message.includes('insufficient permissions')) {
+        if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
         } else {
-            setError("Failed to load gigs. Please try again later.");
+            setError(e.response?.data?.message || "Failed to load gigs. Please try again later.");
         }
         console.error(e);
     } finally {
