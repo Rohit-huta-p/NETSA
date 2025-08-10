@@ -3,18 +3,20 @@
 import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence, query, where, orderBy, limit as limitFn, startAfter, getCountFromServer } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
-import type { Gig, Event, GetGigsQuery } from '@/lib/types';
+import type { Event, GetGigsQuery, Gig } from '@/lib/types';
 
 // Enable offline persistence
 try {
-    enableIndexedDbPersistence(db)
-      .catch((err) => {
-        if (err.code == 'failed-precondition') {
-          console.warn("firestore.ts: Firestore offline persistence could not be enabled: Multiple tabs open.");
-        } else if (err.code == 'unimplemented') {
-          console.log("firestore.ts: Firestore offline persistence is not available in this browser.");
-        }
-      });
+    if (typeof window !== 'undefined') {
+        enableIndexedDbPersistence(db)
+          .catch((err) => {
+            if (err.code == 'failed-precondition') {
+              console.warn("firestore.ts: Firestore offline persistence could not be enabled: Multiple tabs open.");
+            } else if (err.code == 'unimplemented') {
+              console.log("firestore.ts: Firestore offline persistence is not available in this browser.");
+            }
+          });
+    }
 } catch (error) {
     console.error("firestore.ts: Error enabling Firestore offline persistence: ", error);
 }
@@ -53,173 +55,60 @@ export async function addUserProfile(userId: string, data: any) {
 }
 
 export async function getUserProfile(userId: string) {
-    console.log("firestore.ts: getUserProfile called for userId:", userId);
+    console.log("firestore.ts: getUserProfile (CLIENT) called for userId:", userId);
     if (!userId) {
-        console.error("firestore.ts: getUserProfile called with undefined or null userId.");
+        console.error("firestore.ts: getUserProfile (CLIENT) called with undefined or null userId.");
         return { data: null, error: "Invalid user ID provided." };
     }
     try {
         const docRef = doc(db, 'users', userId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            console.log("firestore.ts: getUserProfile found document for userId:", userId);
+            console.log("firestore.ts: getUserProfile (CLIENT) found document for userId:", userId);
             const data = docSnap.data() as UserProfile;
             const serializableData = convertTimestamps(data);
             return { data: serializableData as UserProfile, error: null };
         } else {
-            console.warn("firestore.ts: getUserProfile found no document for userId:", userId);
+            console.warn("firestore.ts: getUserProfile (CLIENT) found no document for userId:", userId);
             return { data: null, error: 'No such document!' };
         }
     } catch (error: any) {
-        console.error("firestore.ts: getUserProfile failed for userId:", userId, "Error:", error.message);
+        console.error("firestore.ts: getUserProfile (CLIENT) failed for userId:", userId, "Error:", error.message);
         return { data: null, error: error.message };
     }
 } 
 
-export async function addGig(organizerId: string, gigData: Partial<Gig>) {
-    console.log(`firestore.ts: addGig called. Attempting to find profile for organizerId: ${organizerId}`);
-
-    const { data: organizerProfile, error } = await getUserProfile(organizerId);
-    if (error || !organizerProfile) {
-        console.error(`firestore.ts: addGig failed - Organizer profile not found for ID: ${organizerId}. Error: ${error || 'No data returned'}`);
-        return { success: false, id: null, error: "Organizer profile not found." };
-    }
-    
-    console.log(`firestore.ts: Found organizer profile for ${organizerProfile.firstName} ${organizerProfile.lastName}. Role: ${organizerProfile.role}`);
-    if (organizerProfile.role !== 'organizer') {
-        console.error(`firestore.ts: addGig failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
-        return { success: false, id: null, error: "Invalid user role. Only organizers can post gigs." };
-    }
-    
-    console.log("firestore.ts: Organizer profile validated for ID:", organizerId);
-
-    const now = new Date();
-
-    // Reconstructing dates that may have been stringified during JSON transport
-    const startDate = gigData.startDate ? new Date(gigData.startDate) : now;
-    const endDate = gigData.endDate ? new Date(gigData.endDate) : undefined;
-    const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
-    const expiresAt = gigData.expiresAt ? new Date(gigData.expiresAt) : undefined;
-
-
-    const fullGigData: Gig = {
-        id: '', // Firestore will generate this
-        organizerId: organizerId,
-        organizerInfo: {
-            name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
-            organization: (organizerProfile as any).organizationName || 'Individual',
-            profileImageUrl: organizerProfile.profileImageUrl || '',
-            organizationLogoUrl: (organizerProfile as any).organizationLogoUrl || '',
-            rating: organizerProfile.stats?.averageRating || 0,
-        },
-        title: gigData.title || 'Untitled Gig',
-        description: gigData.description || '',
-        type: gigData.type || 'performance',
-        category: gigData.category || '',
-        artistType: gigData.artistType || [],
-        requiredSkills: gigData.requiredSkills || [],
-        requiredStyles: gigData.requiredStyles || [],
-        experienceLevel: gigData.experienceLevel || 'beginner',
-        ageRange: gigData.ageRange,
-        genderPreference: gigData.genderPreference,
-        physicalRequirements: gigData.physicalRequirements,
-        location: {
-            city: gigData.location?.city || '',
-            country: gigData.location?.country || '',
-            venue: gigData.location?.venue,
-            address: gigData.location?.address,
-            isRemote: gigData.location?.isRemote || false,
-        },
-        startDate: startDate,
-        endDate: endDate,
-        duration: gigData.duration,
-        timeCommitment: gigData.timeCommitment,
-        compensation: {
-            type: (gigData.compensation as any)?.type || 'project',
-            amount: (gigData.compensation as any)?.amount,
-            currency: (gigData.compensation as any)?.currency || 'USD',
-            negotiable: (gigData.compensation as any)?.negotiable || false,
-            additionalBenefits: (gigData.compensation as any)?.additionalBenefits,
-        },
-        maxApplications: gigData.maxApplications,
-        currentApplications: 0,
-        applicationDeadline: applicationDeadline,
-        mediaRequirements: gigData.mediaRequirements,
-        status: gigData.status || 'draft',
-        isUrgent: gigData.isUrgent || false,
-        isFeatured: gigData.isFeatured || false,
-        tags: gigData.tags || [],
-        views: 0,
-        applications: 0,
-        saves: 0,
-        createdAt: now,
-        updatedAt: now,
-        expiresAt: expiresAt,
-    };
-    
+export async function getEvents() {
     try {
-        console.log("firestore.ts: Attempting to add gig document to Firestore.");
-        const docRef = await addDoc(collection(db, "gigs"), fullGigData);
-        console.log("firestore.ts: Gig document added successfully with ID:", docRef.id);
-        return { success: true, id: docRef.id, error: null };
-    } catch (e: any) {
-        console.error("firestore.ts: Error adding gig document:", e);
-        return { success: false, id: null, error: e.message };
+        const eventsCollection = collection(db, 'events');
+        const eventSnapshot = await getDocs(eventsCollection);
+        const eventsList = eventSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const serializableData = convertTimestamps(data);
+            return { id: doc.id, ...serializableData };
+        });
+        return { data: eventsList as Event[], error: null };
+    } catch (error: any) {
+        console.error("Error fetching events: ", error.code, error.message);
+        return { data: [], error: error.message };
     }
 }
 
-export async function addEvent(organizerId: string, eventData: any) {
-    console.log("firestore.ts: addEvent called for organizerId:", organizerId);
-    const { data: organizerProfile, error } = await getUserProfile(organizerId);
 
-    if (error || !organizerProfile) {
-        console.error("firestore.ts: addEvent failed - Organizer profile not found for ID:", organizerId, "Error:", error);
-        return { success: false, id: null, error: "Organizer profile not found." };
-    }
-    
-    if (organizerProfile.role !== 'organizer') {
-        console.error(`firestore.ts: addEvent failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
-        return { success: false, id: null, error: "Invalid user role. Only organizers can post events." };
-    }
-
-    const now = new Date();
-    const fullEventData = {
-        ...eventData,
-        organizerId: organizerId,
-        hostId: organizerId, // Assuming organizer is the host for now
-        createdAt: now,
-        updatedAt: now,
-        status: 'published',
-        currentRegistrations: 0,
-        views: 0,
-        saves: 0,
-        organizerInfo: { 
-            name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
-            rating: organizerProfile.stats?.averageRating || 0,
-            organization: (organizerProfile as any).organizationName,
-        },
-        hostInfo: { 
-            name: `${organizerProfile.firstName} ${organizerProfile.lastName}`, 
-            bio: 'Experienced host', 
-            credentials: [], 
-            experience: '5 years', 
-            rating: organizerProfile.stats?.averageRating || 0, 
-            totalParticipants: 0, 
-            profileImageUrl: organizerProfile.profileImageUrl || '' 
-        },
-        duration: { totalHours: 2, sessionsCount: 1, sessionDuration: 120, daysDuration: 1 },
-        schedule: { startDate: new Date(eventData.startDate), endDate: new Date(eventData.startDate), sessions: [] },
-        pricing: { amount: eventData.price, currency: 'USD', paymentType: 'full' }
-    };
-
+export async function getEvent(eventId: string) {
     try {
-        console.log("firestore.ts: Attempting to add event document to Firestore.");
-        const docRef = await addDoc(collection(db, "events"), fullEventData);
-        console.log("firestore.ts: Event document added successfully with ID:", docRef.id);
-        return { success: true, id: docRef.id, error: null };
-    } catch (e: any) {
-        console.error("Error adding event: ", e);
-        return { success: false, id: null, error: e.message };
+        const docRef = doc(db, 'events', eventId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data() as Event;
+            const serializableData = convertTimestamps(data);
+            return { data: serializableData as Event, error: null };
+        } else {
+            return { data: null, error: 'No such document!' };
+        }
+    } catch (error: any) {
+        console.error("Error fetching event:", error);
+        return { data: null, error: error.message };
     }
 }
 
@@ -322,41 +211,6 @@ export async function getGigs(filters: GetGigsQuery) {
         return { data: response, error: null };
     } catch (error: any) {
         console.error("Error fetching gigs: ", error.code, error.message);
-        return { data: null, error: error.message };
-    }
-}
-
-
-export async function getEvents() {
-    try {
-        const eventsCollection = collection(db, 'events');
-        const eventSnapshot = await getDocs(eventsCollection);
-        const eventsList = eventSnapshot.docs.map(doc => {
-            const data = doc.data();
-            const serializableData = convertTimestamps(data);
-            return { id: doc.id, ...serializableData };
-        });
-        return { data: eventsList as Event[], error: null };
-    } catch (error: any) {
-        console.error("Error fetching events: ", error.code, error.message);
-        return { data: [], error: error.message };
-    }
-}
-
-
-export async function getEvent(eventId: string) {
-    try {
-        const docRef = doc(db, 'events', eventId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data() as Event;
-            const serializableData = convertTimestamps(data);
-            return { data: serializableData as Event, error: null };
-        } else {
-            return { data: null, error: 'No such document!' };
-        }
-    } catch (error: any) {
-        console.error("Error fetching event:", error);
         return { data: null, error: error.message };
     }
 }

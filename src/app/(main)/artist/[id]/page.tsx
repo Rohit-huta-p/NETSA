@@ -1,6 +1,7 @@
 
+
 import { notFound } from "next/navigation";
-import { getUserProfile_Admin } from "@/lib/firebase/admin-firestore";
+import { getUserProfile_Admin } from "@/lib/server/actions";
 import { ProfileHeader } from "./components/ProfileHeader";
 import { ProfileTabs } from "./components/ProfileTabs";
 import { Suspense } from "react";

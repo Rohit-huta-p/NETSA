@@ -1,6 +1,7 @@
 
+
 import { NextResponse, type NextRequest } from 'next/server';
-import { addEvent } from '@/lib/firebase/firestore';
+import { addEvent } from '@/lib/server/actions';
 import { authAdmin } from '@/lib/firebase/admin';
 
 async function getAuthUser(request: NextRequest) {
@@ -37,8 +38,8 @@ export async function POST(request: NextRequest) {
         const { success, id, error } = await addEvent(user.uid, eventData);
 
         if (error) {
-            console.error("api/events/route.ts: addEvent function returned an error:", error);
-            return NextResponse.json({ message: error }, { status: 400 });
+            console.error("api/events/route.ts: addEvent function returned an error:", error.message);
+            return NextResponse.json({ message: error.message || 'An unknown error occurred during event creation.' }, { status: 400 });
         }
 
         if (!success) {

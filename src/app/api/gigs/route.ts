@@ -1,6 +1,8 @@
 
+
 import { NextResponse, type NextRequest } from 'next/server';
-import { getGigs, addGig } from '@/lib/firebase/firestore';
+import { getGigs } from '@/lib/firebase/firestore';
+import { addGig } from '@/lib/server/actions';
 import { GetGigsQuery } from '@/lib/types';
 import { authAdmin } from '@/lib/firebase/admin';
 
@@ -90,9 +92,9 @@ export async function POST(request: NextRequest) {
         const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
-            console.error("api/gigs/route.ts: addGig function returned an error:", error);
+            console.error("api/gigs/route.ts: addGig function returned an error:", error.message);
             // Ensure a consistent error message format
-            return NextResponse.json({ message: error.message || error }, { status: 400 });
+            return NextResponse.json({ message: error.message || 'An unknown error occurred during gig creation.' }, { status: 400 });
         }
 
         if (!success) {
