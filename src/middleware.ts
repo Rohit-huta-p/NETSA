@@ -13,13 +13,14 @@ export async function middleware(request: NextRequest) {
 
   // --- API Route Protection ---
   const isProtectedApiRoute = protectedApiRoutes.some(route => pathname.startsWith(route));
-  if (isProtectedApiRoute && request.method === 'POST') {
+  if (isProtectedApiRoute) {
       const authHeader = request.headers.get('Authorization');
       // The middleware just checks for the presence of the header.
       // The API route itself will handle the verification.
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
           return NextResponse.json({ message: 'Unauthorized: No or invalid token format provided.' }, { status: 401 });
       }
+      // If the header exists, let the request pass to the API route for full verification.
       return NextResponse.next();
   }
 
