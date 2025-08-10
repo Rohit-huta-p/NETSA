@@ -177,13 +177,23 @@ export function GigForm() {
                 'Authorization': `Bearer ${token}`
             }
         });
-
+        
         console.log("GigForm.tsx: Gig submission successful.");
         toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
         router.push('/gigs');
+
     } catch (error: any) {
         console.error("GigForm.tsx: Error during gig submission:", error);
-        const errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
+        
+        let errorMessage: string;
+        if (axios.isAxiosError(error)) {
+          // Log the detailed error from the server if it exists
+          console.error("GigForm.tsx: Server responded with error:", error.response?.data);
+          errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
+        } else {
+          errorMessage = handleAppError(error.message, 'Gig Creation');
+        }
+
         toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
         setIsSubmitting(false);
@@ -206,7 +216,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
