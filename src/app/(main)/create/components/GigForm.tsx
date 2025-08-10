@@ -168,7 +168,6 @@ export function GigForm() {
     setIsSubmitting(true);
     try {
         const token = await auth.currentUser.getIdToken();
-        console.log("TOKEN FROM GIG POST: ", token);
         const response = await fetch('/api/gigs', {
             method: 'POST',
             headers: {

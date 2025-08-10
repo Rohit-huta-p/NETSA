@@ -13,12 +13,12 @@ export async function middleware(request: NextRequest) {
 
   // --- API Route Protection ---
   const isProtectedApiRoute = protectedApiRoutes.some(route => pathname.startsWith(route));
-  if (isProtectedApiRoute) {
+  if (isProtectedApiRoute && request.method === 'POST') {
       const authHeader = request.headers.get('Authorization');
-      // The middleware's job is just to check for the presence of the header.
+      // The middleware just checks for the presence of the header.
       // The API route itself will handle the verification.
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          return NextResponse.json({ message: 'Unauthorized: No or invalid token format' }, { status: 401 });
+          return NextResponse.json({ message: 'Unauthorized: No or invalid token format provided.' }, { status: 401 });
       }
       return NextResponse.next();
   }
@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If logged in, and trying to access login or the root, redirect to events page.
+  // If logged in, and trying to access login, register, or the root, redirect to events page.
   if ((isAuthRoute || isRoot) && tokenCookie) {
     const url = request.nextUrl.clone();
     url.pathname = '/events';

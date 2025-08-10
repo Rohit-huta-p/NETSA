@@ -54,8 +54,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     const user = await getAuthUser(request);
+
     if (!user || !user.uid) {
-        return NextResponse.json({ message: 'Unauthorized: Invalid token or user not found.' }, { status: 401 });
+        return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
     try {
@@ -64,11 +65,12 @@ export async function POST(request: NextRequest) {
         const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
-            return NextResponse.json({ message: 'An unexpected error occurred', error: error }, { status: 400 });
+            // The addGig function now throws specific errors, which we can pass on.
+            return NextResponse.json({ message: error }, { status: 400 });
         }
 
         if (!success) {
-            return NextResponse.json({ message: 'Failed to create gig' }, { status: 500 });
+            return NextResponse.json({ message: 'Failed to create gig due to a server error.' }, { status: 500 });
         }
 
         return NextResponse.json({ message: 'Gig created successfully', gigId: id }, { status: 201 });

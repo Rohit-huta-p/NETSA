@@ -1,5 +1,5 @@
 
-import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence, query, where, orderBy, limit, startAfter, getCountFromServer } from "firebase/firestore";
+import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence, query, where, orderBy, limit as limitFn, startAfter, getCountFromServer } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
 import type { Gig, Event, GetGigsQuery } from '@/lib/types';
@@ -26,10 +26,7 @@ const convertTimestamps = (data: any): any => {
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
             newData[key] = data[key].toDate();
-        } else if (data[key] instanceof Date) {
-            // If it's already a Date object, keep it as is.
-            newData[key] = data[key];
-        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key]) && !(data[key] instanceof Date)) {
             // Recursively convert for nested objects
             newData[key] = convertTimestamps(data[key]);
         } else {
@@ -70,9 +67,14 @@ export async function getUserProfile(userId: string) {
 export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
 
-    if (error || !organizerProfile || organizerProfile.role !== 'organizer') {
-        throw new Error("Invalid organizer profile or permissions.");
+    if (error || !organizerProfile) {
+        return { success: false, id: null, error: "Organizer profile not found." };
     }
+    
+    if (organizerProfile.role !== 'organizer') {
+        return { success: false, id: null, error: "Invalid organizer profile or permissions." };
+    }
+
     const now = new Date();
 
     // Reconstructing dates that may have been stringified during JSON transport
@@ -242,14 +244,14 @@ export async function getGigs(filters: GetGigsQuery) {
         const currentPage = Math.max(1, page);
         const hasMore = currentPage < totalPages;
         
-        let paginatedQuery = query(finalQuery, limit(limitParam));
+        let paginatedQuery = query(finalQuery, limitFn(limitParam));
 
         if (page > 1) {
-            const lastVisibleDocQuery = query(finalQuery, limit((page - 1) * limitParam));
+            const lastVisibleDocQuery = query(finalQuery, limitFn((page - 1) * limitParam));
             const lastVisibleDocSnapshot = await getDocs(lastVisibleDocQuery);
             const lastVisible = lastVisibleDocSnapshot.docs[lastVisibleDocSnapshot.docs.length - 1];
             if (lastVisible) {
-                paginatedQuery = query(finalQuery, startAfter(lastVisible), limit(limitParam));
+                paginatedQuery = query(finalQuery, startAfter(lastVisible), limitFn(limitParam));
             }
         }
         
