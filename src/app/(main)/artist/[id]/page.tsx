@@ -24,7 +24,8 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
 }
 
 export default async function ArtistProfilePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const awaitedParams = await params;
+  const { id } = awaitedParams;
 
   return (
     <div className="container mx-auto py-10">
