@@ -63,12 +63,13 @@ export async function getUserProfile_Admin(userId: string): Promise<{ data: User
  * @param gigData The gig data from the client.
  * @returns An object with success status, new gig ID, or an error.
  */
-export async function addGig(organizerId: string, gigData: Partial<Gig>) {
+export async function addGig(organizerId: string, gigData: Partial<Gig>): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
     console.log(`actions.ts (SERVER): addGig called. Attempting to find profile for organizerId: ${organizerId}`);
 
-    const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
-    if (error || !organizerProfile) {
-        console.error(`actions.ts (SERVER): addGig failed - Organizer profile not found for ID: ${organizerId}. Error: ${error || 'No data returned'}`);
+    const { data: organizerProfile, error: profileError } = await getUserProfile_Admin(organizerId);
+    if (profileError || !organizerProfile) {
+        const errorMessage = `Organizer profile not found for ID: ${organizerId}. Error: ${profileError || 'No data returned'}`;
+        console.error(`actions.ts (SERVER): addGig failed - ${errorMessage}`);
         return { success: false, id: null, error: new Error("Organizer profile not found.") };
     }
     
@@ -85,8 +86,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const startDate = gigData.startDate ? new Date(gigData.startDate) : now;
     const endDate = gigData.endDate ? new Date(gigData.endDate) : undefined;
     const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
-    const expiresAt = gigData.expiresAt ? new Date(gigData.expiresAt) : undefined;
-
+    
     const fullGigData: Omit<Gig, 'id'> = {
         organizerId: organizerId,
         organizerInfo: {
@@ -138,21 +138,18 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         saves: 0,
         createdAt: now,
         updatedAt: now,
-        expiresAt: expiresAt,
+        expiresAt: gigData.expiresAt ? new Date(gigData.expiresAt) : undefined,
     };
     
     // Firestore does not accept `undefined` values.
     // We need to remove keys that have an undefined value.
-    Object.keys(fullGigData).forEach(key => {
-        const K = key as keyof typeof fullGigData;
-        if (fullGigData[K] === undefined) {
-            delete (fullGigData as any)[K];
-        }
-    });
+    const cleanGigData = Object.fromEntries(
+      Object.entries(fullGigData).filter(([_, v]) => v !== undefined)
+    );
 
     try {
         console.log("actions.ts (SERVER): Attempting to add gig document to Firestore.");
-        const docRef = await dbAdmin.collection("gigs").add(fullGigData);
+        const docRef = await dbAdmin.collection("gigs").add(cleanGigData);
         console.log("actions.ts (SERVER): Gig document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
     } catch (e: any) {
@@ -168,7 +165,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
  * @param eventData The event data from the client.
  * @returns An object with success status, new event ID, or an error.
  */
-export async function addEvent(organizerId: string, eventData: any) {
+export async function addEvent(organizerId: string, eventData: Partial<Event>): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
     console.log("actions.ts (SERVER): addEvent called for organizerId:", organizerId);
     const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
 
@@ -185,32 +182,32 @@ export async function addEvent(organizerId: string, eventData: any) {
     const now = new Date();
     
     const fullEventData: Omit<Event, 'id'> = {
-        title: eventData.title,
-        description: eventData.description,
-        category: eventData.category,
-        skillLevel: eventData.skillLevel,
+        title: eventData.title || 'Untitled Event',
+        description: eventData.description || '',
+        category: eventData.category || 'workshop',
+        skillLevel: eventData.skillLevel || 'all_levels',
         location: {
-            type: eventData.locationType,
-            city: eventData.city,
-            country: eventData.country,
-            venue: eventData.venue,
+            type: (eventData.location as any)?.type || eventData.locationType || 'in_person',
+            city: (eventData.location as any)?.city || eventData.city || '',
+            country: (eventData.location as any)?.country || eventData.country || '',
+            venue: (eventData.location as any)?.venue || eventData.venue || '',
         },
         pricing: {
-            amount: eventData.price,
-            currency: 'USD', // Assuming USD for now
-            paymentType: eventData.price > 0 ? 'full' : 'free',
+            amount: (eventData.pricing as any)?.amount ?? eventData.price ?? 0,
+            currency: 'USD',
+            paymentType: ((eventData.pricing as any)?.amount ?? eventData.price ?? 0) > 0 ? 'full' : 'free',
         },
         schedule: {
-            startDate: new Date(eventData.startDate),
-            endDate: new Date(eventData.startDate), // Assuming single day event for now
+            startDate: eventData.startDate ? new Date(eventData.startDate) : now,
+            endDate: eventData.startDate ? new Date(eventData.startDate) : now, // Assuming single day event for now
             sessions: [],
         },
-        maxParticipants: eventData.maxParticipants,
+        maxParticipants: eventData.maxParticipants || 10,
         organizerId: organizerId,
-        hostId: organizerId, // Assuming organizer is the host for now
+        hostId: organizerId,
         createdAt: now,
         updatedAt: now,
-        status: 'published',
+        status: eventData.status || 'draft',
         currentRegistrations: 0,
         views: 0,
         saves: 0,
@@ -235,17 +232,13 @@ export async function addEvent(organizerId: string, eventData: any) {
         isFeatured: false,
     };
 
-    // Firestore does not accept `undefined` values.
-    Object.keys(fullEventData).forEach(key => {
-        const K = key as keyof typeof fullEventData;
-        if ((fullEventData as any)[K] === undefined) {
-            delete (fullEventData as any)[K];
-        }
-    });
+    const cleanEventData = Object.fromEntries(
+      Object.entries(fullEventData).filter(([_, v]) => v !== undefined)
+    );
 
     try {
         console.log("actions.ts (SERVER): Attempting to add event document to Firestore.");
-        const docRef = await dbAdmin.collection("events").add(fullEventData);
+        const docRef = await dbAdmin.collection("events").add(cleanEventData);
         console.log("actions.ts (SERVER): Event document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
     } catch (e: any) {
