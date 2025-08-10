@@ -19,7 +19,8 @@ async function getAuthUser(request: Request) {
 
         // In absence of admin sdk, we'll just decode for uid, but this is INSECURE for production
         const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        return { uid: decoded.user_id };
+        // THE FIX IS HERE: The user ID is in the 'uid' field, not 'user_id'.
+        return { uid: decoded.uid };
 
     } catch (error) {
         console.error("Error verifying auth token:", error);
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     const user = await getAuthUser(request);
     
-    if (!user) {
+    if (!user || !user.uid) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -75,7 +76,8 @@ export async function POST(request: Request) {
         const { success, id, error } = await addGig(user.uid, gigData);
 
         if (error) {
-            return NextResponse.json({ message: 'Error creating gig', error }, { status: 400 });
+            // Forward the specific error message from addGig
+            return NextResponse.json({ message: 'An unexpected error occurred', error: error }, { status: 400 });
         }
 
         if (!success) {
