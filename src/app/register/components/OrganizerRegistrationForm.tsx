@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,7 @@ import { useUserStore } from '@/store/userStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLoaderStore } from '@/store/loaderStore';
 import { handleAppError } from '@/lib/errorHandler';
+import { UserProfile } from '@/store/userStore';
 
 const formSchema = z
   .object({
@@ -96,10 +97,10 @@ export default function OrganizerRegistrationForm() {
             const { confirmPassword, agreeToTerms, ...profileData } = values;
 
             const now = new Date();
-            const finalProfileData = {
+            const finalProfileData: Omit<UserProfile, 'uid' | 'photoURL' | 'providerId'> = {
                 id: user.uid,
                 ...profileData,
-                email: user.email,
+                email: user.email!,
                 role: 'organizer' as const,
                 isVerified: false,
                 createdAt: now,

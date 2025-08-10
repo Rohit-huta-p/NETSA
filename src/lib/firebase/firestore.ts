@@ -1,4 +1,5 @@
 
+
 import { doc, getDoc, setDoc, Timestamp, collection, addDoc, getDocs, enableIndexedDbPersistence, query, where, orderBy, limit as limitFn, startAfter, getCountFromServer } from "firebase/firestore";
 import { db } from "./config";
 import type { UserProfile } from "@/store/userStore";
@@ -9,13 +10,13 @@ try {
     enableIndexedDbPersistence(db)
       .catch((err) => {
         if (err.code == 'failed-precondition') {
-          console.warn("Firestore offline persistence could not be enabled: Multiple tabs open.");
+          console.warn("firestore.ts: Firestore offline persistence could not be enabled: Multiple tabs open.");
         } else if (err.code == 'unimplemented') {
-          console.log("Firestore offline persistence is not available in this browser.");
+          console.log("firestore.ts: Firestore offline persistence is not available in this browser.");
         }
       });
 } catch (error) {
-    console.error("Error enabling Firestore offline persistence: ", error);
+    console.error("firestore.ts: Error enabling Firestore offline persistence: ", error);
 }
 
 
