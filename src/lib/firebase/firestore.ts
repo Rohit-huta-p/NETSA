@@ -74,7 +74,7 @@ export async function getUserProfile(userId: string) {
         console.error("firestore.ts: getUserProfile failed for userId:", userId, "Error:", error.message);
         return { data: null, error: error.message };
     }
-}
+} 
 
 export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     console.log(`firestore.ts: addGig called. Attempting to find profile for organizerId: ${organizerId}`);
