@@ -10,7 +10,7 @@ import type { Gig, Event } from '@/lib/types';
 // Helper function to convert Firestore Timestamps to Date objects for serialization
 const convertTimestamps = (data: any): any => {
     if (!data) return data;
-    const newData: { [key: string]: any } = {};
+    const newData: { [key:string]: any } = {};
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
             newData[key] = data[key].toDate();
@@ -69,7 +69,6 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
     if (error || !organizerProfile) {
         console.error(`actions.ts (SERVER): addGig failed - Organizer profile not found for ID: ${organizerId}. Error: ${error || 'No data returned'}`);
-        // Return a more specific error object that can be destructured
         return { success: false, id: null, error: new Error("Organizer profile not found.") };
     }
     
@@ -88,8 +87,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const applicationDeadline = gigData.applicationDeadline ? new Date(gigData.applicationDeadline) : undefined;
     const expiresAt = gigData.expiresAt ? new Date(gigData.expiresAt) : undefined;
 
-    const fullGigData: Gig = {
-        id: '', // Firestore will generate this
+    const fullGigData: Omit<Gig, 'id'> = {
         organizerId: organizerId,
         organizerInfo: {
             name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
@@ -143,6 +141,15 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
         expiresAt: expiresAt,
     };
     
+    // Firestore does not accept `undefined` values.
+    // We need to remove keys that have an undefined value.
+    Object.keys(fullGigData).forEach(key => {
+        const K = key as keyof typeof fullGigData;
+        if (fullGigData[K] === undefined) {
+            delete (fullGigData as any)[K];
+        }
+    });
+
     try {
         console.log("actions.ts (SERVER): Attempting to add gig document to Firestore.");
         const docRef = await dbAdmin.collection("gigs").add(fullGigData);
@@ -176,9 +183,29 @@ export async function addEvent(organizerId: string, eventData: any) {
     }
 
     const now = new Date();
-    const fullEventData: Event = {
-        ...eventData,
-        id: '', // Will be set by firestore
+    
+    const fullEventData: Omit<Event, 'id'> = {
+        title: eventData.title,
+        description: eventData.description,
+        category: eventData.category,
+        skillLevel: eventData.skillLevel,
+        location: {
+            type: eventData.locationType,
+            city: eventData.city,
+            country: eventData.country,
+            venue: eventData.venue,
+        },
+        pricing: {
+            amount: eventData.price,
+            currency: 'USD', // Assuming USD for now
+            paymentType: eventData.price > 0 ? 'full' : 'free',
+        },
+        schedule: {
+            startDate: new Date(eventData.startDate),
+            endDate: new Date(eventData.startDate), // Assuming single day event for now
+            sessions: [],
+        },
+        maxParticipants: eventData.maxParticipants,
         organizerId: organizerId,
         hostId: organizerId, // Assuming organizer is the host for now
         createdAt: now,
@@ -202,9 +229,19 @@ export async function addEvent(organizerId: string, eventData: any) {
             profileImageUrl: organizerProfile.profileImageUrl || '' 
         },
         duration: { totalHours: 2, sessionsCount: 1, sessionDuration: 120, daysDuration: 1 },
-        schedule: { startDate: new Date(eventData.startDate), endDate: new Date(eventData.startDate), sessions: [] },
-        pricing: { amount: eventData.price, currency: 'USD', paymentType: 'full' }
+        waitlistEnabled: false,
+        providesCertificate: false,
+        isRecurring: false,
+        isFeatured: false,
     };
+
+    // Firestore does not accept `undefined` values.
+    Object.keys(fullEventData).forEach(key => {
+        const K = key as keyof typeof fullEventData;
+        if ((fullEventData as any)[K] === undefined) {
+            delete (fullEventData as any)[K];
+        }
+    });
 
     try {
         console.log("actions.ts (SERVER): Attempting to add event document to Firestore.");
