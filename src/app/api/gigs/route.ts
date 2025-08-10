@@ -2,22 +2,25 @@
 import { NextResponse } from 'next/server';
 import { getGigs, addGig } from '@/lib/firebase/firestore';
 import { GetGigsQuery } from '@/lib/types';
+import { authAdmin } from '@/lib/firebase/admin';
 
 async function getAuthUser(request: Request) {
     const authHeader = request.headers.get('Authorization');
-    if (!authHeader) return null;
+    if (!authHeader) {
+        console.error("No authorization header found.");
+        return null;
+    }
     const token = authHeader.split('Bearer ')[1];
-    if (!token) return null;
+    if (!token) {
+        console.error("No token found in authorization header.");
+        return null;
+    }
 
     try {
-        // THIS IS AN INSECURE METHOD and should be replaced with Firebase Admin SDK for production.
-        // It's used here to unblock development without full server-side admin setup.
-        // It decodes the JWT payload to get the UID without verifying the token's signature.
-        const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-        return { uid: payload.uid };
-
+        const decodedToken = await authAdmin.verifyIdToken(token);
+        return { uid: decodedToken.uid };
     } catch (error) {
-        console.error("Error decoding auth token:", error);
+        console.error("Error verifying auth token:", error);
         return null;
     }
 }
