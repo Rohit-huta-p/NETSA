@@ -48,7 +48,6 @@ export function EventForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionStatus, setSubmissionStatus] = useState<'draft' | 'active' | null>(null);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -66,7 +65,6 @@ export function EventForm() {
 
   const processSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
-    setSubmissionStatus(values.status);
 
     if (!auth.currentUser || user?.role !== 'organizer') {
         toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be an organizer to post an event.' });
@@ -94,14 +92,8 @@ export function EventForm() {
         toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
         setIsSubmitting(false);
-        setSubmissionStatus(null);
     }
   };
-
-  const handleFinalSubmit = (status: 'draft' | 'active') => {
-    form.setValue('status', status);
-    form.handleSubmit(processSubmit)();
-  }
 
   type FieldName = keyof EventFormValues;
 
@@ -154,7 +146,7 @@ export function EventForm() {
         </nav>
 
         <FormProvider {...form}>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={form.handleSubmit(processSubmit)}>
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
@@ -170,21 +162,21 @@ export function EventForm() {
                 {currentStep === steps.length - 1 ? (
                     <div className="flex gap-4">
                         <Button 
-                            type="button" 
-                            onClick={() => handleFinalSubmit('draft')} 
+                            type="submit" 
+                            onClick={() => form.setValue('status', 'draft')} 
                             disabled={isSubmitting} 
                             variant="secondary"
                         >
-                            {isSubmitting && submissionStatus === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Save as Draft
                         </Button>
                         <Button 
-                            type="button" 
-                            onClick={() => handleFinalSubmit('active')} 
+                            type="submit" 
+                            onClick={() => form.setValue('status', 'active')} 
                             disabled={isSubmitting} 
                             className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                         >
-                            {isSubmitting && submissionStatus === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Publish Event
                         </Button>
                     </div>
