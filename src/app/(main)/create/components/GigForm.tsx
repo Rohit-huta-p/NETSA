@@ -161,12 +161,16 @@ export function GigForm() {
   });
 
   const processForm = async (values: GigFormValues) => {
-    console.log("GigForm.tsx: processForm called.");
+    console.log("GigForm.tsx: processForm called with status:", values.status);
+    setIsSubmitting(true);
+
     if (!auth.currentUser) {
         toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
+        setIsSubmitting(false);
+        console.error("GigForm.tsx: Aborting submission - No current user in auth.");
         return;
     }
-    setIsSubmitting(true);
+    
     try {
         console.log("GigForm.tsx: Getting user ID token...");
         const token = await auth.currentUser.getIdToken();
@@ -187,7 +191,6 @@ export function GigForm() {
         
         let errorMessage: string;
         if (axios.isAxiosError(error)) {
-          // Log the detailed error from the server if it exists
           console.error("GigForm.tsx: Server responded with error:", error.response?.data);
           errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
         } else {
@@ -197,6 +200,7 @@ export function GigForm() {
         toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
         setIsSubmitting(false);
+        console.log("GigForm.tsx: processForm finished.");
     }
   };
 
@@ -216,7 +220,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -270,11 +274,8 @@ export function GigForm() {
                     {currentStep === steps.length - 1 ? (
                         <div className="flex gap-4">
                             <Button 
-                                type="button" 
-                                onClick={() => {
-                                    form.setValue('status', 'draft');
-                                    form.handleSubmit(processForm)();
-                                }} 
+                                type="submit" 
+                                onClick={() => form.setValue('status', 'draft')} 
                                 disabled={isSubmitting} 
                                 variant="secondary"
                             >
@@ -282,11 +283,8 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="button" 
-                                onClick={() => {
-                                    form.setValue('status', 'active');
-                                    form.handleSubmit(processForm)();
-                                }} 
+                                type="submit" 
+                                onClick={() => form.setValue('status', 'active')} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >

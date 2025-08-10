@@ -5,13 +5,23 @@ import { GetGigsQuery } from '@/lib/types';
 import { authAdmin } from '@/lib/firebase/admin';
 
 async function getAuthUser(request: NextRequest) {
-    console.log("api/gigs/route.ts: getAuthUser called");
+    console.log("api/gigs/route.ts: getAuthUser called.");
     const authHeader = request.headers.get('Authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        console.error("api/gigs/route.ts: No Authorization header or incorrect format.");
+    if (!authHeader) {
+        console.error("api/gigs/route.ts: Authorization header is missing.");
         return null;
     }
+    if(!authHeader.startsWith('Bearer ')) {
+        console.error("api/gigs/route.ts: Authorization header is not Bearer type.");
+        return null;
+    }
+
     const token = authHeader.split('Bearer ')[1];
+    if (!token) {
+        console.error("api/gigs/route.ts: Token is missing from Authorization header.");
+        return null;
+    }
+
     try {
         const decodedToken = await authAdmin.verifyIdToken(token);
         console.log("api/gigs/route.ts: Token verified successfully for UID:", decodedToken.uid);
