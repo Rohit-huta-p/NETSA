@@ -1,14 +1,27 @@
+
 import admin from 'firebase-admin';
 
-// Check if the app is already initialized to prevent errors
 if (!admin.apps.length) {
-    // In a deployed environment like Google Cloud Run (which App Hosting uses),
-    // the SDK can automatically discover credentials.
-    // For local development, we provide the project ID to help it connect.
-    admin.initializeApp({
-        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    });
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+        // Parse the service account from .env
+        const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+
+        // The private key from an env var needs to have its newlines restored
+        if (serviceAccount.private_key) {
+            serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+        }
+
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            projectId: serviceAccount.project_id,
+        });
+    } else {
+        // In production (Cloud Run, App Hosting), credentials will be auto-discovered
+        // or you would use a different method like Application Default Credentials.
+        admin.initializeApp();
+    }
 }
+
 
 const authAdmin = admin.auth();
 const dbAdmin = admin.firestore();
