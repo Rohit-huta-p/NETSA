@@ -23,6 +23,7 @@ async function getAuthUser(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  console.log("api/gigs/route.ts: GET handler initiated.");
   const { searchParams } = new URL(request.url);
 
   const query: GetGigsQuery = {
@@ -45,11 +46,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await getGigs(query);
 
     if (error) {
+      console.error("api/gigs/route.ts: Error from getGigs function:", error);
       return NextResponse.json({ message: 'Error fetching gigs', error }, { status: 500 });
     }
 
+    console.log("api/gigs/route.ts: GET request successful.");
     return NextResponse.json(data);
   } catch (err: any) {
+    console.error("api/gigs/route.ts: Unexpected error in GET handler:", err);
     return NextResponse.json({ message: 'An unexpected error occurred', error: err.message }, { status: 500 });
   }
 }
@@ -72,7 +76,6 @@ export async function POST(request: NextRequest) {
 
         if (error) {
             console.error("api/gigs/route.ts: addGig function returned an error:", error);
-            // The addGig function now throws specific errors, which we can pass on.
             return NextResponse.json({ message: error }, { status: 400 });
         }
 
@@ -93,3 +96,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'An unexpected error occurred', error: err.message }, { status: 500 });
     }
 }
+
+    

@@ -2,54 +2,57 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// List of routes that require authentication
-const protectedRoutes = ['/events', '/gigs', '/workshops', '/artist', '/create'];
+// List of page routes that require a user to be logged in
+const protectedPageRoutes = ['/events', '/gigs', '/workshops', '/artist', '/create'];
 
-// List of API routes that require authentication
+// List of API routes that require a valid Authorization token
 const protectedApiRoutes = ['/api/gigs'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  console.log(`Middleware: Processing request for ${pathname}`);
 
   // --- API Route Protection ---
   const isProtectedApiRoute = protectedApiRoutes.some(route => pathname.startsWith(route));
   if (isProtectedApiRoute) {
+      console.log(`Middleware: Path ${pathname} is a protected API route.`);
       const authHeader = request.headers.get('Authorization');
-      // The middleware just checks for the presence of the header.
-      // The API route itself will handle the verification.
+      
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
+          console.error(`Middleware: API request to ${pathname} is missing or has an invalid Authorization header.`);
           return NextResponse.json({ message: 'Unauthorized: No or invalid token format provided.' }, { status: 401 });
       }
-      // If the header exists, let the request pass to the API route for full verification.
+      
+      console.log(`Middleware: API request to ${pathname} has an Authorization header. Allowing request to proceed to API handler for verification.`);
+      // The API route itself will handle the actual verification of the token.
       return NextResponse.next();
   }
 
   // --- Page Route Protection ---
+  console.log(`Middleware: Path ${pathname} is a page route. Checking cookie...`);
   const tokenCookie = request.cookies.get('user-token');
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  const isProtectedRoute = protectedPageRoutes.some(route => pathname.startsWith(route));
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
   const isRoot = pathname === '/';
 
-  // If trying to access a protected route without a token, redirect to login.
+  // If trying to access a protected page without a token, redirect to login.
   if (isProtectedRoute && !tokenCookie) {
+    console.log(`Middleware: No token cookie found for protected page ${pathname}. Redirecting to /login.`);
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
-  // If logged in, and trying to access login, register, or the root, redirect to events page.
+  // If logged in (has token) and trying to access login, register, or the root, redirect to events page.
   if ((isAuthRoute || isRoot) && tokenCookie) {
+    console.log(`Middleware: User is logged in. Redirecting from ${pathname} to /events.`);
     const url = request.nextUrl.clone();
     url.pathname = '/events';
     return NextResponse.redirect(url);
   }
 
-  // If on the root page and not logged in, allow access to the public landing page.
-  if(isRoot && !tokenCookie){
-    return NextResponse.next();
-  }
-
-  return NextResponse.next()
+  console.log(`Middleware: Request for ${pathname} passed all checks. Allowing access.`);
+  return NextResponse.next();
 }
 
 export const config = {
@@ -64,3 +67,5 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|assets).*)',
   ],
 }
+
+    

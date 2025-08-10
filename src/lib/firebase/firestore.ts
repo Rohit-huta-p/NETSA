@@ -76,7 +76,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
     console.log()
     if (error || !organizerProfile) {
-        console.error("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
+        console.log("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
         return { success: false, id: null, error: "Organizer profile not found." };
     }
     
