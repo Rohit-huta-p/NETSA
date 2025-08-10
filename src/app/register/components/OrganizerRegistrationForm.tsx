@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from '../../../components/ui/form';
 import { Input } from '../../../components/ui/input';
-import { addUserProfile } from '@/lib/firebase/firestore';
+import { addUserProfile, getUserProfile } from '@/lib/firebase/firestore';
 import { signUpWithEmailAndPassword } from '@/lib/firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -64,7 +64,6 @@ const organizationTypes = ['company', 'individual', 'agency', 'institution', 'ev
 
 export default function OrganizerRegistrationForm() {
   const { toast } = useToast();
-  const router = useRouter();
   const { setUser } = useUserStore();
   const { setLoading } = useLoaderStore();
 
@@ -93,11 +92,8 @@ export default function OrganizerRegistrationForm() {
             const { user, error } = await signUpWithEmailAndPassword(email, password);
             if (error) throw new Error(error);
             if (!user) throw new Error("User not created");
-            return user;
-        },
-        onSuccess: async (user) => {
-            const values = form.getValues();
-            const { email, password, confirmPassword, agreeToTerms, ...profileData } = values;
+
+            const { confirmPassword, agreeToTerms, ...profileData } = values;
 
             const now = new Date();
             const finalProfileData = {
@@ -142,14 +138,12 @@ export default function OrganizerRegistrationForm() {
             const { data: newProfile, error: profileError } = await addUserProfile(user.uid, finalProfileData);
             
             if (profileError || !newProfile) {
-                 toast({
-                    variant: "destructive",
-                    title: "Registration Failed",
-                    description: profileError || "Could not create your user profile. Please try again.",
-                });
-                return;
+                 throw new Error(profileError || "Could not create your user profile. Please try again.");
             }
-            
+
+            return { user, newProfile };
+        },
+        onSuccess: async ({ user, newProfile }) => {
             const token = await user.getIdToken();
             Cookies.set('user-token', token, { expires: 1 });
             setUser({ ...user, ...newProfile });

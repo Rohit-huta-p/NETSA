@@ -24,6 +24,11 @@ async function getAuthUser(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   console.log("api/gigs/route.ts: GET handler initiated.");
+  const user = await getAuthUser(request);
+   if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
   const { searchParams } = new URL(request.url);
 
   const query: GetGigsQuery = {
@@ -96,5 +101,3 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'An unexpected error occurred', error: err.message }, { status: 500 });
     }
 }
-
-    

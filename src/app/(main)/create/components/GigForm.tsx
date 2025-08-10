@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { handleAppError } from '@/lib/errorHandler';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import Step1_BasicDetails from './steps/Step1_BasicDetails';
 import Step2_ArtistRequirements from './steps/Step2_ArtistRequirements';
 import Step3_LocationSchedule from './steps/Step3_LocationSchedule';
@@ -164,7 +163,6 @@ export function GigForm() {
   const processForm = async (values: GigFormValues) => {
     console.log("GigForm.tsx: processForm called.");
     if (!auth.currentUser) {
-        console.error("GigForm.tsx: No authenticated user found for submission.");
         toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
         return;
     }
@@ -299,5 +297,3 @@ export function GigForm() {
     </div>
   );
 }
-
-    

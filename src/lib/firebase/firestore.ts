@@ -43,6 +43,7 @@ export async function addUserProfile(userId: string, data: any) {
   try {
     await setDoc(doc(db, "users", userId), data);
     console.log("firestore.ts: addUserProfile successful for userId:", userId);
+    // Return the data that was just written to avoid a race condition on read
     return { data: data, success: true, error: null };
   } catch (error: any) {
     console.error("firestore.ts: addUserProfile failed for userId:", userId, "Error:", error.message);
@@ -74,9 +75,8 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
     console.log("firestore.ts: addGig called for organizerId:", organizerId);
 
     const { data: organizerProfile, error } = await getUserProfile(organizerId);
-    console.log()
     if (error || !organizerProfile) {
-        console.log("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
+        console.error("firestore.ts: addGig failed - Organizer profile not found for ID:", organizerId, "Error:", error);
         return { success: false, id: null, error: "Organizer profile not found." };
     }
     
@@ -163,27 +163,53 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>) {
 }
 
 export async function addEvent(organizerId: string, eventData: any) {
-    // This is a simplified version. A real implementation would fetch organizer/host info.
+    console.log("firestore.ts: addEvent called for organizerId:", organizerId);
+    const { data: organizerProfile, error } = await getUserProfile(organizerId);
+
+    if (error || !organizerProfile) {
+        console.error("firestore.ts: addEvent failed - Organizer profile not found for ID:", organizerId, "Error:", error);
+        return { success: false, id: null, error: "Organizer profile not found." };
+    }
+    
+    if (organizerProfile.role !== 'organizer') {
+        console.error(`firestore.ts: addEvent failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
+        return { success: false, id: null, error: "Invalid organizer profile or permissions." };
+    }
+
+    const now = new Date();
     const fullEventData = {
         ...eventData,
         organizerId: organizerId,
         hostId: organizerId, // Assuming organizer is the host for now
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: now,
+        updatedAt: now,
         status: 'published',
         currentRegistrations: 0,
         views: 0,
         saves: 0,
-        // Mock data for required nested objects
-        organizerInfo: { name: 'Demo Org', rating: 5 },
-        hostInfo: { name: 'Demo Host', bio: 'Experienced host', credentials:[], experience: '5 years', rating: 5, totalParticipants: 0, profileImageUrl: '' },
+        organizerInfo: { 
+            name: `${organizerProfile.firstName} ${organizerProfile.lastName}`,
+            rating: organizerProfile.stats?.averageRating || 0,
+            organization: organizerProfile.organizationName,
+        },
+        hostInfo: { 
+            name: `${organizerProfile.firstName} ${organizerProfile.lastName}`, 
+            bio: 'Experienced host', 
+            credentials: [], 
+            experience: '5 years', 
+            rating: organizerProfile.stats?.averageRating || 0, 
+            totalParticipants: 0, 
+            profileImageUrl: organizerProfile.profileImageUrl || '' 
+        },
         duration: { totalHours: 2, sessionsCount: 1, sessionDuration: 120, daysDuration: 1 },
-        schedule: { startDate: new Date(), endDate: new Date(), sessions: [] },
+        schedule: { startDate: new Date(eventData.startDate), endDate: new Date(eventData.startDate), sessions: [] },
         pricing: { amount: eventData.price, currency: 'USD', paymentType: 'full' }
     };
 
     try {
+        console.log("firestore.ts: Attempting to add event document to Firestore.");
         const docRef = await addDoc(collection(db, "events"), fullEventData);
+        console.log("firestore.ts: Event document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
     } catch (e: any) {
         console.error("Error adding event: ", e);
@@ -218,15 +244,11 @@ export async function getGigs(filters: GetGigsQuery) {
         if (experience_level) constraints.push(where('experienceLevel', '==', experience_level));
         if (is_remote !== undefined) constraints.push(where('location.isRemote', '==', is_remote));
         
-        // Date range
         if (start_date_from) constraints.push(where('startDate', '>=', new Date(start_date_from)));
         if (start_date_to) constraints.push(where('startDate', '<=', new Date(start_date_to)));
         
-        // Compensation range - Firestore cannot query ranges on different fields. This requires post-processing or a different data structure.
-        // For now, we will filter by minimum compensation only if it's provided.
         if (compensation_min !== undefined) constraints.push(where('compensation.amount', '>=', compensation_min));
         if (compensation_max !== undefined) constraints.push(where('compensation.amount', '<=', compensation_max));
-
 
         // --- SORTING ---
         switch (sort) {
@@ -276,7 +298,6 @@ export async function getGigs(filters: GetGigsQuery) {
             return { id: doc.id, ...serializableData };
         }) as Gig[];
         
-        // TODO: Aggregate filters dynamically
         const response = {
             gigs: gigsList,
             total,
