@@ -187,17 +187,14 @@ export function EventForm() {
                             Save as Draft
                         </Button>
                         <Button 
-                            type="submit" 
-                            onClick={() => {
-                                console.log("EventForm.tsx: 'Publish Event' button clicked.");
-                                form.setValue('status', 'active');
-                            }} 
-                            disabled={isSubmitting} 
-                            className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
-                        >
-                            {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Publish Event
-                        </Button>
+                                type="button" 
+                                onClick={() => form.handleSubmit((values) => processSubmit({ ...values, status: 'active' }))()}
+                                disabled={isSubmitting} 
+                                className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
+                            >
+                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                Publish Event
+                            </Button>
                     </div>
                 ) : (
                     <Button type="button" onClick={next} disabled={isSubmitting}>
