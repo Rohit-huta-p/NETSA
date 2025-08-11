@@ -30,6 +30,7 @@ const eventFormSchema = z.object({
   price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().nonnegative()),
   startDate: z.date({ required_error: 'Start date is required'}),
   maxParticipants: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive("Must be greater than 0")),
+  status: z.enum(['draft', 'active']),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -65,6 +66,7 @@ export function EventForm() {
       price: 75,
       startDate: new Date(new Date().setDate(new Date().getDate() + 30)),
       maxParticipants: 25,
+      status: 'active',
     },
   });
 
@@ -190,10 +192,11 @@ export function EventForm() {
                             Save as Draft
                         </Button>
                         <Button 
-                            type="submit" 
+                            type="button" 
                             onClick={() => {
                                 console.log("EventForm.tsx: 'Publish Event' button clicked. Setting ref.");
                                 statusRef.current = 'active';
+                                processSubmit(form.getValues());
                             }} 
                             disabled={isSubmitting} 
                             className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
