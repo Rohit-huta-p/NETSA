@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const user = await getAuthUser(request);
 
     if (!user || !user.uid) {
-        console.error("api/events/route.ts: Unauthorized access attempt.");
+        console.error("api/events/route.ts: Unauthorized access attempt. User could not be verified.");
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!success) {
-            console.error("api/events/route.ts: addEvent action was not successful.");
+            console.error("api/events/route.ts: addEvent action was not successful but returned no specific error.");
             return NextResponse.json({ message: 'Failed to create event due to a server error.' }, { status: 500 });
         }
 

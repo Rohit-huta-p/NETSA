@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,10 +30,10 @@ const eventFormSchema = z.object({
   price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().nonnegative()),
   startDate: z.date({ required_error: 'Start date is required'}),
   maxParticipants: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive("Must be greater than 0")),
-  status: z.enum(['draft', 'active']),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
+type EventStatus = 'draft' | 'active';
 
 const steps = [
   { id: 'Step 1', name: 'Details', fields: ['title', 'description', 'category'] },
@@ -48,6 +48,7 @@ export function EventForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const statusRef = useRef<EventStatus>('active');
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -64,15 +65,14 @@ export function EventForm() {
       price: 75,
       startDate: new Date(new Date().setDate(new Date().getDate() + 30)),
       maxParticipants: 25,
-      status: 'active',
     },
   });
 
   const processSubmit = async (values: EventFormValues) => {
-    console.log("EventForm.tsx: processSubmit called with values:", values);
+    const status = statusRef.current;
+    console.log(`EventForm.tsx: processSubmit called with status: ${status}`);
     setIsSubmitting(true);
-    console.log("EventForm.tsx: isSubmitting set to true");
-
+    
     if (!auth.currentUser || user?.role !== 'organizer') {
         console.error("EventForm.tsx: Unauthorized attempt to create event.");
         toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be an organizer to post an event.' });
@@ -80,17 +80,19 @@ export function EventForm() {
         return;
     }
     
+    const finalValues = { ...values, status };
+    
     try {
         console.log("EventForm.tsx: Getting user ID token...");
         const token = await auth.currentUser.getIdToken();
-        console.log("EventForm.tsx: Token retrieved. Sending POST request to /api/events");
-        await axios.post('/api/events', values, {
+        console.log("EventForm.tsx: Token retrieved. Sending POST request to /api/events with data:", finalValues);
+        await axios.post('/api/events', finalValues, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         console.log("EventForm.tsx: API request successful.");
-        toast({ title: 'Success!', description: `Your event has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
+        toast({ title: 'Success!', description: `Your event has been ${status === 'draft' ? 'saved as a draft' : 'published'}.` });
         router.push('/events');
     } catch (error: any) {
         console.error("EventForm.tsx: An error occurred during submission.");
@@ -160,7 +162,7 @@ export function EventForm() {
         </nav>
 
         <FormProvider {...form}>
-          <form>
+          <form onSubmit={form.handleSubmit(processSubmit)}>
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
@@ -178,27 +180,26 @@ export function EventForm() {
                         <Button 
                             type="submit" 
                             onClick={() => {
-                                console.log("EventForm.tsx: 'Save as Draft' button clicked.");
-                                form.setValue('status', 'draft');
+                                console.log("EventForm.tsx: 'Save as Draft' button clicked. Setting ref.");
+                                statusRef.current = 'draft';
                             }} 
                             disabled={isSubmitting} 
                             variant="secondary"
                         >
-                            {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isSubmitting && statusRef.current === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Save as Draft
                         </Button>
                         <Button 
                             type="submit" 
                             onClick={() => {
-                                console.log("EventForm.tsx: 'Publish Event' button clicked.");
-                                form.setValue('status', 'active');
-                                form.handleSubmit(processSubmit());
+                                console.log("EventForm.tsx: 'Publish Event' button clicked. Setting ref.");
+                                statusRef.current = 'active';
                             }} 
                             disabled={isSubmitting} 
                             className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                         >
-                            {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Publish Eventss
+                            {isSubmitting && statusRef.current === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Publish Event
                         </Button>
                     </div>
                 ) : (

@@ -55,7 +55,7 @@ export async function getUserProfile_Admin(userId: string): Promise<{ data: User
         }
     } catch (error: any) {
         const errorMsg = `Error fetching profile for userId: "${userId}". Reason: ${error.message}`;
-        console.error(`actions.ts (SERVER): ${errorMsg}`);
+        console.error(`actions.ts (SERVER): getUserProfile_Admin failed for userId: "${userId}" "Error:" "${error.message}"`);
         return { data: null, error: "An internal server error occurred while fetching the user profile." };
     }
 }
