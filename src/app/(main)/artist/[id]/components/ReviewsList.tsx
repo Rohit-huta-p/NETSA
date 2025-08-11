@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
 
@@ -17,28 +17,32 @@ export function ReviewsList() {
     }
 
     return (
-        <div className="space-y-4 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold">Reviews & Testimonials</h2>
-            {reviews.map((review, index) => (
-                <Card key={index}>
-                    <CardHeader className="flex flex-row items-center gap-4">
-                        <Avatar>
-                            <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} />
-                            <AvatarFallback>{review.name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-bold">{review.name}</p>
-                            <p className="text-sm text-muted-foreground">{review.role}</p>
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-2xl font-bold">Reviews & Testimonials</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                {reviews.map((review, index) => (
+                    <div key={index} className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <Avatar>
+                                    <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} />
+                                    <AvatarFallback>{review.name.slice(0, 2)}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-bold">{review.name}</p>
+                                    <p className="text-sm text-muted-foreground">{review.role}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                {renderStars(review.rating)}
+                            </div>
                         </div>
-                        <div className="ml-auto flex items-center gap-1">
-                            {renderStars(review.rating)}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">"{review.comment}"</p>
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
+                        <p className="text-muted-foreground mt-4">"{review.comment}"</p>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
     )
 }

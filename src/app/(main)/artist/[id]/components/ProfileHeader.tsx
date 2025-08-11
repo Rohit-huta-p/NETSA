@@ -4,7 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Phone, Star, Edit, Camera } from "lucide-react";
+import { Mail, MapPin, Phone, Star } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 
 interface ProfileHeaderProps {
@@ -24,8 +24,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
         <Button className="absolute top-6 right-6 bg-gradient-to-r from-purple-500 to-orange-400 text-white font-bold">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Profile
+            Get Hired
         </Button>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="relative w-28 h-28 flex-shrink-0">
@@ -34,9 +33,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
                 <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
             </Avatar>
-             <Button size="icon" className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 border-2 border-card">
-                <Camera className="w-4 h-4"/>
-            </Button>
         </div>
         <div className="flex-grow mt-4 md:mt-0">
             <h1 className="text-4xl font-bold">{artist.firstName} {artist.lastName}</h1>

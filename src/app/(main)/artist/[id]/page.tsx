@@ -3,8 +3,12 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getUserProfile_Admin } from "@/lib/server/actions";
 import { ProfileHeader } from "./components/ProfileHeader";
-import { ProfileBody } from "./components/ProfileBody";
+import { PortfolioGallery } from "./components/PortfolioGallery";
+import { ActivityFeed } from "./components/ActivityFeed";
+import { EventsList } from "./components/EventsList";
+import { ReviewsList } from "./components/ReviewsList";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
+import { Separator } from "@/components/ui/separator";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
   const { data: artist, error } = await getUserProfile_Admin(artistId);
@@ -17,7 +21,12 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
   return (
     <div className="space-y-8">
       <ProfileHeader artist={artist} />
-      <ProfileBody artist={artist} />
+      <div className="space-y-8">
+        <PortfolioGallery />
+        <ActivityFeed />
+        <EventsList />
+        <ReviewsList />
+      </div>
     </div>
   )
 }
