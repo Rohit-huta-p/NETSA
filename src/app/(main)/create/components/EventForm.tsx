@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -47,6 +48,8 @@ export function EventForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const statusRef = useRef<'draft' | 'active'>('active');
+
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -74,15 +77,17 @@ export function EventForm() {
         setIsSubmitting(false);
         return;
     }
+
+    const finalValues = { ...values, status: statusRef.current };
     
     try {
         const token = await auth.currentUser.getIdToken();
-        await axios.post('/api/events', values, {
+        await axios.post('/api/events', finalValues, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
-        toast({ title: 'Success!', description: `Your event has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
+        toast({ title: 'Success!', description: `Your event has been ${finalValues.status === 'draft' ? 'saved as a draft' : 'published'}.` });
         router.push('/events');
     } catch (error: any) {
         let errorMessage: string;
@@ -166,25 +171,23 @@ export function EventForm() {
                         <Button 
                             type="submit" 
                             onClick={() => {
-                                console.log("EventForm.tsx: 'Save as Draft' button clicked.");
-                                form.setValue('status', 'draft');
+                                statusRef.current = 'draft';
                             }} 
                             disabled={isSubmitting} 
                             variant="secondary"
                         >
-                            {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isSubmitting && statusRef.current === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Save as Draft
                         </Button>
                         <Button 
                                 type="submit" 
                                 onClick={() => {
-                                    console.log("EventForm.tsx: 'Publish Event' button clicked.");
-                                    form.setValue('status', 'active');
+                                    statusRef.current = 'active';
                                 }}
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
-                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                {isSubmitting && statusRef.current === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 Publish Event
                             </Button>
                     </div>
