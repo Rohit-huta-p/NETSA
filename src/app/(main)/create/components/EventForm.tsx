@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,7 +30,7 @@ const eventFormSchema = z.object({
   price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().nonnegative()),
   startDate: z.date({ required_error: 'Start date is required'}),
   maxParticipants: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive("Must be greater than 0")),
-  // Status is not part of the form fields but will be added before submission.
+  status: z.enum(['draft', 'active']),
 });
 
 type EventFormValues = z.infer<typeof eventFormSchema>;
@@ -48,8 +48,6 @@ export function EventForm() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const statusRef = useRef<'draft' | 'active' | null>(null);
-
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventFormSchema),
@@ -66,54 +64,48 @@ export function EventForm() {
       price: 75,
       startDate: new Date(new Date().setDate(new Date().getDate() + 30)),
       maxParticipants: 25,
+      status: 'active',
     },
   });
 
   const processSubmit = async (values: EventFormValues) => {
-    console.log("EventForm.tsx: processSubmit triggered.");
-    if (!statusRef.current) {
-        console.error("EventForm.tsx: Submission status not set.");
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not determine submission action.' });
-        return;
-    }
-    console.log(`EventForm.tsx: Form submission initiated with status: ${statusRef.current}`);
-
+    console.log("EventForm.tsx: processSubmit called with values:", values);
     setIsSubmitting(true);
+    console.log("EventForm.tsx: isSubmitting set to true");
+
     if (!auth.currentUser || user?.role !== 'organizer') {
+        console.error("EventForm.tsx: Unauthorized attempt to create event.");
         toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be an organizer to post an event.' });
         setIsSubmitting(false);
         return;
     }
-
-    const finalValues = { ...values, status: statusRef.current };
-    console.log("EventForm.tsx: Final form values being sent:", finalValues);
     
     try {
-        console.log("EventForm.tsx: Requesting ID token...");
+        console.log("EventForm.tsx: Getting user ID token...");
         const token = await auth.currentUser.getIdToken();
         console.log("EventForm.tsx: Token retrieved. Sending POST request to /api/events");
-        await axios.post('/api/events', finalValues, {
+        await axios.post('/api/events', values, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
         console.log("EventForm.tsx: API request successful.");
-        toast({ title: 'Success!', description: `Your event has been ${finalValues.status === 'draft' ? 'saved as a draft' : 'published'}.` });
+        toast({ title: 'Success!', description: `Your event has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
         router.push('/events');
     } catch (error: any) {
+        console.error("EventForm.tsx: An error occurred during submission.");
         let errorMessage: string;
         if (axios.isAxiosError(error)) {
-          console.error("EventForm.tsx: Axios error during submission:", error.response?.data || error.message);
+          console.error("EventForm.tsx: Axios error. Server responded with:", error.response?.status, error.response?.data);
           errorMessage = handleAppError(error.response?.data?.message || error.message, 'Event Creation');
         } else {
-          console.error("EventForm.tsx: Generic error during submission:", error.message);
+          console.error("EventForm.tsx: Non-Axios error:", error);
           errorMessage = handleAppError(error.message, 'Event Creation');
         }
         toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
-        console.log("EventForm.tsx: Submission process finished.");
+        console.log("EventForm.tsx: Submission process finished. Setting isSubmitting to false.");
         setIsSubmitting(false);
-        statusRef.current = null;
     }
   };
 
@@ -168,7 +160,7 @@ export function EventForm() {
         </nav>
 
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(processSubmit)}>
+          <form>
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
@@ -186,26 +178,27 @@ export function EventForm() {
                         <Button 
                             type="submit" 
                             onClick={() => {
-                                console.log("EventForm.tsx: 'Save as Draft' button clicked. Setting ref.");
-                                statusRef.current = 'draft';
+                                console.log("EventForm.tsx: 'Save as Draft' button clicked.");
+                                form.setValue('status', 'draft');
                             }} 
                             disabled={isSubmitting} 
                             variant="secondary"
                         >
-                            {isSubmitting && statusRef.current === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Save as Draft
                         </Button>
                         <Button 
                             type="submit" 
                             onClick={() => {
-                                console.log("EventForm.tsx: 'Publish Event' button clicked. Setting ref.");
-                                statusRef.current = 'active';
-                            }}
+                                console.log("EventForm.tsx: 'Publish Event' button clicked.");
+                                form.setValue('status', 'active');
+                                form.handleSubmit(processSubmit());
+                            }} 
                             disabled={isSubmitting} 
                             className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                         >
-                            {isSubmitting && statusRef.current === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                            Publish Event
+                            {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Publish Eventss
                         </Button>
                     </div>
                 ) : (
