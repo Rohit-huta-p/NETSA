@@ -1,17 +1,12 @@
 
-
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getUserProfile_Admin } from "@/lib/server/actions";
 import { ProfileHeader } from "./components/ProfileHeader";
-import { Suspense } from "react";
+import { ProfileBody } from "./components/ProfileBody";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
-import { PortfolioGallery } from "./components/PortfolioGallery";
-import { ActivityFeed } from "./components/ActivityFeed";
-import { EventsList } from "./components/EventsList";
-import { Testimonials } from "./components/Testimonials";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
-  // Use the admin version of the function for server-side rendering
   const { data: artist, error } = await getUserProfile_Admin(artistId);
 
   if (error || !artist) {
@@ -22,17 +17,17 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
   return (
     <div className="space-y-8">
       <ProfileHeader artist={artist} />
-      <PortfolioGallery />
-      <ActivityFeed />
-      <EventsList />
-      <Testimonials />
+      <ProfileBody artist={artist} />
     </div>
   )
 }
 
 export default async function ArtistProfilePage({ params }: { params: { id: string } }) {
-  const awaitedParams = await params;
-  const { id } = awaitedParams;
+  const { id } = params;
+
+  if (!id) {
+    notFound();
+  }
 
   return (
     <div className="container mx-auto py-10">

@@ -14,12 +14,12 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   const stats = [
-    { value: artist.stats?.eventsAttended ?? "47", label: "Events Attended" },
-    { value: artist.stats?.eventsHosted ?? "12", label: "Events Hosted" },
-    { value: artist.stats?.connectionsCount ?? "234", label: "Connections" },
+    { value: artist.stats?.eventsAttended ?? "0", label: "Events Attended" },
+    { value: artist.stats?.eventsHosted ?? "0", label: "Events Hosted" },
+    { value: artist.stats?.connectionsCount ?? "0", label: "Connections" },
   ]
 
-  const skills = artist.skills || ["Contemporary", "Hip-Hop", "Ballet", "Jazz", "Choreography"];
+  const skills = artist.skills || [];
 
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
@@ -43,7 +43,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="flex items-center gap-6 mt-2 text-muted-foreground">
                 <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    <span>{artist.city || 'New York'}, {artist.country || 'NY'}</span>
+                    <span>{artist.city || 'Not specified'}, {artist.country || ''}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4" />
@@ -51,16 +51,16 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 </div>
                  <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4" />
-                    <span>Contact Number</span>
+                    <span>{artist.phoneNumber || 'Not specified'}</span>
                 </div>
             </div>
           
           <div className="mt-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-2">Skills & Styles</h3>
             <div className="flex flex-wrap gap-2">
-                {skills.map(skill => (
+                {skills.length > 0 ? skills.map(skill => (
                     <Badge key={skill} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer font-medium">{skill}</Badge>
-                ))}
+                )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             ))}
              <div>
                 <div className="flex items-center justify-center gap-1">
-                    <p className="text-3xl font-bold text-primary">{artist.stats?.averageRating ?? '4.8'}</p>
+                    <p className="text-3xl font-bold text-primary">{artist.stats?.averageRating ?? '0'}</p>
                      <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">Rating</p>

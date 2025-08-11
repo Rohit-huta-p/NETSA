@@ -33,25 +33,29 @@ const convertTimestamps = (data: any): any => {
  * @returns An object with the user profile data or an error.
  */
 export async function getUserProfile_Admin(userId: string): Promise<{ data: UserProfile | null; error: string | null }> {
-    console.log("actions.ts (SERVER): getUserProfile_Admin called for userId:", userId);
+    console.log(`actions.ts (SERVER): getUserProfile_Admin called for userId: "${userId}"`);
     if (!userId) {
-        console.error("actions.ts (SERVER): getUserProfile_Admin called with undefined or null userId.");
-        return { data: null, error: "Invalid user ID provided." };
+        const errorMsg = "Invalid user ID provided.";
+        console.error(`actions.ts (SERVER): ${errorMsg}`);
+        return { data: null, error: errorMsg };
     }
     try {
         const docRef = dbAdmin.collection('users').doc(userId);
         const docSnap = await docRef.get();
+
         if (docSnap.exists) {
-            console.log("actions.ts (SERVER): getUserProfile_Admin found document for userId:", userId);
+            console.log(`actions.ts (SERVER): Found profile for userId: "${userId}"`);
             const data = docSnap.data() as UserProfile;
             const serializableData = convertTimestamps(data);
             return { data: serializableData as UserProfile, error: null };
         } else {
-            console.warn("actions.ts (SERVER): getUserProfile_Admin found no document for userId:", userId);
-            return { data: null, error: 'User profile not found.' };
+            const errorMsg = `User profile not found for userId: "${userId}"`;
+            console.warn(`actions.ts (SERVER): ${errorMsg}`);
+            return { data: null, error: errorMsg };
         }
     } catch (error: any) {
-        console.error("actions.ts (SERVER): getUserProfile_Admin failed for userId:", userId, "Error:", error.message);
+        const errorMsg = `Error fetching profile for userId: "${userId}". Reason: ${error.message}`;
+        console.error(`actions.ts (SERVER): ${errorMsg}`);
         return { data: null, error: "An internal server error occurred while fetching the user profile." };
     }
 }
