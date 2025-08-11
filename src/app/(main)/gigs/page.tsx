@@ -186,24 +186,26 @@ export default function GigsPage() {
             </div>
 
             {/* Right Column: Gig Details */}
-            <div className="lg:col-span-3 lg:sticky lg:top-24 h-fit">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedGig ? selectedGig.id : 'empty'}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {selectedGig ? (
-                      <GigDetailView gig={selectedGig} />
-                  ) : !isLoading && !error ? (
-                      <div className="flex items-center justify-center h-full bg-card rounded-2xl border border-dashed shadow-sm p-8 min-h-[400px]">
-                          <p className="text-muted-foreground">Select a gig to see details</p>
-                      </div>
-                  ) : null }
-                </motion.div>
-              </AnimatePresence>
+            <div className="lg:col-span-3 lg:sticky lg:top-24">
+               <div className="h-[calc(100vh-7rem)] overflow-y-auto pr-4">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={selectedGig ? selectedGig.id : 'empty'}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {selectedGig ? (
+                          <GigDetailView gig={selectedGig} />
+                      ) : !isLoading && !error ? (
+                          <div className="flex items-center justify-center h-full bg-card rounded-2xl border border-dashed shadow-sm p-8 min-h-[400px]">
+                              <p className="text-muted-foreground">Select a gig to see details</p>
+                          </div>
+                      ) : null }
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
             </div>
           </div>
         </div>
