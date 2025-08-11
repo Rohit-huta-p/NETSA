@@ -61,6 +61,33 @@ export async function getUserProfile_Admin(userId: string): Promise<{ data: User
 }
 
 /**
+ * [SERVER-SIDE ONLY] Fetches a single gig using the Firebase Admin SDK.
+ * @param gigId The ID of the gig to fetch.
+ * @returns An object with the gig data or an error.
+ */
+export async function getGig_Admin(gigId: string): Promise<{ data: Gig | null; error: string | null }> {
+    console.log(`actions.ts (SERVER): getGig_Admin called for gigId: "${gigId}"`);
+    if (!gigId) {
+        return { data: null, error: "Invalid gig ID provided." };
+    }
+    try {
+        const docRef = dbAdmin.collection('gigs').doc(gigId);
+        const docSnap = await docRef.get();
+
+        if (docSnap.exists) {
+            const data = docSnap.data() as Omit<Gig, 'id'>;
+            const serializableData = convertTimestamps(data);
+            return { data: { id: docSnap.id, ...serializableData } as Gig, error: null };
+        } else {
+            return { data: null, error: "Gig not found." };
+        }
+    } catch (error: any) {
+        console.error(`actions.ts (SERVER): getGig_Admin failed for gigId: "${gigId}". Error: ${error.message}`);
+        return { data: null, error: "An internal server error occurred while fetching the gig." };
+    }
+}
+
+/**
  * [SERVER-SIDE ONLY] Adds a new gig to Firestore.
  * This should only be used in API Routes.
  * @param organizerId The ID of the organizer creating the gig.

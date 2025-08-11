@@ -104,6 +104,7 @@ export default function EventsPage() {
                   <EventCard 
                     key={event.id} 
                     id={event.id}
+                    type="event"
                     tag={event.category}
                     tagColor={tagColorMap[event.category] || "bg-gray-200 text-gray-800"}
                     title={event.title}

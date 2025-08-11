@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { auth } from '@/lib/firebase/config';
-import { GigDetailView } from './components/GigDetailView';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // A simple mapping for tag colors based on gig type.
@@ -51,7 +50,6 @@ function GigCardSkeleton() {
 
 export default function GigsPage() {
   const [gigsResponse, setGigsResponse] = useState<GetGigsResponse | null>(null);
-  const [selectedGig, setSelectedGig] = useState<Gig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState(false);
@@ -73,9 +71,6 @@ export default function GigsPage() {
         }
       });
       setGigsResponse(response.data);
-      if (response.data.gigs.length > 0) {
-        setSelectedGig(response.data.gigs[0]);
-      }
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
@@ -120,9 +115,6 @@ export default function GigsPage() {
   }, []);
 
   const gigs = gigsResponse?.gigs || [];
-  const handleSelectGig = (gig: Gig) => {
-    setSelectedGig(gig);
-  }
 
   return (
     <div className=" min-h-screen bg-background font-body ">
@@ -141,10 +133,7 @@ export default function GigsPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 lg:items-start gap-8">
-            {/* Left Column: Gig List */}
-            <div className="lg:col-span-2 space-y-4">
-              
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => <GigCardSkeleton key={i} />)
               ) : error ? (
@@ -159,6 +148,7 @@ export default function GigsPage() {
                     <EventCard 
                       key={gig.id || Math.random()} 
                       id={gig.id}
+                      type="gig"
                       tag={gig.type}
                       tagColor={tagColorMap[gig.type] || "bg-gray-200 text-gray-800"}
                       title={gig.title || 'Untitled Gig'}
@@ -169,13 +159,8 @@ export default function GigsPage() {
                       price={gig.compensation?.amount ?? null}
                       image={"https://placehold.co/600x400.png"} // Default placeholder
                       imageHint={"gig opportunity"}
-                      onClick={() => handleSelectGig(gig)}
-                      isActive={selectedGig?.id === gig.id}
                     />
                   ))}
-                  <div className="text-center mt-8">
-                    <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Gigs</Button>
-                  </div>
                 </>
               ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
@@ -184,30 +169,11 @@ export default function GigsPage() {
                 </div>
               )}
             </div>
-
-            {/* Right Column: Gig Details */}
-            <div className="lg:col-span-3 lg:sticky lg:top-24">
-               <div className="h-[calc(100vh-7rem)] overflow-y-auto pr-4">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={selectedGig ? selectedGig.id : 'empty'}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {selectedGig ? (
-                          <GigDetailView gig={selectedGig} />
-                      ) : !isLoading && !error ? (
-                          <div className="flex items-center justify-center h-full bg-card rounded-2xl border border-dashed shadow-sm p-8 min-h-[400px]">
-                              <p className="text-muted-foreground">Select a gig to see details</p>
-                          </div>
-                      ) : null }
-                    </motion.div>
-                  </AnimatePresence>
+            {gigs.length > 0 && (
+                <div className="text-center mt-12">
+                    <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Gigs</Button>
                 </div>
-            </div>
-          </div>
+            )}
         </div>
       </main>
     </div>
