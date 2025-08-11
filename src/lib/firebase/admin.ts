@@ -3,12 +3,9 @@ import admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   const serviceAccountJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
-  if (!serviceAccountJson) {
-    console.error("admin.ts: FATAL: GOOGLE_APPLICATION_CREDENTIALS_JSON environment variable is not set. The server cannot start without it.");
-    // In a real app, you might want to throw an error here to stop the server process
-    // throw new Error("GOOGLE_APPLICATION_CREDENTIALS_JSON is not set.");
-  } else {
+  if (serviceAccountJson) {
     try {
       const serviceAccount = JSON.parse(serviceAccountJson);
 
@@ -22,19 +19,29 @@ if (!admin.apps.length) {
         throw new Error("Service account JSON is missing 'project_id' or 'private_key'.");
       }
 
-      console.log(`admin.ts: Initializing Firebase Admin SDK for project: ${serviceAccount.project_id}`);
+      console.log(`admin.ts: Initializing Firebase Admin SDK with Service Account for project: ${serviceAccount.project_id}`);
       
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         projectId: serviceAccount.project_id,
       });
 
-      console.log("admin.ts: Firebase Admin SDK initialized successfully.");
+      console.log("admin.ts: Firebase Admin SDK initialized successfully with Service Account.");
 
     } catch (error: any) {
-      console.error("admin.ts: FATAL: Failed to initialize Firebase Admin SDK. Error:", error.message);
-      // throw new Error(`Failed to initialize Firebase Admin SDK: ${error.message}`);
+      console.error("admin.ts: FATAL: Failed to initialize Firebase Admin SDK with Service Account. Error:", error.message);
+      // Fallback to default initialization if service account fails but projectId is present
+      if (projectId) {
+        console.log(`admin.ts: Attempting to initialize with default credentials for project: ${projectId}`);
+        admin.initializeApp({ projectId });
+      }
     }
+  } else if (projectId) {
+     console.log(`admin.ts: Initializing Firebase Admin SDK with default credentials for project: ${projectId}`);
+     admin.initializeApp({ projectId });
+     console.log("admin.ts: Firebase Admin SDK initialized successfully with default credentials.");
+  } else {
+    console.error("admin.ts: FATAL: Could not initialize Firebase Admin SDK. Neither GOOGLE_APPLICATION_CREDENTIALS_JSON nor NEXT_PUBLIC_FIREBASE_PROJECT_ID are set.");
   }
 }
 
