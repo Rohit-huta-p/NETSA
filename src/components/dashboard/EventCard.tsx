@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Users, Heart } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface EventCardProps {
     id?: string;
@@ -16,11 +17,22 @@ interface EventCardProps {
     price: number | null;
     image: string;
     imageHint: string;
+    onClick?: () => void;
+    isActive?: boolean;
   }
 
-export function EventCard({ id, tag, tagColor, title, description, date, location, attendees, price, image, imageHint }: EventCardProps) {
+export function EventCard({ id, tag, tagColor, title, description, date, location, attendees, price, image, imageHint, onClick, isActive }: EventCardProps) {
+    const CardWrapper = onClick ? 'button' : 'div';
+    
     return (
-      <div className="bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group border border-border/50 hover:border-primary/50">
+      <CardWrapper 
+        onClick={onClick}
+        className={cn(
+            "bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col group border-2",
+            isActive ? "border-primary shadow-lg" : "border-border/50 hover:border-primary/50",
+            onClick && "text-left w-full"
+        )}
+      >
         <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 group-hover:from-black/80 transition-all duration-300"></div>
             <Image 
@@ -65,9 +77,9 @@ export function EventCard({ id, tag, tagColor, title, description, date, locatio
             )}
           </div>
           <Button asChild className="font-bold bg-gradient-to-r from-purple-500 to-orange-500 text-white">
-            <Link href={`/events/${id}`}>View Details</Link>
+            <Link href={`/gigs/${id}`}>View Details</Link>
           </Button>
         </div>
-      </div>
+      </CardWrapper>
     );
   }
