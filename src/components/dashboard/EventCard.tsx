@@ -23,16 +23,20 @@ interface EventCardProps {
   }
 
 export function EventCard({ id, type, tag, tagColor, title, description, date, location, attendees, price, image, imageHint, onClick, isActive }: EventCardProps) {
-    const CardWrapper = 'div';
+    const CardWrapper = onClick ? 'div' : Link;
     const href = `/${type}s/${id}`;
     
     return (
-        <Link href={href} className="group">
-            <CardWrapper 
+        <CardWrapper 
+            href={href} 
+            className="group"
+            onClick={onClick}
+        >
+            <div 
                 className={cn(
                     "bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full border-2",
                     isActive ? "border-primary shadow-lg" : "border-border/50 group-hover:border-primary/50",
-                    "text-left w-full"
+                    "text-left w-full cursor-pointer"
                 )}
             >
                 <div className="relative">
@@ -66,7 +70,7 @@ export function EventCard({ id, type, tag, tagColor, title, description, date, l
                     </div>
                     <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-primary" />
-                        <span>{attendees || 0} Attending</span>
+                        <span>{attendees || 0} {type === 'gig' ? 'Applicants' : 'Attending'}</span>
                     </div>
                 </div>
                 </div>
@@ -82,7 +86,8 @@ export function EventCard({ id, type, tag, tagColor, title, description, date, l
                     View Details
                 </div>
                 </div>
-            </CardWrapper>
-        </Link>
+            </div>
+        </CardWrapper>
     );
   }
+

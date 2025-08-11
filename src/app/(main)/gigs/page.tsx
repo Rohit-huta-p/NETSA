@@ -5,13 +5,15 @@ import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
 import { EventCard } from "@/components/dashboard/EventCard";
-import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import type { Gig, GetGigsResponse } from "@/lib/types";
 import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { auth } from '@/lib/firebase/config';
 import { AnimatePresence, motion } from 'framer-motion';
+import { GigDetailView } from './components/GigDetailView';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { ArrowLeft } from 'lucide-react';
 
 // A simple mapping for tag colors based on gig type.
 const tagColorMap: { [key: string]: string } = {
@@ -52,8 +54,11 @@ export default function GigsPage() {
   const [gigsResponse, setGigsResponse] = useState<GetGigsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isOffline, setIsOffline] = useState(false);
+  const [selectedGig, setSelectedGig] = useState<Gig | null>(null);
+  const isMobile = useIsMobile();
 
+  const gigs = gigsResponse?.gigs || [];
+  
   const fetchGigs = async () => {
     setIsLoading(true);
     setError(null);
@@ -71,6 +76,9 @@ export default function GigsPage() {
         }
       });
       setGigsResponse(response.data);
+      if (response.data?.gigs?.length > 0) {
+        setSelectedGig(response.data.gigs[0]);
+      }
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
@@ -84,20 +92,10 @@ export default function GigsPage() {
   };
   
   useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-
-    if (typeof window !== 'undefined' && 'onLine' in navigator) {
-      setIsOffline(!navigator.onLine);
-      window.addEventListener('online', handleOnline);
-      window.addEventListener('offline', handleOffline);
-    }
-
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         fetchGigs();
       } else {
-        // Handle case where user logs out
         setIsLoading(false);
         setGigsResponse(null);
         setError("Please log in to see available gigs.");
@@ -105,35 +103,39 @@ export default function GigsPage() {
     });
 
     return () => {
-      if (typeof window !== 'undefined' && 'onLine' in navigator) {
-        window.removeEventListener('online', handleOnline);
-        window.removeEventListener('offline', handleOffline);
-      }
       unsubscribe();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const gigs = gigsResponse?.gigs || [];
+  const handleSelectGig = (gig: Gig) => {
+    setSelectedGig(gig);
+  }
 
+  const showBackButton = isMobile && selectedGig;
+  
   return (
-    <div className=" min-h-screen bg-background font-body ">
-      <main className="p-8">
+    <div className="min-h-screen bg-background font-body">
+      <main className="p-4 sm:p-8">
         <DiscoverSection />
         <div className="mt-8">
-          {isOffline && (
-            <div className="text-center p-4 mb-4 bg-yellow-100 text-yellow-800 rounded-lg">
-              You are offline. Showing cached or last loaded data.
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              {showBackButton ? (
+                <Button variant="ghost" onClick={() => setSelectedGig(null)}>
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
+                </Button>
+              ) : (
+                 <h2 className="text-2xl font-bold text-foreground">
+                  {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
+                </h2>
+              )}
             </div>
-          )}
-
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-foreground">
-              {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
-            </h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-5 lg:gap-8">
+            {/* Gigs List */}
+            <div className={`lg:col-span-2 space-y-6 ${isMobile && selectedGig ? 'hidden' : 'block'}`}>
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => <GigCardSkeleton key={i} />)
               ) : error ? (
@@ -157,25 +159,52 @@ export default function GigsPage() {
                       location={gig.location ? `${gig.location.city}, ${gig.location.country}` : 'Location TBD'}
                       attendees={gig.applications || 0}
                       price={gig.compensation?.amount ?? null}
-                      image={"https://placehold.co/600x400.png"} // Default placeholder
+                      image={"https://placehold.co/600x400.png"}
                       imageHint={"gig opportunity"}
+                      onClick={() => handleSelectGig(gig)}
+                      isActive={selectedGig?.id === gig.id}
                     />
                   ))}
+                   <div className="text-center mt-6">
+                        <Button variant="outline">Load More Gigs</Button>
+                    </div>
                 </>
               ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
                   <h3 className="text-2xl font-bold">No Gigs Available</h3>
-                  <p>There are currently no gigs posted. Check back soon or create one!</p>
+                  <p>There are currently no gigs posted. Check back soon!</p>
                 </div>
               )}
             </div>
-            {gigs.length > 0 && (
-                <div className="text-center mt-12">
-                    <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Gigs</Button>
-                </div>
-            )}
+
+            {/* Gig Details */}
+            <div className={`lg:col-span-3 ${isMobile && !selectedGig ? 'hidden' : 'block'}`}>
+              <AnimatePresence>
+                {selectedGig && (
+                  <motion.div
+                    key={selectedGig.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="sticky top-24"
+                  >
+                    <div className="bg-muted/40 h-[calc(100vh-8rem)] overflow-y-auto rounded-lg">
+                      <GigDetailView gig={selectedGig} />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+               {!selectedGig && !isLoading && (
+                    <div className="hidden lg:flex items-center justify-center h-full text-muted-foreground sticky top-24">
+                        <p>Select a gig to see the details.</p>
+                    </div>
+                )}
+            </div>
+          </div>
         </div>
       </main>
     </div>
   );
 }
+

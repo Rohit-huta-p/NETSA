@@ -30,7 +30,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
         <div className="font-body">
             <div className="max-w-6xl mx-auto">
                  {/* Header Image */}
-                 <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden mb-8 shadow-lg">
+                 <div className="relative h-64 md:h-80 rounded-t-2xl overflow-hidden shadow-lg">
                     <Image src={"https://placehold.co/1200x400.png"} alt={gig.title} layout="fill" objectFit="cover" data-ai-hint="performance stage" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
                      <div className="absolute top-4 right-4 flex gap-2">
@@ -46,7 +46,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                     </div>
                 </div>
 
-                 <div className="bg-card p-6 sm:p-8 rounded-2xl shadow-md border grid grid-cols-1 lg:grid-cols-3 gap-8">
+                 <div className="bg-card p-6 sm:p-8 rounded-b-2xl shadow-md border grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         <div className="flex flex-wrap gap-2 mb-4">
@@ -73,7 +73,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                              <div className="flex items-start gap-3">
                                 <DollarSign className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="capitalize">{gig.compensation.amount ? `${gig.compensation.amount} ${gig.compensation.currency}` : 'Not specified'}</p>
+                                    <p className="capitalize">{gig.compensation.amount ? `${gig.compensation.currency || ''}${gig.compensation.amount}` : 'Not specified'}</p>
                                     <p className="text-sm capitalize">{gig.compensation.type.replace('_', ' ')}</p>
                                 </div>
                             </div>
