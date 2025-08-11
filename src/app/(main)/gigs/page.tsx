@@ -135,14 +135,15 @@ export default function GigsPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-foreground">
+              {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 lg:items-start gap-8">
             {/* Left Column: Gig List */}
             <div className="lg:col-span-2 space-y-4">
-               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-foreground">
-                  {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
-                </h2>
-              </div>
               
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => <GigCardSkeleton key={i} />)
@@ -196,11 +197,11 @@ export default function GigsPage() {
                 >
                   {selectedGig ? (
                       <GigDetailView gig={selectedGig} />
-                  ) : (
-                      <div className="flex items-center justify-center h-full bg-card rounded-2xl border border-dashed shadow-sm p-8">
+                  ) : !isLoading && !error ? (
+                      <div className="flex items-center justify-center h-full bg-card rounded-2xl border border-dashed shadow-sm p-8 min-h-[400px]">
                           <p className="text-muted-foreground">Select a gig to see details</p>
                       </div>
-                  )}
+                  ) : null }
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -210,4 +211,3 @@ export default function GigsPage() {
     </div>
   );
 }
-
