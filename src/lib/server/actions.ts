@@ -170,21 +170,16 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
  * @returns An object with success status, new event ID, or an error.
  */
 export async function addEvent(organizerId: string, eventData: any): Promise<{ success: boolean; id: string | null; error: Error | null; }> {
-    console.log("actions.ts (SERVER): addEvent called for organizerId:", organizerId, "with data:", eventData);
     const { data: organizerProfile, error } = await getUserProfile_Admin(organizerId);
 
     if (error || !organizerProfile) {
-        console.error("actions.ts (SERVER): addEvent failed - Organizer profile not found for ID:", organizerId, "Error:", error);
         return { success: false, id: null, error: new Error("Organizer profile not found.") };
     }
     
     if (organizerProfile.role !== 'organizer') {
-        console.error(`actions.ts (SERVER): addEvent failed - User ${organizerId} has role '${organizerProfile.role}', not 'organizer'.`);
         return { success: false, id: null, error: new Error("Invalid user role. Only organizers can post events.") };
     }
     
-    console.log("actions.ts (SERVER): Organizer profile validated for ID:", organizerId);
-
     const now = new Date();
     
     const fullEventData: Omit<Event, 'id'> = {
@@ -242,9 +237,7 @@ export async function addEvent(organizerId: string, eventData: any): Promise<{ s
 
 
     try {
-        console.log("actions.ts (SERVER): Attempting to add event document to Firestore with data:", cleanEventData);
         const docRef = await dbAdmin.collection("events").add(cleanEventData);
-        console.log("actions.ts (SERVER): Event document added successfully with ID:", docRef.id);
         return { success: true, id: docRef.id, error: null };
     } catch (e: any) {
         console.error("actions.ts (SERVER): Error adding event: ", e);
