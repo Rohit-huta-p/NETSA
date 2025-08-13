@@ -1,12 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Film, GitFork, Heart, Mic, MonitorPlay, Users, Star, Calendar, MapPin, PlayCircle, Layers, Link2, Zap } from "lucide-react";
+import { ArrowRight, GitFork, Heart, Layers, PlayCircle, Star, Users, Zap, Link2, Calendar } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import Image from "next/image";
-import { EventCard } from "@/components/dashboard/EventCard";
+import { EventCard } from "@/app/(main)/events/components/EventCard";
 
 export default function Home() {
 
@@ -19,6 +17,7 @@ export default function Home() {
 
   const events = [
     {
+      id: "1",
       tag: "Workshop",
       tagColor: "bg-purple-200 text-purple-800",
       title: "Contemporary Dance Workshop",
@@ -31,6 +30,7 @@ export default function Home() {
       imageHint: "dance workshop"
     },
     {
+      id: "2",
       tag: "Competition",
       tagColor: "bg-orange-200 text-orange-800",
       title: "Hip-Hop Battle Championship",
@@ -43,6 +43,7 @@ export default function Home() {
       imageHint: "hip-hop battle"
     },
     {
+      id: "3",
       tag: "Intensive",
       tagColor: "bg-pink-200 text-pink-800",
       title: "Ballet Intensive Weekend",
@@ -55,6 +56,7 @@ export default function Home() {
       imageHint: "ballet performance"
     },
     {
+      id: "4",
       tag: "Social",
       tagColor: "bg-blue-200 text-blue-800",
       title: "Jazz Dance Social",
@@ -191,5 +193,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

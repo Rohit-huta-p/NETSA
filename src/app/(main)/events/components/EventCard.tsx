@@ -6,8 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 interface EventCardProps {
-    id?: string;
-    type: 'event' | 'gig';
+    id: string;
     tag: string;
     tagColor: string;
     title: string;
@@ -18,24 +17,17 @@ interface EventCardProps {
     price: number | null;
     image: string;
     imageHint: string;
-    onClick?: () => void;
-    isActive?: boolean;
   }
 
-export function EventCard({ id, type, tag, tagColor, title, description, date, location, attendees, price, image, imageHint, onClick, isActive }: EventCardProps) {
-    const CardWrapper = onClick ? 'div' : Link;
-    const href = `/${type}s/${id}`;
+export function EventCard({ id, tag, tagColor, title, description, date, location, attendees, price, image, imageHint }: EventCardProps) {
+    const href = `/events/${id}`;
     
     return (
-        <CardWrapper 
-            href={href} 
-            className="group"
-            onClick={onClick}
-        >
+        <Link href={href} className="group">
             <div 
                 className={cn(
                     "bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full border-2",
-                    isActive ? "border-primary shadow-lg" : "border-border/50 group-hover:border-primary/50",
+                    "border-border/50 group-hover:border-primary/50",
                     "text-left w-full cursor-pointer"
                 )}
             >
@@ -70,7 +62,7 @@ export function EventCard({ id, type, tag, tagColor, title, description, date, l
                     </div>
                     <div className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-primary" />
-                        <span>{attendees || 0} {type === 'gig' ? 'Applicants' : 'Attending'}</span>
+                        <span>{attendees || 0} Attending</span>
                     </div>
                 </div>
                 </div>
@@ -79,7 +71,7 @@ export function EventCard({ id, type, tag, tagColor, title, description, date, l
                     {price !== null && price > 0 ? (
                     <p className="text-xl font-bold text-foreground">${price}</p>
                     ) : (
-                        <p className="text-xl font-bold text-green-500">{type === 'gig' ? 'Paid' : 'Free'}</p>
+                        <p className="text-xl font-bold text-green-500">Free</p>
                     )}
                 </div>
                 <div className="font-bold text-primary group-hover:underline flex items-center">
@@ -87,7 +79,6 @@ export function EventCard({ id, type, tag, tagColor, title, description, date, l
                 </div>
                 </div>
             </div>
-        </CardWrapper>
+        </Link>
     );
   }
-

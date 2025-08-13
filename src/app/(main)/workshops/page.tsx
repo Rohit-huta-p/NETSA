@@ -3,11 +3,12 @@
 
 import { Button } from "@/components/ui/button";
 import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
-import { EventCard } from "@/components/dashboard/EventCard";
+import { EventCard } from "@/app/(main)/events/components/EventCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 
 const events = [
   {
+    id: "1",
     tag: "Workshop",
     tagColor: "bg-purple-200 text-purple-800",
     title: "Contemporary Dance Workshop",
@@ -20,6 +21,7 @@ const events = [
     imageHint: "dance workshop"
   },
   {
+    id: "2",
     tag: "Competition",
     tagColor: "bg-orange-200 text-orange-800",
     title: "Hip-Hop Battle Championship",
@@ -32,6 +34,7 @@ const events = [
     imageHint: "hip-hop battle"
   },
   {
+    id: "3",
     tag: "Intensive",
     tagColor: "bg-pink-200 text-pink-800",
     title: "Ballet Intensive Weekend",
@@ -44,6 +47,7 @@ const events = [
     imageHint: "ballet performance"
   },
   {
+    id: "4",
     tag: "Social",
     tagColor: "bg-blue-200 text-blue-800",
     title: "Jazz Dance Social",
@@ -56,6 +60,7 @@ const events = [
     imageHint: "jazz dance"
   },
   {
+    id: "5",
     tag: "Performance",
     tagColor: "bg-red-200 text-red-800",
     title: "Modern Dance Performance",
@@ -68,6 +73,7 @@ const events = [
     imageHint: "modern dance"
   },
   {
+    id: "6",
     tag: "Workshop",
     tagColor: "bg-purple-200 text-purple-800",
     title: "Salsa Beginners Workshop",

@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
-import { EventCard } from "@/components/dashboard/EventCard";
+import { EventCard } from "./components/EventCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { getEvents } from "@/lib/firebase/firestore";
 import type { Event } from "@/lib/types";
@@ -104,7 +104,6 @@ export default function EventsPage() {
                   <EventCard 
                     key={event.id} 
                     id={event.id}
-                    type="event"
                     tag={event.category}
                     tagColor={tagColorMap[event.category] || "bg-gray-200 text-gray-800"}
                     title={event.title}
