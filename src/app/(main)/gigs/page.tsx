@@ -5,14 +5,9 @@ import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
 import type { Gig, GetGigsResponse } from "@/lib/types";
-import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { auth } from '@/lib/firebase/config';
-import { AnimatePresence, motion } from 'framer-motion';
-import { GigDetailView } from './components/GigDetailView';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft } from 'lucide-react';
 import { GigCard } from './components/GigCard';
 
 function GigCardSkeleton() {
@@ -42,8 +37,6 @@ export default function GigsPage() {
   const [gigsResponse, setGigsResponse] = useState<GetGigsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedGig, setSelectedGig] = useState<Gig | null>(null);
-  const isMobile = useIsMobile();
 
   const gigs = gigsResponse?.gigs || [];
   
@@ -64,9 +57,6 @@ export default function GigsPage() {
         }
       });
       setGigsResponse(response.data);
-      if (response.data?.gigs?.length > 0) {
-        setSelectedGig(response.data.gigs[0]);
-      }
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
@@ -96,12 +86,6 @@ export default function GigsPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleSelectGig = (gig: Gig) => {
-    setSelectedGig(gig);
-  }
-
-  const showBackButton = isMobile && selectedGig;
-  
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="p-4 sm:p-8">
@@ -111,16 +95,9 @@ export default function GigsPage() {
              <h2 className="text-2xl font-bold text-foreground">
               {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
             </h2>
-             {showBackButton && (
-                <Button variant="ghost" onClick={() => setSelectedGig(null)} className="mt-2">
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
-                </Button>
-              )}
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-5 lg:gap-8 lg:items-start">
-            {/* Gigs List */}
-            <div className={`lg:col-span-2 space-y-6 ${isMobile && selectedGig ? 'hidden' : 'block'}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => <GigCardSkeleton key={i} />)
               ) : error ? (
@@ -135,13 +112,8 @@ export default function GigsPage() {
                     <GigCard 
                       key={gig.id || Math.random()} 
                       gig={gig}
-                      onClick={() => handleSelectGig(gig)}
-                      isActive={selectedGig?.id === gig.id}
                     />
                   ))}
-                   <div className="text-center mt-6">
-                        <Button variant="outline">Load More Gigs</Button>
-                    </div>
                 </>
               ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
@@ -149,33 +121,12 @@ export default function GigsPage() {
                   <p>There are currently no gigs posted. Check back soon!</p>
                 </div>
               )}
-            </div>
-
-            {/* Gig Details */}
-            <div className={`lg:col-span-3 ${isMobile && !selectedGig ? 'hidden' : 'block'}`}>
-              <AnimatePresence>
-                {selectedGig && (
-                  <motion.div
-                    key={selectedGig.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                    className="sticky top-24"
-                  >
-                    <div className="h-[calc(100vh-8rem)] overflow-y-auto rounded-lg">
-                      <GigDetailView gig={selectedGig} />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-               {!selectedGig && !isLoading && (
-                    <div className="hidden lg:flex items-center justify-center h-full text-muted-foreground sticky top-24">
-                        <p>Select a gig to see the details.</p>
-                    </div>
-                )}
-            </div>
           </div>
+          {!isLoading && gigs.length > 0 && (
+            <div className="text-center mt-12">
+                <Button variant="outline">Load More Gigs</Button>
+            </div>
+          )}
         </div>
       </main>
     </div>

@@ -5,6 +5,7 @@ import { Clock, MapPin, Users, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Gig } from "@/lib/types";
 import { format } from "date-fns";
+import Link from "next/link";
 
 // A simple mapping for tag colors based on gig type.
 const tagColorMap: { [key: string]: string } = {
@@ -26,8 +27,10 @@ interface GigCardProps {
 }
 
 export function GigCard({ gig, onClick, isActive }: GigCardProps) {
+    const href = `/gigs/${gig.id}`;
     
     return (
+        <Link href={href} className="group">
         <div 
             onClick={onClick}
             className={cn(
@@ -39,7 +42,7 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
             <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 group-hover:from-black/80 transition-all duration-300"></div>
                 <Image 
-                    src={"https://placehold.co/600x400.png"} 
+                    src={gig.imageUrl || "https://placehold.co/600x400.png"} 
                     alt={gig.title} 
                     width={600}
                     height={400}
@@ -84,5 +87,6 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
             </div>
             </div>
         </div>
+        </Link>
     );
   }

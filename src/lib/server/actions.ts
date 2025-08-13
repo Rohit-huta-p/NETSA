@@ -61,6 +61,26 @@ export async function getUserProfile_Admin(userId: string): Promise<{ data: User
 }
 
 /**
+ * [SERVER-SIDE ONLY] Updates a user profile in Firestore.
+ * @param userId The ID of the user to update.
+ * @param data The partial data to update.
+ * @returns An object with success status or an error.
+ */
+export async function updateUserProfile(userId: string, data: Partial<UserProfile>): Promise<{ success: boolean; error: string | null; }> {
+    if (!userId) {
+        return { success: false, error: "Invalid user ID provided." };
+    }
+    try {
+        const docRef = dbAdmin.collection('users').doc(userId);
+        await docRef.update({ ...data, updatedAt: Timestamp.now() });
+        return { success: true, error: null };
+    } catch (error: any) {
+        console.error(`Error updating profile for userId: "${userId}". Error: ${error.message}`);
+        return { success: false, error: "An internal server error occurred while updating the user profile." };
+    }
+}
+
+/**
  * [SERVER-SIDE ONLY] Fetches a single gig using the Firebase Admin SDK.
  * @param gigId The ID of the gig to fetch.
  * @returns An object with the gig data or an error.
@@ -132,6 +152,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
         description: gigData.description || '',
         type: gigData.type || 'performance',
         category: gigData.category || '',
+        imageUrl: gigData.imageUrl,
         artistType: gigData.artistType || [],
         requiredSkills: gigData.requiredSkills || [],
         requiredStyles: gigData.requiredStyles || [],
@@ -217,6 +238,7 @@ export async function addEvent(organizerId: string, eventData: any): Promise<{ s
     const fullEventData: Omit<Event, 'id'> = {
         title: eventData.title || 'Untitled Event',
         description: eventData.description || '',
+        thumbnailUrl: eventData.thumbnailUrl,
         category: eventData.category || 'workshop',
         skillLevel: eventData.skillLevel || 'all_levels',
         location: {

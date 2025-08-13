@@ -37,6 +37,7 @@ export interface Gig {
     description: string;
     type: 'performance' | 'photoshoot' | 'recording' | 'event' | 'audition' | 'modeling' | 'teaching' | 'collaboration';
     category: string; // More specific categorization
+    imageUrl?: string;
     // Organizer Info
     organizerId: string;
     organizerInfo: {
@@ -110,6 +111,7 @@ export interface Event {
     title: string;
     description: string;
     shortDescription?: string; // For cards/listings
+    thumbnailUrl?: string;
     category: 'performance' | 'competition' | 'masterclass' | 'audition' | 'showcase' | 'networking' | 'festival';
     subCategory?: string;
     tags?: string[];
@@ -200,7 +202,6 @@ export interface Event {
     waitlistEnabled: boolean;
     registrationDeadline?: Date;
     // Media & Materials
-    thumbnailUrl?: string;
     imageGallery?: string[];
     promoVideoUrl?: string;
     materials?: {
@@ -228,5 +229,3 @@ export interface Event {
     createdAt: Date;
     updatedAt: Date;
 }
-
-    

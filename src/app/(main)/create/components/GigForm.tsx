@@ -21,6 +21,7 @@ import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
 import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
 import { auth } from '@/lib/firebase/config';
 import axios from 'axios';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 
 const emptyStringToUndefined = z.literal('').transform(() => undefined);
 
@@ -35,6 +36,7 @@ const gigFormSchema = z.object({
   type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration'], { required_error: 'Gig type is required.' }),
   category: z.string().min(2, 'Category is required'),
   tags: z.array(z.string()).optional(),
+  imageUrl: z.string().optional(),
 
   // Step 2
   artistType: z.array(z.string()).min(1, 'At least one artist type is required'),
@@ -100,7 +102,8 @@ const steps = [
   { id: 'Step 4', name: 'Compensation', fields: ['compensation.type'] },
   { id: 'Step 5', name: 'Application Settings' },
   { id: 'Step 6', name: 'Media Requirements' },
-  { id: 'Step 7', name: 'Review & Publish' },
+  { id: 'Step 7', name: 'Image' },
+  { id: 'Step 8', name: 'Review & Publish' },
 ];
 
 export function GigForm() {
@@ -220,7 +223,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -262,7 +265,14 @@ export function GigForm() {
                  {currentStep === 3 && <Step4_Compensation form={form} />}
                  {currentStep === 4 && <Step6_ApplicationSettings form={form} />}
                  {currentStep === 5 && <Step7_MediaRequirements form={form} />}
-                 {currentStep === 6 && <Step8_ReviewPublish />}
+                 {currentStep === 6 && (
+                    <ImageUpload 
+                        onUpload={(url) => form.setValue('imageUrl', url)}
+                        storagePath="gig-images"
+                        label="Upload Gig Image"
+                    />
+                 )}
+                 {currentStep === 7 && <Step8_ReviewPublish />}
 
                 <div className="mt-8 pt-5">
                     <div className="flex justify-between">

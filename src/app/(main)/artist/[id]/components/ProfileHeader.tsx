@@ -6,12 +6,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Mail, MapPin, Phone, Star } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
+import { ImageUpload } from "@/components/shared/ImageUpload";
+import { useState } from "react";
+import { useUserStore } from "@/store/userStore";
+import { updateUserProfile } from "@/lib/server/actions";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
 }
 
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
+  const { user, setUser } = useUserStore();
+  const [showUploader, setShowUploader] = useState(false);
+  const { toast } = useToast();
+
+  const handleProfileImageUpload = async (url: string) => {
+    if (user) {
+      const updatedProfile = { ...user, profileImageUrl: url };
+      
+      const result = await updateUserProfile(user.id, { profileImageUrl: url });
+      if (result.success) {
+        setUser(updatedProfile);
+        toast({ title: "Success", description: "Profile picture updated!" });
+        setShowUploader(false);
+      } else {
+        toast({ variant: 'destructive', title: "Error", description: result.error });
+      }
+    }
+  };
 
   const stats = [
     { value: artist.stats?.eventsAttended ?? "0", label: "Events Attended" },
@@ -33,6 +56,9 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
                 <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
             </Avatar>
+            {user?.id === artist.id && (
+              <Button onClick={() => setShowUploader(!showUploader)} size="sm" className="absolute bottom-0 right-0">Edit</Button>
+            )}
         </div>
         <div className="flex-grow mt-4 md:mt-0">
             <h1 className="text-4xl font-bold">{artist.firstName} {artist.lastName}</h1>
@@ -61,6 +87,18 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           </div>
         </div>
       </div>
+
+      {showUploader && user && (
+        <div className="mt-6">
+          <ImageUpload
+            onUpload={handleProfileImageUpload}
+            storagePath={`profile-images/${user.id}`}
+            currentImageUrl={user.profileImageUrl}
+            label="Upload New Profile Picture"
+          />
+        </div>
+      )}
+
       <div className="mt-8 pt-8 border-t">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map(stat => (

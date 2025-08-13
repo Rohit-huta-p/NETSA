@@ -17,6 +17,7 @@ import Step1_EventDetails from './steps/event/Step1_EventDetails';
 import Step2_EventLogistics from './steps/event/Step2_EventLogistics';
 import Step3_EventRequirements from './steps/event/Step3_EventRequirements';
 import Step4_ReviewEvent from './steps/event/Step4_ReviewEvent';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 
 const eventFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -30,6 +31,7 @@ const eventFormSchema = z.object({
   price: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().nonnegative()),
   startDate: z.date({ required_error: 'Start date is required'}),
   maxParticipants: z.preprocess((a) => parseInt(z.string().parse(a), 10), z.number().positive("Must be greater than 0")),
+  thumbnailUrl: z.string().optional(),
   status: z.enum(['draft', 'active']),
 });
 
@@ -40,7 +42,8 @@ const steps = [
   { id: 'Step 1', name: 'Details', fields: ['title', 'description', 'category'] },
   { id: 'Step 2', name: 'Logistics', fields: ['locationType', 'city', 'country', 'startDate'] },
   { id: 'Step 3', name: 'Requirements', fields: ['skillLevel', 'price', 'maxParticipants'] },
-  { id: 'Step 4', name: 'Review & Publish' },
+  { id: 'Step 4', name: 'Image' },
+  { id: 'Step 5', name: 'Review & Publish' },
 ];
 
 export function EventForm() {
@@ -168,7 +171,14 @@ export function EventForm() {
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
-            {currentStep === 3 && <Step4_ReviewEvent />}
+            {currentStep === 3 && (
+                <ImageUpload 
+                    onUpload={(url) => form.setValue('thumbnailUrl', url)}
+                    storagePath="event-thumbnails"
+                    label="Upload Event Thumbnail"
+                />
+            )}
+            {currentStep === 4 && <Step4_ReviewEvent />}
 
             <div className="mt-8 pt-5">
                 <div className="flex justify-between">
