@@ -17,7 +17,7 @@ const convertTimestamps = (data: any): any => {
     for (const key in data) {
         if (data[key] instanceof Timestamp) {
             newData[key] = data[key].toDate();
-        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key]) && !(data[key] instanceof Date)) {
+        } else if (typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key])) {
             newData[key] = convertTimestamps(data[key]);
         }
         else {

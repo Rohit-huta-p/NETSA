@@ -19,6 +19,8 @@ interface Artist {
   
   // Personal Info
   dob?: Date;
+  height?: number; // in cm
+  skinTone?: string;
   gender?: 'male' | 'female' | 'other';
   city?: string;
   country?: string;
@@ -79,7 +81,7 @@ interface Organizer {
   // Basic Info
   id: string;
   firstName: string;
-  lastName: string;
+  lastName:string;
   email: string;
   phoneNumber?: string;
   profileImageUrl?: string;

@@ -4,17 +4,31 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Phone, Star } from "lucide-react";
+import { Mail, MapPin, Phone, Star, Instagram } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { updateUserProfile } from "@/lib/server/actions";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
 }
+
+const getAge = (dob: Date | undefined) => {
+    if (!dob) return null;
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+};
 
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
@@ -42,7 +56,12 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     { value: artist.stats?.connectionsCount ?? "0", label: "Connections" },
   ]
 
-  const skills = artist.skills || [];
+  const skills = artist.role === 'artist' ? artist.skills || [] : [];
+  const age = artist.role === 'artist' ? getAge(artist.dob) : null;
+  const height = artist.role === 'artist' ? artist.height : null;
+  const skinTone = artist.role === 'artist' ? artist.skinTone : null;
+  const instagramHandle = artist.role === 'artist' ? artist.socialMedia?.instagram : null;
+
 
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
@@ -75,6 +94,22 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     <Phone className="w-4 h-4" />
                     <span>{artist.phoneNumber || 'Not specified'}</span>
                 </div>
+            </div>
+
+            <Separator className="my-4" />
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                {age && <div><p className="font-semibold text-foreground">Age</p><p>{age}</p></div>}
+                {height && <div><p className="font-semibold text-foreground">Height</p><p>{height} cm</p></div>}
+                {skinTone && <div><p className="font-semibold text-foreground">Skin Tone</p><p>{skinTone}</p></div>}
+                {instagramHandle && (
+                    <div className="flex items-center gap-2">
+                        <Instagram className="w-4 h-4 text-pink-600" />
+                        <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {instagramHandle}
+                        </Link>
+                    </div>
+                )}
             </div>
           
           <div className="mt-6">
