@@ -76,8 +76,10 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             {user?.id === artist.id && (
                  <Button asChild variant="outline">
                     <Link href="/settings/profile">
-                        <Edit className="w-4 h-4 mr-2" />
+                      <span>
+                        <Edit className="w-4 h-4 mr-2 inline-block" />
                         Edit Profile
+                      </span>
                     </Link>
                 </Button>
             )}
