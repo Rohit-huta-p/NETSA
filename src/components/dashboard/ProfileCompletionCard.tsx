@@ -10,37 +10,36 @@ import { useMemo } from "react";
 
 const getProfileCompletion = (user: UserProfile | null): number => {
     if (!user) return 0;
+    if (user.role !== 'artist') return 100;
 
-    const fields = {
-        artist: [
-            'profileImageUrl', 'phoneNumber', 'dob', 'gender', 'city', 'country', 
-            'bio', 'experienceYears', 'skills', 'styles', 'genres'
-        ],
-        organizer: [
-            'profileImageUrl', 'phoneNumber', 'organizationName', 'jobTitle', 
-            'organizationDescription', 'organizationWebsite', 'city', 'country', 'yearsInIndustry'
-        ],
+    const checklist = {
+        'Profile Picture': user.profileImageUrl,
+        'Phone Number': user.phoneNumber,
+        'Date of Birth': user.dob,
+        'City & Country': user.city && user.country,
+        'Bio': user.bio,
+        'Height & Skin Tone': user.height && user.skinTone,
+        'Experience': (user.experienceYears ?? 0) > 0,
+        'Skills': user.skills && user.skills.length > 0,
+        'Styles': user.styles && user.styles.length > 0,
+        'Instagram Handle': user.socialMedia?.instagram,
     };
 
-    const relevantFields = fields[user.role as 'artist' | 'organizer'] || [];
-    if (!relevantFields) return 100;
-
     let completedFields = 0;
+    const totalFields = Object.keys(checklist).length;
     
-    relevantFields.forEach(field => {
-        const value = user[field as keyof UserProfile];
+    Object.values(checklist).forEach(value => {
         if (Array.isArray(value) && value.length > 0) {
             completedFields++;
         } else if (typeof value === 'string' && value.trim() !== '') {
             completedFields++;
         } else if (typeof value === 'number' && value > 0) {
             completedFields++;
-        } else if (value instanceof Date) {
+        } else if (value) { // For booleans or dates
             completedFields++;
         }
     });
 
-    const totalFields = relevantFields.length;
     if (totalFields === 0) return 100;
     
     const percentage = Math.round((completedFields / totalFields) * 100);
@@ -68,7 +67,7 @@ export function ProfileCompletionCard() {
         <Progress value={completionPercentage} className="w-full" />
       </div>
       <Button asChild className="w-full mt-6 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
-        <Link href={`/artist/${user.uid}`}>
+        <Link href={`/settings/profile`}>
             Update Profile
         </Link>
       </Button>

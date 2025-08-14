@@ -4,7 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Phone, Star, Instagram } from "lucide-react";
+import { Mail, MapPin, Phone, Star, Instagram, Edit } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useState } from "react";
@@ -13,6 +13,13 @@ import { updateUserProfile } from "@/lib/server/actions";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
@@ -65,18 +72,36 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return (
     <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
-        <Button className="absolute top-6 right-6 bg-gradient-to-r from-purple-500 to-orange-400 text-white font-bold">
-            Get Hired
-        </Button>
+        <div className="absolute top-6 right-6 flex items-center gap-2">
+            {user?.id === artist.id && (
+                 <Button asChild variant="outline">
+                    <Link href="/settings/profile">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit Profile
+                    </Link>
+                </Button>
+            )}
+            <Button className="bg-gradient-to-r from-purple-500 to-orange-400 text-white font-bold">
+                Get Hired
+            </Button>
+        </div>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="relative w-28 h-28 flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full -m-1"></div>
+            <div 
+                className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full -m-1"
+                onClick={() => user?.id === artist.id && setShowUploader(true)}
+            ></div>
             <Avatar className="w-full h-full border-4 border-card">
                 <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
                 <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
             </Avatar>
-            {user?.id === artist.id && (
-              <Button onClick={() => setShowUploader(!showUploader)} size="sm" className="absolute bottom-0 right-0">Edit</Button>
+             {user?.id === artist.id && (
+              <button 
+                onClick={() => setShowUploader(true)} 
+                className="absolute bottom-0 -right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 transition-colors"
+              >
+                <Edit className="w-4 h-4 text-muted-foreground" />
+              </button>
             )}
         </div>
         <div className="flex-grow mt-4 md:mt-0">
@@ -122,17 +147,24 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           </div>
         </div>
       </div>
+      
+      <Dialog open={showUploader} onOpenChange={setShowUploader}>
+          <DialogContent>
+              <DialogHeader>
+                  <DialogTitle>Update Profile Picture</DialogTitle>
+                   <DialogDescription>Upload a new image to use as your profile avatar.</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                <ImageUpload
+                    onUpload={handleProfileImageUpload}
+                    storagePath={`profile-images/${user?.id}`}
+                    currentImageUrl={user?.profileImageUrl}
+                    label=""
+                />
+                </div>
+          </DialogContent>
+      </Dialog>
 
-      {showUploader && user && (
-        <div className="mt-6">
-          <ImageUpload
-            onUpload={handleProfileImageUpload}
-            storagePath={`profile-images/${user.id}`}
-            currentImageUrl={user.profileImageUrl}
-            label="Upload New Profile Picture"
-          />
-        </div>
-      )}
 
       <div className="mt-8 pt-8 border-t">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
@@ -140,6 +172,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 <div key={stat.label}>
                     <p className="text-3xl font-bold text-primary">{stat.value}</p>
                     <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+
                 </div>
             ))}
              <div>
