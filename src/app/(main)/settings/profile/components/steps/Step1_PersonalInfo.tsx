@@ -68,7 +68,18 @@ export function Step1_PersonalInfo({ form }: Step1_PersonalInfoProps) {
             </div>
 
              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField control={form.control} name="gender" render={({ field }) => ( <FormItem> <FormLabel>Gender</FormLabel> <Select onValueChange={field.onChange} defaultValue={field.value}> <FormControl> <SelectTrigger> <SelectValue placeholder="Select..." /> </SelectTrigger> </FormControl> <SelectContent> <SelectItem value="male">Male</SelectItem> <SelectItem value="female">Female</SelectItem> <SelectItem value="other">Other</SelectItem> </SelectContent> </Select> <FormMessage /> </FormItem>)} />
+                <FormField control={form.control} name="gender" render={({ field }) => ( <FormItem> <FormLabel>Gender</FormLabel> <FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </FormControl> <FormMessage /> </FormItem>)} />
                 <FormField control={form.control} name="height" render={({ field }) => (<FormItem><FormLabel>Height (cm)</FormLabel><FormControl><Input type="number" placeholder="e.g., 175" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="skinTone" render={({ field }) => (<FormItem><FormLabel>Skin Tone</FormLabel><FormControl><Input placeholder="e.g., Fair, Olive, Dark" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
