@@ -65,8 +65,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   const skills = artist.role === 'artist' ? artist.skills || [] : [];
   const age = artist.role === 'artist' ? getAge(artist.dob) : null;
-  const height = artist.role === 'artist' ? user.height : null;
-  const skinTone = artist.role === 'artist' ? user.skinTone : null;
+  const height = artist.role === 'artist' ? artist.height : null;
+  const skinTone = artist.role === 'artist' ? artist.skinTone : null;
   const instagramHandle = artist.role === 'artist' ? artist.socialMedia?.instagram : null;
 
 
