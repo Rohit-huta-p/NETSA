@@ -137,7 +137,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
