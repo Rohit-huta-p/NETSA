@@ -11,6 +11,7 @@ import { GigCard } from './components/GigCard';
 import { GigDetailView } from './components/GigDetailView';
 import { Card, CardContent } from '@/components/ui/card';
 import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
+import { GigFilters } from './components/GigFilters';
 
 function GigsPageSkeleton() {
   return (
@@ -97,8 +98,9 @@ export default function GigsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="min-h-screen bg-muted/30 font-body">
       <main className="p-4 sm:p-8">
+        <GigFilters />
         <div className="mt-8">
           <div className="mb-6">
              <h2 className="text-2xl font-bold text-foreground">
@@ -117,7 +119,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
+                  <div className="lg:col-span-2 space-y-4 h-[calc(100vh-20rem)] overflow-y-auto pr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 
