@@ -10,17 +10,18 @@ import { auth } from '@/lib/firebase/config';
 import { GigCard } from './components/GigCard';
 import { GigDetailView } from './components/GigDetailView';
 import { Card, CardContent } from '@/components/ui/card';
+import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
 
 function GigsPageSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-      <div className="md:col-span-2 space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      <div className="lg:col-span-2 space-y-4">
+        {Array.from({ length: 7 }).map((_, i) => (
+            <GigCardSkeleton key={i} />
         ))}
       </div>
-      <div className="md:col-span-3">
-        <Card>
+      <div className="lg:col-span-3">
+        <Card className="sticky top-24">
             <CardContent className="p-6">
                 <Skeleton className="h-8 w-3/4 mb-4" />
                 <Skeleton className="h-4 w-full mb-2" />
@@ -116,7 +117,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-2 space-y-4 h-[80vh] overflow-y-auto pr-2">
+                  <div className="lg:col-span-2 space-y-4 h-[calc(100vh-10rem)] overflow-y-auto pr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 
@@ -128,9 +129,11 @@ export default function GigsPage() {
                   </div>
                   <div className="lg:col-span-3">
                     {selectedGig ? (
+                      <div className="sticky top-24">
                         <GigDetailView gig={selectedGig} />
+                      </div>
                     ) : (
-                        <div className="flex items-center justify-center h-full bg-muted rounded-lg">
+                        <div className="flex items-center justify-center h-full bg-muted rounded-lg sticky top-24">
                             <p className="text-muted-foreground">Select a gig to see details</p>
                         </div>
                     )}
