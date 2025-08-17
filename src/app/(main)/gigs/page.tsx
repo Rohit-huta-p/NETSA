@@ -14,7 +14,7 @@ import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
 
 function GigsPageSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+    <>
       <div className="lg:col-span-2 space-y-4">
         {Array.from({ length: 7 }).map((_, i) => (
             <GigCardSkeleton key={i} />
@@ -34,7 +34,7 @@ function GigsPageSkeleton() {
             </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -117,7 +117,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-2 space-y-4 h-[calc(100vh-10rem)] overflow-y-auto pr-2">
+                  <div className="lg:col-span-2 space-y-4 h-full overflow-y-auto pr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 

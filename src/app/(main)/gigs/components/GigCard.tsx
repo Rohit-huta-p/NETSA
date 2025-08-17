@@ -34,7 +34,7 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
         <div 
             onClick={onClick}
             className={cn(
-                "group bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-full border-2",
+                "group bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-fit border-2",
                 isActive ? "border-primary shadow-md" : "border-border/50 hover:border-primary/50",
                 "text-left w-full cursor-pointer p-5"
             )}
