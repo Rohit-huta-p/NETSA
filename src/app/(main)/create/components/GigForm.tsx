@@ -223,7 +223,7 @@ export function GigForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -284,8 +284,11 @@ export function GigForm() {
                     {currentStep === steps.length - 1 ? (
                         <div className="flex gap-4">
                             <Button 
-                                type="submit" 
-                                onClick={() => form.setValue('status', 'draft')} 
+                                type="button"
+                                onClick={() => {
+                                    form.setValue('status', 'draft');
+                                    form.handleSubmit(processForm)();
+                                }}
                                 disabled={isSubmitting} 
                                 variant="secondary"
                             >
@@ -293,8 +296,11 @@ export function GigForm() {
                                 Save as Draft
                             </Button>
                             <Button 
-                                type="submit" 
-                                onClick={() => form.setValue('status', 'active')} 
+                                type="button" 
+                                onClick={() => {
+                                    form.setValue('status', 'active');
+                                    form.handleSubmit(processForm)();
+                                }} 
                                 disabled={isSubmitting} 
                                 className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                             >
@@ -315,3 +321,5 @@ export function GigForm() {
     </div>
   );
 }
+
+    

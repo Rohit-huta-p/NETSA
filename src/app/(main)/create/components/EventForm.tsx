@@ -136,6 +136,11 @@ export function EventForm() {
     }
   };
 
+  const triggerSubmit = (status: EventStatus) => {
+    statusRef.current = status;
+    form.handleSubmit(processSubmit)();
+  };
+
   return (
     <div>
         <nav aria-label="Progress" className="mb-8">
@@ -167,7 +172,7 @@ export function EventForm() {
         </nav>
 
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(processSubmit)}>
+          <form onSubmit={form.handleSubmit(processSubmit)} noValidate>
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
@@ -190,11 +195,8 @@ export function EventForm() {
                 {currentStep === steps.length - 1 ? (
                     <div className="flex gap-4">
                         <Button 
-                            type="submit" 
-                            onClick={() => {
-                                console.log("EventForm.tsx: 'Save as Draft' button clicked. Setting ref.");
-                                statusRef.current = 'draft';
-                            }} 
+                            type="button" 
+                            onClick={() => triggerSubmit('draft')}
                             disabled={isSubmitting} 
                             variant="secondary"
                         >
@@ -203,11 +205,7 @@ export function EventForm() {
                         </Button>
                         <Button 
                             type="button" 
-                            onClick={() => {
-                                console.log("EventForm.tsx: 'Publish Event' button clicked. Setting ref.");
-                                statusRef.current = 'active';
-                                processSubmit(form.getValues());
-                            }} 
+                            onClick={() => triggerSubmit('active')}
                             disabled={isSubmitting} 
                             className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                         >
@@ -228,3 +226,5 @@ export function EventForm() {
     </div>
   );
 }
+
+    
