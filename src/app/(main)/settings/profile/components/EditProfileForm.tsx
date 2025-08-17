@@ -165,7 +165,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
         </nav>
 
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(processSubmit)}>
+          <form>
             {currentStep === 0 && <Step1_PersonalInfo form={form} />}
             {currentStep === 1 && <Step2_ArtistDetails form={form} />}
             {currentStep === 2 && <Step3_ProfessionalInfo form={form} />}
@@ -179,7 +179,8 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
                 
                 {currentStep === steps.length - 1 ? (
                     <Button 
-                        type="submit"
+                        type="button"
+                        onClick={form.handleSubmit(processSubmit)}
                         disabled={isSubmitting} 
                         className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                     >
