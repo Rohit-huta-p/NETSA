@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
 import type { Gig, GetGigsResponse } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
@@ -99,7 +98,6 @@ export default function GigsPage() {
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="p-4 sm:p-8">
-        <DiscoverSection />
         <div className="mt-8">
           <div className="mb-6">
              <h2 className="text-2xl font-bold text-foreground">
@@ -118,7 +116,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-2 space-y-4 h-[70vh] overflow-y-auto pr-2">
+                  <div className="lg:col-span-2 space-y-4 h-[80vh] overflow-y-auto pr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 
