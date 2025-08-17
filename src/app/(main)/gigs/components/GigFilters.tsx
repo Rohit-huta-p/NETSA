@@ -3,9 +3,15 @@
 
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import type { GetGigsQuery } from "@/lib/types";
 import { Search } from "lucide-react";
 
-export function GigFilters() {
+interface GigFiltersProps {
+  filters: Partial<GetGigsQuery>;
+  onFilterChange: (filterName: keyof GetGigsQuery, value: string) => void;
+}
+
+export function GigFilters({ filters, onFilterChange }: GigFiltersProps) {
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -26,24 +32,29 @@ export function GigFilters() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search gigs, roles, companies..."
+              placeholder="Search by title, description..."
               className="w-full pl-10 h-12 text-base"
+              value={filters.search || ''}
+              onChange={(e) => onFilterChange('search', e.target.value)}
             />
           </div>
           <div className="flex gap-4 w-full md:w-auto">
-            <Select>
+            <Select
+              value={filters.category || ''}
+              onValueChange={(value) => onFilterChange('category', value)}
+            >
               <SelectTrigger className="h-12 w-full md:w-48 text-base">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="performance">Performance</SelectItem>
-                <SelectItem value="photoshoot">Photoshoot</SelectItem>
-                <SelectItem value="recording">Recording</SelectItem>
-                <SelectItem value="event">Event</SelectItem>
-                <SelectItem value="audition">Audition</SelectItem>
-                <SelectItem value="modeling">Modeling</SelectItem>
-                <SelectItem value="teaching">Teaching</SelectItem>
-                <SelectItem value="collaboration">Collaboration</SelectItem>
+                <SelectItem value="">All Categories</SelectItem>
+                <SelectItem value="Music Video">Music Video</SelectItem>
+                <SelectItem value="Live Performance">Live Performance</SelectItem>
+                <SelectItem value="Photoshoot">Photoshoot</SelectItem>
+                <SelectItem value="Theater">Theater</SelectItem>
+                <SelectItem value="Commercial">Commercial</SelectItem>
+                <SelectItem value="Audition">Audition</SelectItem>
+                <SelectItem value="Teaching">Teaching</SelectItem>
               </SelectContent>
             </Select>
 
@@ -52,10 +63,11 @@ export function GigFilters() {
                 <SelectValue placeholder="All Locations" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="">All Locations</SelectItem>
                 <SelectItem value="remote">Remote</SelectItem>
-                <SelectItem value="nyc">New York, USA</SelectItem>
-                <SelectItem value="la">Los Angeles, USA</SelectItem>
-                <SelectItem value="london">London, UK</SelectItem>
+                <SelectItem value="New York">New York, USA</SelectItem>
+                <SelectItem value="Los Angeles">Los Angeles, USA</SelectItem>
+                <SelectItem value="London">London, UK</SelectItem>
               </SelectContent>
             </Select>
 
@@ -64,6 +76,7 @@ export function GigFilters() {
                 <SelectValue placeholder="Any Date" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="">Any Date</SelectItem>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="this_week">This Week</SelectItem>
                 <SelectItem value="this_month">This Month</SelectItem>

@@ -130,9 +130,17 @@ export async function getGigs(filters: GetGigsQuery) {
     } = filters;
 
     try {
+        let gigsCollectionRef = collection(db, 'gigs');
+        let allGigs: Gig[] = [];
+
+        // Firestore doesn't support text search on multiple fields or partial matches natively.
+        // For a robust solution, a third-party service like Algolia is recommended.
+        // For this implementation, we will fetch all gigs and filter them on the client-side for the search term.
+        // Filtering by other fields will be done server-side.
+        
         const constraints = [];
 
-        // --- FILTERING ---
+        // --- FILTERING (Server-side) ---
         if (category) constraints.push(where('category', '==', category));
         if (artistType && artistType.length > 0) constraints.push(where('artistType', 'array-contains-any', artistType));
         if (location) constraints.push(where('location.city', '==', location));
@@ -146,15 +154,17 @@ export async function getGigs(filters: GetGigsQuery) {
         if (compensation_max !== undefined) constraints.push(where('compensation.amount', '<=', compensation_max));
 
         // --- SORTING ---
+        // Note: Complex sorting is difficult with Firestore when using multiple inequality filters.
+        // The primary sort order should be consistent.
         switch (sort) {
             case 'oldest':
                 constraints.push(orderBy('createdAt', 'asc'));
                 break;
             case 'compensation_high':
-                constraints.push(orderBy('compensation.amount', 'desc'));
+                 constraints.push(orderBy('compensation.amount', 'desc'));
                 break;
             case 'compensation_low':
-                constraints.push(orderBy('compensation.amount', 'asc'));
+                 constraints.push(orderBy('compensation.amount', 'asc'));
                 break;
             case 'deadline':
                 constraints.push(orderBy('applicationDeadline', 'asc'));
@@ -165,36 +175,39 @@ export async function getGigs(filters: GetGigsQuery) {
                 break;
         }
 
-        const finalQuery = query(collection(db, 'gigs'), ...constraints);
+        const serverQuery = query(gigsCollectionRef, ...constraints);
+        const querySnapshot = await getDocs(serverQuery);
         
-        // --- PAGINATION ---
-        const totalGigsSnapshot = await getCountFromServer(finalQuery);
-        const total = totalGigsSnapshot.data().count;
-
-        const totalPages = Math.ceil(total / limitParam);
-        const currentPage = Math.max(1, page);
-        const hasMore = currentPage < totalPages;
-        
-        let paginatedQuery = query(finalQuery, limitFn(limitParam));
-
-        if (page > 1) {
-            const lastVisibleDocQuery = query(finalQuery, limitFn((page - 1) * limitParam));
-            const lastVisibleDocSnapshot = await getDocs(lastVisibleDocQuery);
-            const lastVisible = lastVisibleDocSnapshot.docs[lastVisibleDocSnapshot.docs.length - 1];
-            if (lastVisible) {
-                paginatedQuery = query(finalQuery, startAfter(lastVisible), limitFn(limitParam));
-            }
-        }
-        
-        const gigsSnapshot = await getDocs(paginatedQuery);
-        const gigsList = gigsSnapshot.docs.map(doc => {
+        allGigs = querySnapshot.docs.map(doc => {
             const data = doc.data();
             const serializableData = convertTimestamps(data);
             return { id: doc.id, ...serializableData };
         }) as Gig[];
+
+
+        // --- SEARCH FILTERING (Client-side simulation) ---
+        let filteredGigs = allGigs;
+        if (search) {
+            const lowercasedSearch = search.toLowerCase();
+            filteredGigs = allGigs.filter(gig => 
+                gig.title.toLowerCase().includes(lowercasedSearch) || 
+                gig.description.toLowerCase().includes(lowercasedSearch) ||
+                gig.category.toLowerCase().includes(lowercasedSearch)
+            );
+        }
+
+        // --- PAGINATION ---
+        const total = filteredGigs.length;
+        const totalPages = Math.ceil(total / limitParam);
+        const currentPage = Math.max(1, page);
+        const hasMore = currentPage < totalPages;
+        
+        const startIndex = (currentPage - 1) * limitParam;
+        const endIndex = startIndex + limitParam;
+        const paginatedGigs = filteredGigs.slice(startIndex, endIndex);
         
         const response = {
-            gigs: gigsList,
+            gigs: paginatedGigs,
             total,
             hasMore,
             currentPage,

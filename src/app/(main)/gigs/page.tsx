@@ -1,9 +1,9 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import type { Gig, GetGigsResponse } from "@/lib/types";
+import type { Gig, GetGigsResponse, GetGigsQuery } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { auth } from '@/lib/firebase/config';
@@ -12,6 +12,7 @@ import { GigDetailView } from './components/GigDetailView';
 import { Card, CardContent } from '@/components/ui/card';
 import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
 import { GigFilters } from './components/GigFilters';
+import { useDebounce } from '@/hooks/use-debounce';
 
 function GigsPageSkeleton() {
   return (
@@ -45,10 +46,16 @@ export default function GigsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedGig, setSelectedGig] = useState<Gig | null>(null);
+  const [filters, setFilters] = useState<Partial<GetGigsQuery>>({
+    search: '',
+    category: '',
+  });
+
+  const debouncedSearch = useDebounce(filters.search, 300);
 
   const gigs = gigsResponse?.gigs || [];
   
-  const fetchGigs = async () => {
+  const fetchGigs = useCallback(async (currentFilters: Partial<GetGigsQuery>) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -59,7 +66,12 @@ export default function GigsPage() {
         return;
       }
       const token = await user.getIdToken();
-      const response = await axios.get('/api/gigs', {
+
+      const params = new URLSearchParams();
+      if (currentFilters.search) params.append('search', currentFilters.search);
+      if (currentFilters.category) params.append('category', currentFilters.category);
+
+      const response = await axios.get(`/api/gigs?${params.toString()}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -67,6 +79,8 @@ export default function GigsPage() {
       setGigsResponse(response.data);
       if (response.data.gigs.length > 0) {
         setSelectedGig(response.data.gigs[0]);
+      } else {
+        setSelectedGig(null);
       }
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
@@ -78,12 +92,12 @@ export default function GigsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
   
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
-        fetchGigs();
+        fetchGigs({ search: debouncedSearch, category: filters.category });
       } else {
         setIsLoading(false);
         setGigsResponse(null);
@@ -94,13 +108,19 @@ export default function GigsPage() {
     return () => {
       unsubscribe();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [debouncedSearch, filters.category, fetchGigs]);
+
+  const handleFilterChange = (filterName: keyof GetGigsQuery, value: string) => {
+    setFilters(prev => ({ ...prev, [filterName]: value }));
+  }
 
   return (
     <div className="min-h-screen bg-muted/30 font-body">
       <main className="p-4 sm:p-8">
-        <GigFilters />
+        <GigFilters 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+        />
         <div className="mt-8">
           <div className="mb-6">
              <h2 className="text-2xl font-bold text-foreground">
@@ -115,7 +135,7 @@ export default function GigsPage() {
                 <div className="text-center py-16 text-destructive bg-destructive/10 rounded-lg col-span-full">
                   <h3 className="text-2xl font-bold">Error</h3>
                   <p className="mb-4">{error}</p>
-                  <Button onClick={fetchGigs} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Retry</Button>
+                  <Button onClick={() => fetchGigs(filters)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Retry</Button>
                 </div>
               ) : gigs.length > 0 ? (
                 <>
@@ -144,7 +164,7 @@ export default function GigsPage() {
               ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
                   <h3 className="text-2xl font-bold">No Gigs Available</h3>
-                  <p>There are currently no gigs posted. Check back soon!</p>
+                  <p>There are currently no gigs posted that match your filters. Check back soon!</p>
                 </div>
               )}
           </div>
