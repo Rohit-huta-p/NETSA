@@ -47,7 +47,6 @@ export function GigFilters({ filters, onFilterChange }: GigFiltersProps) {
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
                 <SelectItem value="Music Video">Music Video</SelectItem>
                 <SelectItem value="Live Performance">Live Performance</SelectItem>
                 <SelectItem value="Photoshoot">Photoshoot</SelectItem>
@@ -63,7 +62,6 @@ export function GigFilters({ filters, onFilterChange }: GigFiltersProps) {
                 <SelectValue placeholder="All Locations" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Locations</SelectItem>
                 <SelectItem value="remote">Remote</SelectItem>
                 <SelectItem value="New York">New York, USA</SelectItem>
                 <SelectItem value="Los Angeles">Los Angeles, USA</SelectItem>
@@ -76,7 +74,6 @@ export function GigFilters({ filters, onFilterChange }: GigFiltersProps) {
                 <SelectValue placeholder="Any Date" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any Date</SelectItem>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="this_week">This Week</SelectItem>
                 <SelectItem value="this_month">This Month</SelectItem>
