@@ -30,7 +30,6 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
     const href = `/gigs/${gig.id}`;
     
     return (
-        <Link href={href} className="group">
         <div 
             onClick={onClick}
             className={cn(
@@ -82,11 +81,10 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
                     <p className="text-xl font-bold text-green-500">Paid</p>
                 )}
             </div>
-            <div className="font-bold text-primary group-hover:underline flex items-center">
+            <Link href={href} className="font-bold text-primary hover:underline flex items-center">
                 View Details
-            </div>
+            </Link>
             </div>
         </div>
-        </Link>
     );
   }

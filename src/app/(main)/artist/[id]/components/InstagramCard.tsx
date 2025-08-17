@@ -10,11 +10,7 @@ interface InstagramCardProps {
 }
 
 export function InstagramCard({ artist }: InstagramCardProps) {
-    const instagramHandle = artist.role === 'artist' ? artist.socialMedia?.instagram : null;
-
-    if (!instagramHandle) {
-        return null;
-    }
+    const instagramHandle = artist.socialMedia?.instagram ;
 
     return (
         <Card>
@@ -29,8 +25,17 @@ export function InstagramCard({ artist }: InstagramCardProps) {
                     <div>
                         <p className="font-semibold">Instagram</p>
                         <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
-                           <Link2 className="w-4 h-4" />
-                            <span>Find me on Instagram: instagram.com/{instagramHandle}</span>
+                            {
+                                !instagramHandle ? <p>Link your instagram</p>
+                                :(
+                                    <>
+                                     <Link2 className="w-4 h-4" />
+                                     <span>Find me on Instagram: instagram.com/{instagramHandle}</span>
+                                    </>
+                                )  
+                               
+                            }
+                         
                         </Link>
                     </div>
                 </div>

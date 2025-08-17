@@ -9,24 +9,30 @@ import { Skeleton } from '@/components/ui/skeleton';
 import axios from 'axios';
 import { auth } from '@/lib/firebase/config';
 import { GigCard } from './components/GigCard';
+import { GigDetailView } from './components/GigDetailView';
+import { Card, CardContent } from '@/components/ui/card';
 
-function GigCardSkeleton() {
+function GigsPageSkeleton() {
   return (
-    <div className="bg-card rounded-2xl overflow-hidden shadow-md border">
-      <Skeleton className="h-56 w-full" />
-      <div className="p-5">
-        <Skeleton className="h-6 w-3/4 mb-4" />
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-5/6 mb-4" />
-        <div className="space-y-3 border-t pt-4">
-          <Skeleton className="h-5 w-1/2" />
-          <Skeleton className="h-5 w-2/3" />
-          <Skeleton className="h-5 w-1/3" />
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+      <div className="md:col-span-2 space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 w-full rounded-lg" />
+        ))}
       </div>
-      <div className="p-5 border-t mt-auto flex justify-between items-center bg-muted/30">
-        <Skeleton className="h-8 w-1/4" />
-        <Skeleton className="h-10 w-1/3 rounded-md" />
+      <div className="md:col-span-3">
+        <Card>
+            <CardContent className="p-6">
+                <Skeleton className="h-8 w-3/4 mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-5/6 mb-4" />
+                 <div className="space-y-3 border-t pt-4 mt-4">
+                    <Skeleton className="h-5 w-1/2" />
+                    <Skeleton className="h-5 w-2/3" />
+                    <Skeleton className="h-5 w-1/3" />
+                </div>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
@@ -37,6 +43,7 @@ export default function GigsPage() {
   const [gigsResponse, setGigsResponse] = useState<GetGigsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGig, setSelectedGig] = useState<Gig | null>(null);
 
   const gigs = gigsResponse?.gigs || [];
   
@@ -57,6 +64,9 @@ export default function GigsPage() {
         }
       });
       setGigsResponse(response.data);
+      if (response.data.gigs.length > 0) {
+        setSelectedGig(response.data.gigs[0]);
+      }
     } catch (e: any) {
         if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
@@ -97,9 +107,9 @@ export default function GigsPage() {
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {isLoading ? (
-                Array.from({ length: 3 }).map((_, i) => <GigCardSkeleton key={i} />)
+                <GigsPageSkeleton />
               ) : error ? (
                 <div className="text-center py-16 text-destructive bg-destructive/10 rounded-lg col-span-full">
                   <h3 className="text-2xl font-bold">Error</h3>
@@ -108,12 +118,25 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  {gigs.map((gig: Gig) => (
-                    <GigCard 
-                      key={gig.id || Math.random()} 
-                      gig={gig}
-                    />
-                  ))}
+                  <div className="lg:col-span-2 space-y-4 h-[70vh] overflow-y-auto pr-2">
+                    {gigs.map((gig: Gig) => (
+                        <GigCard 
+                            key={gig.id || Math.random()} 
+                            gig={gig}
+                            onClick={() => setSelectedGig(gig)}
+                            isActive={selectedGig?.id === gig.id}
+                        />
+                    ))}
+                  </div>
+                  <div className="lg:col-span-3">
+                    {selectedGig ? (
+                        <GigDetailView gig={selectedGig} />
+                    ) : (
+                        <div className="flex items-center justify-center h-full bg-muted rounded-lg">
+                            <p className="text-muted-foreground">Select a gig to see details</p>
+                        </div>
+                    )}
+                  </div>
                 </>
               ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
@@ -122,11 +145,6 @@ export default function GigsPage() {
                 </div>
               )}
           </div>
-          {!isLoading && gigs.length > 0 && (
-            <div className="text-center mt-12">
-                <Button variant="outline">Load More Gigs</Button>
-            </div>
-          )}
         </div>
       </main>
     </div>
