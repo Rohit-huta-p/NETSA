@@ -63,11 +63,11 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     { value: artist.stats?.connectionsCount ?? "0", label: "Connections" },
   ]
 
-  const skills = artist.role === 'artist' ? artist.skills || [] : [];
-  const age = artist.role === 'artist' ? getAge(artist.dob) : null;
-  const height = artist.role === 'artist' ? artist.height : null;
-  const skinTone = artist.role === 'artist' ? artist.skinTone : null;
-  const instagramHandle = artist.role === 'artist' ? artist.socialMedia?.instagram : null;
+  const skills = artist.skills || [];
+  const age = getAge(artist.dob);
+  const height = artist.height;
+  const skinTone = artist.skinTone;
+  const instagramHandle = artist.socialMedia?.instagram;
 
 
   return (
