@@ -5,12 +5,22 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 interface Step2_ArtistRequirementsProps {
     form: UseFormReturn<any>;
 }
 
 const ARTIST_TYPES = ["Dancer", "Singer", "Model", "Musician", "DJ", "Actor", "Other"];
+
+const renderMultiSelect = (field: any, placeholder: string) => (
+    <Input 
+        placeholder={placeholder}
+        {...field} 
+        value={Array.isArray(field.value) ? field.value.join(', ') : ''}
+        onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()).filter(Boolean))} 
+    />
+);
 
 export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequirementsProps) {
     return (
@@ -71,6 +81,9 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                 )}
             />
 
+            <FormField control={form.control} name="requiredSkills" render={({ field }) => (<FormItem><FormLabel>Required Skills</FormLabel><FormControl>{renderMultiSelect(field, "e.g., Popping, Locking, Improvisation")}</FormControl><FormDescription>Enter a comma-separated list of required skills.</FormDescription><FormMessage /></FormItem>)} />
+            <FormField control={form.control} name="requiredStyles" render={({ field }) => (<FormItem><FormLabel>Required Styles</FormLabel><FormControl>{renderMultiSelect(field, "e.g., Commercial Hip-Hop, Ballet")}</FormControl><FormDescription>Enter a comma-separated list of required styles.</FormDescription><FormMessage /></FormItem>)} />
+
             <FormField 
                 control={form.control} 
                 name="experienceLevel" 
@@ -95,6 +108,31 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                 <FormField control={form.control} name="ageRange.min" render={({ field }) => (<FormItem><FormLabel>Minimum Age</FormLabel><FormControl><Input type="number" placeholder="e.g., 18" {...field} /></FormControl><FormMessage /></FormItem>)} />
                 <FormField control={form.control} name="ageRange.max" render={({ field }) => (<FormItem><FormLabel>Maximum Age</FormLabel><FormControl><Input type="number" placeholder="e.g., 35" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
+
+            <FormField control={form.control} name="genderPreference" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Gender Preference</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select gender preference" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            <SelectItem value="any">Any</SelectItem>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="non-binary">Non-Binary</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+            )} />
+
+             <FormField control={form.control} name="physicalRequirements" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Physical Requirements</FormLabel>
+                    <FormControl><Textarea placeholder="e.g., Height 5'8\"-6'0\", athletic build" {...field} /></FormControl>
+                    <FormDescription>Specify any physical requirements for the role.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )} />
 
             <Separator />
             <div>
@@ -135,7 +173,7 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                     <FormItem>
                         <FormLabel>Additional Benefits</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Travel, Accommodation" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
+                            {renderMultiSelect(field, "e.g., Travel, Accommodation")}
                         </FormControl>
                         <FormDescription>
                             Enter a comma-separated list of benefits.
@@ -147,5 +185,3 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
         </div>
     );
 }
-
-    
