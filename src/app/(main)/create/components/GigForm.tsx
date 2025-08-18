@@ -231,35 +231,37 @@ export function GigForm() {
   return (
     <div>
         <nav aria-label="Progress" className="mb-12">
-            <ol role="list" className="flex items-center">
+            <ol role="list" className="flex items-center justify-between">
                 {steps.map((step, stepIdx) => (
-                    <li key={step.name} className={cn("relative flex-1", { 'pr-8 sm:pr-20': stepIdx !== steps.length -1 })}>
-                        {stepIdx < currentStep ? (
-                             <div className="flex items-center">
-                                <span className="flex h-9 items-center justify-center rounded-full bg-green-600">
-                                    <Check className="h-5 w-5 text-white" />
-                                </span>
+                    <li key={step.name} className={cn("relative", stepIdx !== steps.length - 1 ? "flex-1" : "")}>
+                        <div className="flex flex-col items-center text-center">
+                            <div className="relative flex flex-col items-center">
+                                {stepIdx < currentStep ? (
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600">
+                                        <Check className="h-6 w-6 text-white" />
+                                    </div>
+                                ) : stepIdx === currentStep ? (
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground">
+                                        <span className="text-sm font-bold">{step.id}</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-100 text-gray-500">
+                                        <span className="text-sm font-medium">{step.id}</span>
+                                    </div>
+                                )}
+                                <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
+                                    'text-primary font-bold': stepIdx === currentStep,
+                                    'text-foreground': stepIdx < currentStep,
+                                    'text-muted-foreground': stepIdx > currentStep
+                                })}>{step.name}</p>
                             </div>
-                        ) : stepIdx === currentStep ? (
-                            <div className="flex items-center" aria-current="step">
-                                <span className="flex h-9 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground">
-                                    <span className="text-sm font-bold">{step.id}</span>
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center">
-                                <span className="flex h-9 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-100 text-gray-500">
-                                    <span className="text-sm font-medium">{step.id}</span>
-                                </span>
-                            </div>
-                        )}
-
-                        <div className={cn("absolute inset-0 top-4 -z-10 h-0.5 w-full bg-gray-200", { 'bg-green-600': stepIdx < currentStep })}></div>
-                        <p className={cn("text-xs font-semibold mt-2 text-center mr-8 sm:mr-20", { 
-                            'text-primary font-bold': stepIdx === currentStep,
-                            'text-foreground': stepIdx < currentStep,
-                            'text-muted-foreground': stepIdx > currentStep
-                         })}>{step.name}</p>
+                            
+                            {stepIdx < steps.length - 1 && (
+                                <div className="absolute left-1/2 top-5 -z-10 h-0.5 w-full bg-gray-200" aria-hidden="true">
+                                    {stepIdx < currentStep && <div className="h-full w-full bg-green-600" />}
+                                </div>
+                            )}
+                        </div>
                     </li>
                 ))}
             </ol>
