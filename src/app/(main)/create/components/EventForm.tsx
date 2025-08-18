@@ -10,7 +10,7 @@ import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { handleAppError } from '@/lib/errorHandler';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, Check } from 'lucide-react';
 import { auth } from '@/lib/firebase/config';
 import axios from 'axios';
 import Step1_EventDetails from './steps/event/Step1_EventDetails';
@@ -18,6 +18,7 @@ import Step2_EventLogistics from './steps/event/Step2_EventLogistics';
 import Step3_EventRequirements from './steps/event/Step3_EventRequirements';
 import Step4_ReviewEvent from './steps/event/Step4_ReviewEvent';
 import { ImageUpload } from '@/components/shared/ImageUpload';
+import { cn } from '@/lib/utils';
 
 const eventFormSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
@@ -39,11 +40,11 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 type EventStatus = 'draft' | 'active';
 
 const steps = [
-  { id: 'Step 1', name: 'Details', fields: ['title', 'description', 'category'] },
-  { id: 'Step 2', name: 'Logistics', fields: ['locationType', 'city', 'country', 'startDate'] },
-  { id: 'Step 3', name: 'Requirements', fields: ['skillLevel', 'price', 'maxParticipants'] },
-  { id: 'Step 4', name: 'Image' },
-  { id: 'Step 5', name: 'Review & Publish' },
+  { id: 1, name: 'Details', fields: ['title', 'description', 'category'] },
+  { id: 2, name: 'Logistics', fields: ['locationType', 'city', 'country', 'startDate'] },
+  { id: 3, name: 'Requirements', fields: ['skillLevel', 'price', 'maxParticipants'] },
+  { id: 4, name: 'Image' },
+  { id: 5, name: 'Review & Publish' },
 ];
 
 export function EventForm() {
@@ -132,7 +133,7 @@ export function EventForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -143,36 +144,43 @@ export function EventForm() {
 
   return (
     <div>
-        <nav aria-label="Progress" className="mb-8">
-            <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
-                {steps.map((step, index) => (
-                <li key={step.name} className="md:flex-1">
-                    {currentStep > index ? (
-                    <div className="group flex w-full flex-col border-l-4 border-primary py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                        <span className="text-sm font-medium text-primary transition-colors ">{step.id}</span>
-                        <span className="text-sm font-medium">{step.name}</span>
-                    </div>
-                    ) : currentStep === index ? (
-                    <div
-                        className="flex w-full flex-col border-l-4 border-primary py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
-                        aria-current="step"
-                    >
-                        <span className="text-sm font-medium text-primary">{step.id}</span>
-                        <span className="text-sm font-medium">{step.name}</span>
-                    </div>
-                    ) : (
-                    <div className="group flex w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                        <span className="text-sm font-medium text-gray-500 transition-colors">{step.id}</span>
-                        <span className="text-sm font-medium">{step.name}</span>
-                    </div>
-                    )}
-                </li>
+        <nav aria-label="Progress" className="mb-12">
+             <ol role="list" className="flex items-center">
+                {steps.map((step, stepIdx) => (
+                    <li key={step.name} className={cn("relative flex-1", { 'pr-8 sm:pr-20': stepIdx !== steps.length -1 })}>
+                        {stepIdx < currentStep ? (
+                             <div className="flex items-center">
+                                <span className="flex h-9 items-center justify-center rounded-full bg-green-600">
+                                    <Check className="h-5 w-5 text-white" />
+                                </span>
+                            </div>
+                        ) : stepIdx === currentStep ? (
+                            <div className="flex items-center" aria-current="step">
+                                <span className="flex h-9 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground">
+                                    <span className="text-sm font-bold">{step.id}</span>
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center">
+                                <span className="flex h-9 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-100 text-gray-500">
+                                    <span className="text-sm font-medium">{step.id}</span>
+                                </span>
+                            </div>
+                        )}
+
+                        <div className={cn("absolute inset-0 top-4 -z-10 h-0.5 w-full bg-gray-200", { 'bg-green-600': stepIdx < currentStep })}></div>
+                        <p className={cn("text-xs font-semibold mt-2 text-center mr-8 sm:mr-20", { 
+                            'text-primary font-bold': stepIdx === currentStep,
+                            'text-foreground': stepIdx < currentStep,
+                            'text-muted-foreground': stepIdx > currentStep
+                         })}>{step.name}</p>
+                    </li>
                 ))}
             </ol>
         </nav>
 
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(processSubmit)} noValidate>
+          <form onSubmit={(e) => e.preventDefault()} noValidate>
             {currentStep === 0 && <Step1_EventDetails form={form} />}
             {currentStep === 1 && <Step2_EventLogistics form={form} />}
             {currentStep === 2 && <Step3_EventRequirements form={form} />}
