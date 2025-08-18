@@ -133,7 +133,7 @@ export function EventForm() {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -144,23 +144,19 @@ export function EventForm() {
 
   return (
     <div>
-        <div className="mb-12">
+        <div className="relative mb-12">
+            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
+            <div 
+                className="absolute top-1/2 left-0 h-0.5 bg-primary transition-all duration-500 -translate-y-1/2" 
+                style={{ width: `calc(${(currentStep / (steps.length - 1)) * 100}%)` }}
+            ></div>
             <ol role="list" className="relative flex justify-between items-center w-full">
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-gray-200" aria-hidden="true"></div>
-                <div 
-                    className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-primary transition-all duration-500" 
-                    style={{ width: `calc(${(currentStep / (steps.length - 1)) * 100}%)` }}
-                ></div>
                 {steps.map((step, stepIdx) => (
-                    <li key={step.name} className="relative flex flex-col items-center text-center">
+                    <li key={step.name} className="relative flex flex-col items-center text-center bg-background px-2">
                         <div className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300 bg-background",
-                            stepIdx <= currentStep ? 'border-primary' : 'border-gray-300'
+                            "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300",
+                            stepIdx <= currentStep ? 'border-primary bg-primary' : 'border-gray-300 bg-background'
                         )}>
-                            <div className={cn(
-                                "h-4 w-4 rounded-full transition-all duration-300",
-                                stepIdx <= currentStep ? 'bg-primary' : 'bg-gray-300'
-                            )}></div>
                         </div>
                         <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
                             'text-primary font-bold': stepIdx === currentStep,
@@ -227,3 +223,5 @@ export function EventForm() {
     </div>
   );
 }
+
+    
