@@ -10,7 +10,7 @@ import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { handleAppError } from '@/lib/errorHandler';
-import { ChevronLeft, ChevronRight, Loader2, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { auth } from '@/lib/firebase/config';
 import axios from 'axios';
 import Step1_EventDetails from './steps/event/Step1_EventDetails';
@@ -144,42 +144,36 @@ export function EventForm() {
 
   return (
     <div>
-        <nav aria-label="Progress" className="mb-12">
-            <ol role="list" className="flex items-center justify-between">
-                {steps.map((step, stepIdx) => (
-                    <li key={step.name} className={cn("relative", stepIdx !== steps.length - 1 ? "flex-1" : "")}>
-                        <div className="flex flex-col items-center text-center">
-                            <div className="relative flex flex-col items-center">
-                                {stepIdx < currentStep ? (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-600">
-                                        <Check className="h-6 w-6 text-white" />
-                                    </div>
-                                ) : stepIdx === currentStep ? (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-primary text-primary-foreground">
-                                        <span className="text-sm font-bold">{step.id}</span>
-                                    </div>
-                                ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-gray-100 text-gray-500">
-                                        <span className="text-sm font-medium">{step.id}</span>
-                                    </div>
-                                )}
-                                <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
-                                    'text-primary font-bold': stepIdx === currentStep,
-                                    'text-foreground': stepIdx < currentStep,
-                                    'text-muted-foreground': stepIdx > currentStep
-                                })}>{step.name}</p>
+        <div className="mb-12">
+            <div className="relative">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-gray-200" aria-hidden="true">
+                    <div 
+                        className="absolute left-0 top-0 h-full bg-primary transition-all duration-500" 
+                        style={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
+                    />
+                </div>
+                <ol role="list" className="relative flex justify-between items-center w-full">
+                    {steps.map((step, stepIdx) => (
+                        <li key={step.name} className="flex flex-col items-center text-center">
+                            <div className={cn(
+                                "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300",
+                                stepIdx <= currentStep ? 'bg-primary border-primary' : 'bg-background border-gray-300'
+                            )}>
+                                <span className={cn(
+                                    "text-sm font-bold",
+                                     stepIdx <= currentStep ? 'text-primary-foreground' : 'text-gray-500'
+                                )}>{step.id}</span>
                             </div>
-                            
-                            {stepIdx < steps.length - 1 && (
-                                <div className="absolute left-1/2 top-5 -z-10 h-0.5 w-full bg-gray-200" aria-hidden="true">
-                                    {stepIdx < currentStep && <div className="h-full w-full bg-green-600" />}
-                                </div>
-                            )}
-                        </div>
-                    </li>
-                ))}
-            </ol>
-        </nav>
+                            <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
+                                'text-primary font-bold': stepIdx === currentStep,
+                                'text-foreground': stepIdx < currentStep,
+                                'text-muted-foreground': stepIdx > currentStep
+                            })}>{step.name}</p>
+                        </li>
+                    ))}
+                </ol>
+            </div>
+        </div>
 
         <FormProvider {...form}>
           <form onSubmit={(e) => e.preventDefault()} noValidate>
