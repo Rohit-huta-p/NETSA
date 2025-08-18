@@ -15,14 +15,11 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import Step1_BasicDetails from './steps/Step1_BasicDetails';
 import Step2_ArtistRequirements from './steps/Step2_ArtistRequirements';
 import Step3_LocationSchedule from './steps/Step3_LocationSchedule';
-import Step4_Compensation from './steps/Step4_Compensation';
-import Step6_ApplicationSettings from './steps/Step6_ApplicationSettings';
-import Step7_MediaRequirements from './steps/Step7_MediaRequirements';
-import Step8_ReviewPublish from './steps/Step8_ReviewPublish';
+import Step4_ApplicationsAndReview from './steps/Step4_ApplicationsAndReview';
 import { auth } from '@/lib/firebase/config';
 import axios from 'axios';
-import { ImageUpload } from '@/components/shared/ImageUpload';
 import { cn } from '@/lib/utils';
+import { ImageUpload } from '@/components/shared/ImageUpload';
 
 const emptyStringToUndefined = z.literal('').transform(() => undefined);
 
@@ -38,6 +35,13 @@ const gigFormSchema = z.object({
   category: z.string().min(2, 'Category is required'),
   tags: z.array(z.string()).optional(),
   imageUrl: z.string().optional(),
+  mediaRequirements: z.object({
+    needsHeadshots: z.boolean().default(false),
+    needsFullBody: z.boolean().default(false),
+    needsVideoReel: z.boolean().default(false),
+    needsAudioSample: z.boolean().default(false),
+    specificRequirements: z.string().optional(),
+  }).optional(),
 
   // Step 2
   artistType: z.array(z.string()).min(1, 'At least one artist type is required'),
@@ -45,11 +49,18 @@ const gigFormSchema = z.object({
   requiredStyles: z.array(z.string()).optional(),
   experienceLevel: z.enum(['beginner', 'intermediate', 'advanced', 'professional'], { required_error: 'Experience level is required.' }),
   ageRange: z.object({
-      min: asOptionalField(z.coerce.number().positive()),
-      max: asOptionalField(z.coerce.number().positive()),
+    min: asOptionalField(z.coerce.number().positive()),
+    max: asOptionalField(z.coerce.number().positive()),
   }).optional(),
   genderPreference: z.enum(['male', 'female', 'any', 'non-binary']).optional(),
   physicalRequirements: z.string().optional(),
+  compensation: z.object({
+    type: z.enum(['hourly', 'daily', 'project', 'revenue_share'], { required_error: 'Compensation type is required.' }),
+    amount: asOptionalField(z.coerce.number().positive()),
+    currency: z.string().optional(),
+    negotiable: z.boolean().default(false),
+    additionalBenefits: z.array(z.string()).optional(),
+  }),
 
   // Step 3
   location: z.object({
@@ -59,34 +70,14 @@ const gigFormSchema = z.object({
     address: z.string().optional(),
     isRemote: z.boolean().default(false),
   }),
-  startDate: z.date({ required_error: 'Start date is required'}),
+  startDate: z.date({ required_error: 'Start date is required' }),
   endDate: z.date().optional(),
   duration: z.string().optional(),
   timeCommitment: z.string().optional(),
   
   // Step 4
-  compensation: z.object({
-    type: z.enum(['hourly', 'daily', 'project', 'revenue_share'], { required_error: 'Compensation type is required.' }),
-    amount: asOptionalField(z.coerce.number().positive()),
-    currency: z.string().optional(),
-    negotiable: z.boolean().default(false),
-    additionalBenefits: z.array(z.string()).optional(),
-  }),
-  
-  // Step 6
   maxApplications: asOptionalField(z.coerce.number().positive()),
   applicationDeadline: z.date().optional(),
-
-  // Step 7
-  mediaRequirements: z.object({
-    needsHeadshots: z.boolean().default(false),
-    needsFullBody: z.boolean().default(false),
-    needsVideoReel: z.boolean().default(false),
-    needsAudioSample: z.boolean().default(false),
-    specificRequirements: z.string().optional(),
-  }).optional(),
-
-  // Step 8
   isUrgent: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   expiresAt: z.date().optional(),
@@ -97,14 +88,10 @@ const gigFormSchema = z.object({
 type GigFormValues = z.infer<typeof gigFormSchema>;
 
 const steps = [
-  { id: 1, name: 'Basic Details', fields: ['title', 'description', 'type', 'category'] },
-  { id: 2, name: 'Artist Needs', fields: ['experienceLevel', 'artistType'] },
+  { id: 1, name: 'Details & Media', fields: ['title', 'description', 'type', 'category', 'imageUrl', 'mediaRequirements'] },
+  { id: 2, name: 'Artist & Compensation', fields: ['experienceLevel', 'artistType', 'compensation.type'] },
   { id: 3, name: 'Location & Schedule', fields: ['location.city', 'location.country', 'startDate'] },
-  { id: 4, name: 'Compensation', fields: ['compensation.type'] },
-  { id: 5, name: 'Applications' },
-  { id: 6, name: 'Media Needs' },
-  { id: 7, name: 'Image' },
-  { id: 8, name: 'Review & Publish' },
+  { id: 4, name: 'Applications & Review' },
 ];
 
 export function GigForm() {
@@ -169,56 +156,56 @@ export function GigForm() {
     setIsSubmitting(true);
 
     if (!auth.currentUser) {
-        toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
-        setIsSubmitting(false);
-        console.error("GigForm.tsx: Aborting submission - No current user in auth.");
-        return;
+      toast({ variant: 'destructive', title: 'Unauthorized', description: 'You must be logged in to post a gig.' });
+      setIsSubmitting(false);
+      console.error("GigForm.tsx: Aborting submission - No current user in auth.");
+      return;
     }
-    
+
     try {
-        console.log("GigForm.tsx: Getting user ID token...");
-        const token = await auth.currentUser.getIdToken();
-        console.log("GigForm.tsx: Token retrieved. Sending request to /api/gigs.");
-        
-        await axios.post('/api/gigs', values, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        
-        console.log("GigForm.tsx: Gig submission successful.");
-        toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
-        router.push('/gigs');
+      console.log("GigForm.tsx: Getting user ID token...");
+      const token = await auth.currentUser.getIdToken();
+      console.log("GigForm.tsx: Token retrieved. Sending request to /api/gigs.");
+
+      await axios.post('/api/gigs', values, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      console.log("GigForm.tsx: Gig submission successful.");
+      toast({ title: 'Success!', description: `Your gig has been ${values.status === 'draft' ? 'saved as a draft' : 'published'}.` });
+      router.push('/gigs');
 
     } catch (error: any) {
-        console.error("GigForm.tsx: Full error object during gig submission:", error);
-        
-        let errorMessage: string;
-        if (axios.isAxiosError(error)) {
-          console.error("GigForm.tsx: Server responded with error data:", error.response?.data);
-          errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
-        } else {
-          errorMessage = handleAppError(error.message, 'Gig Creation');
-        }
+      console.error("GigForm.tsx: Full error object during gig submission:", error);
 
-        toast({ variant: 'destructive', title: 'Error', description: errorMessage });
+      let errorMessage: string;
+      if (axios.isAxiosError(error)) {
+        console.error("GigForm.tsx: Server responded with error data:", error.response?.data);
+        errorMessage = handleAppError(error.response?.data?.message || error.message, 'Gig Creation');
+      } else {
+        errorMessage = handleAppError(error.message, 'Gig Creation');
+      }
+
+      toast({ variant: 'destructive', title: 'Error', description: errorMessage });
     } finally {
-        setIsSubmitting(false);
-        console.log("GigForm.tsx: processForm finished.");
+      setIsSubmitting(false);
+      console.log("GigForm.tsx: processForm finished.");
     }
   };
 
-  type FieldName = keyof GigFormValues | 'location.city' | 'location.country' | 'compensation.type' | 'startDate' | 'artistType' ;
+  type FieldName = keyof GigFormValues | 'location.city' | 'location.country' | 'compensation.type' | 'startDate' | 'artistType';
 
   const next = async () => {
     const fields = steps[currentStep].fields;
     if (fields) {
-        const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
-        if (!output) return;
+      const output = await form.trigger(fields as FieldName[], { shouldFocus: true });
+      if (!output) return;
     }
 
     if (currentStep < steps.length - 1) {
-        setCurrentStep(step => step + 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -243,6 +230,11 @@ export function GigForm() {
                             "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300",
                             stepIdx <= currentStep ? 'border-primary bg-primary' : 'border-gray-300 bg-background'
                         )}>
+                             {stepIdx < currentStep ? (
+                                <span className="text-white font-bold">✓</span>
+                            ) : (
+                                <span className={cn("text-xs font-semibold", stepIdx <= currentStep ? 'text-white' : 'text-muted-foreground' )}>{step.id}</span>
+                            )}
                         </div>
                         <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
                             'text-primary font-bold': stepIdx === currentStep,
@@ -254,67 +246,67 @@ export function GigForm() {
             </ol>
         </div>
 
-        <FormProvider {...form}>
-            <form onSubmit={(e) => e.preventDefault()} noValidate>
-                 {currentStep === 0 && <Step1_BasicDetails form={form} />}
-                 {currentStep === 1 && <Step2_ArtistRequirements form={form} />}
-                 {currentStep === 2 && <Step3_LocationSchedule form={form} />}
-                 {currentStep === 3 && <Step4_Compensation form={form} />}
-                 {currentStep === 4 && <Step6_ApplicationSettings form={form} />}
-                 {currentStep === 5 && <Step7_MediaRequirements form={form} />}
-                 {currentStep === 6 && (
-                    <ImageUpload 
-                        onUpload={(url) => form.setValue('imageUrl', url)}
-                        storagePath="gig-images"
-                        label="Upload Gig Image"
-                    />
-                 )}
-                 {currentStep === 7 && <Step8_ReviewPublish />}
 
-                <div className="mt-8 pt-5">
-                    <div className="flex justify-between">
-                    <Button type="button" onClick={prev} disabled={currentStep === 0 || isSubmitting} variant="outline">
-                        <ChevronLeft className="w-4 h-4 mr-2" />
-                        Back
-                    </Button>
-                    
-                    {currentStep === steps.length - 1 ? (
-                        <div className="flex gap-4">
-                            <Button 
-                                type="button"
-                                onClick={() => {
-                                    form.setValue('status', 'draft');
-                                    form.handleSubmit(processForm)();
-                                }}
-                                disabled={isSubmitting} 
-                                variant="secondary"
-                            >
-                                {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Save as Draft
-                            </Button>
-                            <Button 
-                                type="button" 
-                                onClick={() => {
-                                    form.setValue('status', 'active');
-                                    form.handleSubmit(processForm)();
-                                }} 
-                                disabled={isSubmitting} 
-                                className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
-                            >
-                                {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                Publish Gig
-                            </Button>
-                        </div>
-                    ) : (
-                        <Button type="button" onClick={next} disabled={isSubmitting}>
-                            {currentStep === steps.length - 2 ? 'Review & Finish' : 'Next Step'}
-                            <ChevronRight className="w-4 h-4 ml-2" />
-                        </Button>
-                    )}
-                    </div>
+      <FormProvider {...form}>
+        <form onSubmit={(e) => e.preventDefault()} noValidate>
+          {currentStep === 0 && (
+            <div className="space-y-6">
+                <Step1_BasicDetails form={form} />
+                 <ImageUpload
+                    onUpload={(url) => form.setValue('imageUrl', url)}
+                    storagePath="gig-images"
+                    label="Upload Gig Image (Optional)"
+                />
+            </div>
+          )}
+          {currentStep === 1 && <Step2_ArtistRequirements form={form} />}
+          {currentStep === 2 && <Step3_LocationSchedule form={form} />}
+          {currentStep === 3 && <Step4_ApplicationsAndReview form={form} />}
+
+          <div className="mt-8 pt-5">
+            <div className="flex justify-between">
+              <Button type="button" onClick={prev} disabled={currentStep === 0 || isSubmitting} variant="outline">
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+
+              {currentStep === steps.length - 1 ? (
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      form.setValue('status', 'draft');
+                      form.handleSubmit(processForm)();
+                    }}
+                    disabled={isSubmitting}
+                    variant="secondary"
+                  >
+                    {isSubmitting && form.getValues().status === 'draft' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Save as Draft
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      form.setValue('status', 'active');
+                      form.handleSubmit(processForm)();
+                    }}
+                    disabled={isSubmitting}
+                    className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
+                  >
+                    {isSubmitting && form.getValues().status === 'active' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Publish Gig
+                  </Button>
                 </div>
-            </form>
-        </FormProvider>
+              ) : (
+                <Button type="button" onClick={next} disabled={isSubmitting}>
+                  {currentStep === steps.length - 2 ? 'Review & Finish' : 'Next Step'}
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </form>
+      </FormProvider>
     </div>
   );
 }

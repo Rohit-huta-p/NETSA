@@ -4,6 +4,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescripti
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 
 interface Step2_ArtistRequirementsProps {
     form: UseFormReturn<any>;
@@ -13,8 +14,11 @@ const ARTIST_TYPES = ["Dancer", "Singer", "Model", "Musician", "DJ", "Actor", "O
 
 export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequirementsProps) {
     return (
-        <div className="space-y-4">
-            <h2 className="text-lg font-medium">Artist Requirements</h2>
+        <div className="space-y-6">
+            <div>
+                <h2 className="text-lg font-medium">Artist Requirements</h2>
+                <p className="text-sm text-muted-foreground">Specify the type of artist you're looking for.</p>
+            </div>
             
             <FormField
                 control={form.control}
@@ -69,50 +73,6 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
 
             <FormField 
                 control={form.control} 
-                name="requiredSkills"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Required Skills</FormLabel>
-                        <FormControl>
-                            <Input 
-                                placeholder="e.g., Popping, Locking, Choreography" 
-                                {...field} 
-                                value={Array.isArray(field.value) ? field.value.join(', ') : ''}
-                                onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} 
-                            />
-                        </FormControl>
-                        <FormDescription>
-                            Enter a comma-separated list of skills.
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            <FormField 
-                control={form.control} 
-                name="requiredStyles"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Required Styles</FormLabel>
-                        <FormControl>
-                            <Input 
-                                placeholder="e.g., Commercial, Contemporary" 
-                                {...field} 
-                                value={Array.isArray(field.value) ? field.value.join(', ') : ''}
-                                onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} 
-                            />
-                        </FormControl>
-                        <FormDescription>
-                            Enter a comma-separated list of styles.
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-
-            <FormField 
-                control={form.control} 
                 name="experienceLevel" 
                 render={({ field }) => (
                     <FormItem>
@@ -136,28 +96,56 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
                 <FormField control={form.control} name="ageRange.max" render={({ field }) => (<FormItem><FormLabel>Maximum Age</FormLabel><FormControl><Input type="number" placeholder="e.g., 35" {...field} /></FormControl><FormMessage /></FormItem>)} />
             </div>
 
-            <FormField 
+            <Separator />
+            <div>
+                 <h2 className="text-lg font-medium">Compensation</h2>
+                <p className="text-sm text-muted-foreground">Let artists know how they will be compensated.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField control={form.control} name="compensation.type" render={({ field }) => (<FormItem><FormLabel>Compensation Type *</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Select payment model" /></SelectTrigger></FormControl><SelectContent><SelectItem value="hourly">Hourly</SelectItem><SelectItem value="daily">Daily</SelectItem><SelectItem value="project">Project-based</SelectItem><SelectItem value="revenue_share">Revenue Share</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
+                <FormField control={form.control} name="compensation.amount" render={({ field }) => (<FormItem><FormLabel>Amount</FormLabel><FormControl><Input type="number" placeholder="e.g., 500" {...field} value={field.value ?? ''} /></FormControl><FormMessage /></FormItem>)} />
+            </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField control={form.control} name="compensation.currency" render={({ field }) => (<FormItem><FormLabel>Currency</FormLabel><FormControl><Input placeholder="e.g., USD, EUR" {...field} /></FormControl><FormMessage /></FormItem>)} />
+                <FormField
+                    control={form.control}
+                    name="compensation.negotiable"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-8">
+                            <div className="space-y-0.5">
+                                <FormLabel className="text-base">Negotiable</FormLabel>
+                                <FormDescription>
+                                    Is the compensation negotiable?
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                        </FormItem>
+                    )}
+                />
+            </div>
+             <FormField 
                 control={form.control} 
-                name="genderPreference" 
+                name="compensation.additionalBenefits"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Gender Preference</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Select a gender preference" /></SelectTrigger></FormControl>
-                            <SelectContent>
-                                <SelectItem value="any">Any</SelectItem>
-                                <SelectItem value="male">Male</SelectItem>
-                                <SelectItem value="female">Female</SelectItem>
-                                <SelectItem value="non-binary">Non-Binary</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <FormLabel>Additional Benefits</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g., Travel, Accommodation" {...field} value={Array.isArray(field.value) ? field.value.join(', ') : ''} onChange={e => field.onChange(e.target.value.split(',').map(s => s.trim()))} />
+                        </FormControl>
+                        <FormDescription>
+                            Enter a comma-separated list of benefits.
+                        </FormDescription>
                         <FormMessage />
                     </FormItem>
-                )} 
+                )}
             />
-
-            <FormField control={form.control} name="physicalRequirements" render={({ field }) => (<FormItem><FormLabel>Physical Requirements</FormLabel><FormControl><Input placeholder="e.g., Height over 5'8'', Athletic build" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
     );
 }
+
     
