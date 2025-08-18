@@ -22,8 +22,8 @@ export default function Step4_ApplicationsAndReview({ form }: Step4_Applications
     const values = getValues();
 
     const renderArray = (arr: any) => {
-        if (Array.isArray(arr) && arr.length > 0 && arr[0] !== '' && arr[0] !== undefined) {
-            return arr.join(', ');
+        if (Array.isArray(arr) && arr.length > 0 && arr.filter(Boolean).length > 0) {
+            return arr.filter(Boolean).join(', ');
         }
         return 'Not specified';
     }
@@ -32,8 +32,17 @@ export default function Step4_ApplicationsAndReview({ form }: Step4_Applications
         if (!reqs) return 'Not specified';
         const needed = Object.entries(reqs)
             .filter(([key, value]) => key.startsWith('needs') && value === true)
-            .map(([key]) => key.replace('needs', ''));
-        if (needed.length === 0) return 'None';
+            .map(([key]) => {
+                switch(key) {
+                    case 'needsHeadshots': return 'Headshots';
+                    case 'needsFullBody': return 'Full Body Photos';
+                    case 'needsVideoReel': return 'Video Reel';
+                    case 'needsAudioSample': return 'Audio Sample';
+                    default: return '';
+                }
+            }).filter(Boolean);
+
+        if (needed.length === 0) return 'None specified';
         return needed.join(', ');
     }
 
@@ -201,5 +210,3 @@ export default function Step4_ApplicationsAndReview({ form }: Step4_Applications
         </div>
     );
 }
-
-    
