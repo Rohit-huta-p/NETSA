@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Form } from '@/components/ui/form';
 import { useUser } from '@/hooks/useUser';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -34,7 +33,6 @@ const gigFormSchema = z.object({
   type: z.enum(['performance', 'photoshoot', 'recording', 'event', 'audition', 'modeling', 'teaching', 'collaboration'], { required_error: 'Gig type is required.' }),
   category: z.string().min(2, 'Category is required'),
   tags: z.array(z.string()).optional(),
-  imageUrl: z.string().optional(),
   mediaRequirements: z.object({
     needsHeadshots: z.boolean().default(false),
     needsFullBody: z.boolean().default(false),
@@ -88,7 +86,7 @@ const gigFormSchema = z.object({
 type GigFormValues = z.infer<typeof gigFormSchema>;
 
 const steps = [
-  { id: 1, name: 'Details & Media', fields: ['title', 'description', 'type', 'category', 'imageUrl', 'mediaRequirements'] },
+  { id: 1, name: 'Basic Details & Media', fields: ['title', 'description', 'type', 'category', 'mediaRequirements'] },
   { id: 2, name: 'Artist & Compensation', fields: ['experienceLevel', 'artistType', 'compensation.type'] },
   { id: 3, name: 'Location & Schedule', fields: ['location.city', 'location.country', 'startDate'] },
   { id: 4, name: 'Applications & Review' },
@@ -217,34 +215,72 @@ export function GigForm() {
 
   return (
     <div>
-        <div className="relative mb-12">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
-            <div 
-                className="absolute top-1/2 left-0 h-0.5 bg-primary transition-all duration-500 -translate-y-1/2" 
-                style={{ width: `calc(${(currentStep / (steps.length - 1)) * 100}%)` }}
-            ></div>
-            <ol role="list" className="relative flex justify-between items-center w-full">
-                {steps.map((step, stepIdx) => (
-                    <li key={step.name} className="relative flex flex-col items-center text-center bg-background px-2">
-                        <div className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300",
-                            stepIdx <= currentStep ? 'border-primary bg-primary' : 'border-gray-300 bg-background'
-                        )}>
-                             {stepIdx < currentStep ? (
-                                <span className="text-white font-bold">✓</span>
-                            ) : (
-                                <span className={cn("text-xs font-semibold", stepIdx <= currentStep ? 'text-white' : 'text-muted-foreground' )}>{step.id}</span>
-                            )}
-                        </div>
-                        <p className={cn("text-xs font-semibold mt-2 whitespace-nowrap", { 
-                            'text-primary font-bold': stepIdx === currentStep,
-                            'text-foreground': stepIdx < currentStep,
-                            'text-muted-foreground': stepIdx > currentStep
-                        })}>{step.name}</p>
-                    </li>
-                ))}
-            </ol>
+  <div className="relative mb-12">
+  <ol role="list" className="relative flex justify-between items-center w-full">
+    {steps.map((step, stepIdx) => (
+      <li
+        key={step.name}
+        className="relative flex flex-col items-center text-center flex-1"
+      >
+        {/* Circle */}
+        <div
+          className={cn(
+            "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all duration-300 z-10",
+            stepIdx < currentStep
+              ? "border-primary bg-primary"
+              : stepIdx === currentStep
+              ? "border-primary bg-primary"
+              : "border-gray-300 bg-background"
+          )}
+        >
+          <span
+            className={cn(
+              "text-xs font-semibold",
+              stepIdx < currentStep
+                ? "text-white"
+                : stepIdx === currentStep
+                ? "text-white"
+                : "text-muted-foreground"
+            )}
+          >
+            {step.id}
+          </span>
         </div>
+
+        {/* Label */}
+        <p
+          className={cn(
+            "text-xs font-semibold mt-2 whitespace-nowrap",
+            {
+              "text-primary font-bold": stepIdx === currentStep,
+              "text-foreground": stepIdx < currentStep,
+              "text-muted-foreground": stepIdx > currentStep,
+            }
+          )}
+        >
+          {step.name}
+        </p>
+
+        {/* Connector line (only between circles, single line) */}
+        {stepIdx < steps.length - 1 && (
+          <div
+            className={cn(
+              "absolute top-4 left-1/2 h-0.5 transition-all duration-500 -translate-y-1/2",
+              stepIdx < currentStep
+                ? "bg-primary w-full"
+                : stepIdx === currentStep
+                ? "bg-primary w-full"
+                : "bg-gray-200 w-full"
+            )}
+          ></div>
+        )}
+      </li>
+    ))}
+  </ol>
+</div>
+
+
+
 
 
       <FormProvider {...form}>
@@ -252,11 +288,6 @@ export function GigForm() {
           {currentStep === 0 && (
             <div className="space-y-6">
                 <Step1_BasicDetails form={form} />
-                 <ImageUpload
-                    onUpload={(url) => form.setValue('imageUrl', url)}
-                    storagePath="gig-images"
-                    label="Upload Gig Image (Optional)"
-                />
             </div>
           )}
           {currentStep === 1 && <Step2_ArtistRequirements form={form} />}
