@@ -128,7 +128,7 @@ export default function Step2_ArtistRequirements({ form }: Step2_ArtistRequireme
              <FormField control={form.control} name="physicalRequirements" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Physical Requirements</FormLabel>
-                    <FormControl><Textarea placeholder="e.g., Height 5'8\"-6'0\", athletic build" {...field} /></FormControl>
+                    <FormControl><Textarea placeholder="e.g., Height 5'8\"  {...field} /></FormControl>
                     <FormDescription>Specify any physical requirements for the role.</FormDescription>
                     <FormMessage />
                 </FormItem>

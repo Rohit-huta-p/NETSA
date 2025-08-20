@@ -8,6 +8,7 @@ import { Experience } from "./components/Experience";
 import { ReviewsList } from "./components/ReviewsList";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
 import { InstagramCard } from "./components/InstagramCard";
+import { AboutCard } from "./components/AboutCard";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
   const { data: artist, error } = await getUserProfile_Admin(artistId);
@@ -21,6 +22,7 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
     <div className="space-y-8">
       <ProfileHeader artist={artist} />
       <div className="space-y-8">
+        <AboutCard artist={artist} />
         <PortfolioGallery />
         <Experience />
         <InstagramCard artist={artist} />

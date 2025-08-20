@@ -25,18 +25,6 @@ interface ProfileHeaderProps {
   artist: UserProfile;
 }
 
-const getAge = (dob: Date | undefined) => {
-    if (!dob) return null;
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age;
-};
-
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
   const [showUploader, setShowUploader] = useState(false);
@@ -64,9 +52,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   ]
 
   const skills = artist.skills || [];
-  const age = getAge(artist.dob);
-  const height = artist.height;
-  const skinTone = artist.skinTone;
   const instagramHandle = artist.socialMedia?.instagram;
 
 
@@ -124,20 +109,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
 
             <Separator className="my-4" />
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                {age && <div><p className="font-semibold text-foreground">Age</p><p>{age}</p></div>}
-                {height && <div><p className="font-semibold text-foreground">Height</p><p>{height} cm</p></div>}
-                {skinTone && <div><p className="font-semibold text-foreground">Skin Tone</p><p>{skinTone}</p></div>}
-                {instagramHandle && (
-                    <div className="flex items-center gap-2">
-                        <Instagram className="w-4 h-4 text-pink-600" />
-                        <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                            {instagramHandle}
-                        </Link>
-                    </div>
-                )}
-            </div>
           
           <div className="mt-6">
             <h3 className="text-sm font-semibold text-muted-foreground mb-2">Skills & Styles</h3>
