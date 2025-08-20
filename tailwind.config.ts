@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
-        headline: ['"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        body: ["Segoe UI", 'sans-serif'],
+        headline: ["Segoe UI", 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
