@@ -10,9 +10,9 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 243 77% 66%;
+    --primary: 242 74% 65%; /* Indigo-400 */
     --primary-foreground: 210 40% 98%;
-    --secondary: 333 81% 60%;
+    --secondary: 333 81% 72%; /* Pink-400 */
     --secondary-foreground: 210 40% 98%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -42,13 +42,13 @@
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 239 27% 34%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 243 77% 66%;
+    --primary: 242 74% 65%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 333 81% 60%;
+    --secondary: 333 81% 72%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
