@@ -187,10 +187,10 @@ export default function OrganizerRegistrationForm() {
         Back to role selection
       </Link>
       <div className="text-center my-8">
-        <div className="inline-block p-4 bg-orange-100 rounded-full">
-          <Users className="w-10 h-10 text-orange-500" />
+        <div className="inline-block p-4 bg-primary/10 rounded-full">
+          <Users className="w-10 h-10 text-primary" />
         </div>
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500 mt-4">
+        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mt-4">
           Organizer Registration
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -274,7 +274,7 @@ export default function OrganizerRegistrationForm() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#FB7185] to-[#EA580C] hover:from-[#FB7185]/90 hover:to-[#EA580C]/90"
+                className="w-full font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:brightness-110"
                 disabled={isPending}
               >
                 {isPending ? 'Creating Account...' : 'Create Organizer Account'}

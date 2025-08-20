@@ -182,7 +182,7 @@ export default function LoginForm() {
             <Button
               type="submit"
               size="lg"
-              className="w-full font-bold text-base py-6 bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] hover:from-[#8B5CF6]/90 hover:via-[#EC4899]/90 hover:to-[#F59E0B]/90"
+              className="w-full font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:brightness-110"
               disabled={isPending}
             >
               {isPending ? 'Signing In...' : 'Sign In'}
