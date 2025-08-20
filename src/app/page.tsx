@@ -105,28 +105,27 @@ export default function Home() {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-r from-secondary to-primary text-white overflow-hidden">
-            <div className="absolute inset-0 bg-black/20"></div>
+        <section className="relative bg-background text-foreground overflow-hidden">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative text-center">
                 <h1 className="text-5xl md:text-7xl font-bold font-headline tracking-tight">Where Movement Meets Community</h1>
-                <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-primary-foreground/80">
+                <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-muted-foreground">
                     Connect with dancers, discover workshops, book gigs, and host events. Netsa is your gateway to the performing arts community.
                 </p>
                 <div className="mt-10 flex justify-center gap-4">
-                    <Button asChild size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-bold px-8 py-6 text-base">
+                    <Button asChild size="lg" className="font-bold px-8 py-6 text-base">
                         <Link href="/register">Join the Community</Link>
                     </Button>
-                    <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 font-bold px-8 py-6 text-base">
+                    <Button variant="outline" size="lg" className="font-bold px-8 py-6 text-base">
                         <PlayCircle className="mr-2"/>
                         Watch Demo
                     </Button>
                 </div>
                  <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                     {stats.map((stat, index) => (
-                        <div key={index} className="bg-white/10 backdrop-blur-sm p-6 rounded-xl flex flex-col items-center text-center">
-                            <div className="text-4xl mb-2">{stat.icon}</div>
+                        <div key={index} className="bg-card p-6 rounded-xl flex flex-col items-center text-center">
+                            <div className="text-4xl mb-2 text-primary">{stat.icon}</div>
                             <p className="text-3xl font-bold">{stat.value}</p>
-                            <p className="text-sm text-primary-foreground/80">{stat.label}</p>
+                            <p className="text-sm text-muted-foreground">{stat.label}</p>
                         </div>
                     ))}
                 </div>
@@ -137,7 +136,7 @@ export default function Home() {
         <section className="py-20 bg-muted/30">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold font-headline">Discover Amazing <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Events & Workshops</span></h2>
+                    <h2 className="text-4xl font-bold font-headline">Discover Amazing <span className="text-primary">Events & Workshops</span></h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                         From beginner workshops to professional gigs, find opportunities that match your passion and skill level.
                     </p>
@@ -154,7 +153,7 @@ export default function Home() {
         <section className="py-20">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                  <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold font-headline">Join a Thriving <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Creative Community</span></h2>
+                    <h2 className="text-4xl font-bold font-headline">Join a Thriving <span className="text-primary">Creative Community</span></h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                         Netsa isn’t just about events—it’s about building lasting connections and growing together as artists.
                     </p>
@@ -181,7 +180,7 @@ export default function Home() {
                     </div>
                  </div>
                  <div className="text-center mt-12">
-                    <Button asChild size="lg" className="bg-gradient-to-r from-primary to-secondary text-white font-bold px-10 py-6 text-base">
+                    <Button asChild size="lg" className="font-bold px-10 py-6 text-base">
                         <Link href="/register">Start Your Journey <ArrowRight className="ml-2"/></Link>
                     </Button>
                 </div>

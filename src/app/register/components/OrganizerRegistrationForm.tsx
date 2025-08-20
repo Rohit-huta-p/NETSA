@@ -190,7 +190,7 @@ export default function OrganizerRegistrationForm() {
         <div className="inline-block p-4 bg-primary/10 rounded-full">
           <Users className="w-10 h-10 text-primary" />
         </div>
-        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mt-4">
+        <h1 className="text-4xl font-bold text-primary mt-4">
           Organizer Registration
         </h1>
         <p className="text-muted-foreground mt-2">
@@ -274,7 +274,7 @@ export default function OrganizerRegistrationForm() {
               <Button
                 type="submit"
                 size="lg"
-                className="w-full font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:brightness-110"
+                className="w-full font-bold text-base py-6"
                 disabled={isPending}
               >
                 {isPending ? 'Creating Account...' : 'Create Organizer Account'}

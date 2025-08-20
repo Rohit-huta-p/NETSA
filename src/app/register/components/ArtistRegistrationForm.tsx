@@ -299,7 +299,7 @@ export default function ArtistRegistrationForm() {
           <Button
             type="submit"
             size="lg"
-            className="w-full font-bold text-base py-6 bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:brightness-110"
+            className="w-full font-bold text-base py-6"
             disabled={isPending}
           >
             {isPending ? 'Creating Account...' : 'Create Artist Account'}
