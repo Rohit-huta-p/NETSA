@@ -7,7 +7,6 @@ import { PortfolioGallery } from "./components/PortfolioGallery";
 import { Experience } from "./components/Experience";
 import { ReviewsList } from "./components/ReviewsList";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
-import { InstagramCard } from "./components/InstagramCard";
 import { AboutCard } from "./components/AboutCard";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
@@ -25,7 +24,6 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
         <AboutCard artist={artist} />
         <PortfolioGallery />
         <Experience />
-        <InstagramCard artist={artist} />
         <ReviewsList />
       </div>
     </div>
