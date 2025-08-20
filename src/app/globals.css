@@ -10,7 +10,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 243 91% 67%; /* #6366F1 */
+    --primary: 262 84% 58%; /* #8B5CF6 - Artist */
     --primary-foreground: 210 40% 98%;
     --secondary: 336 82% 61%; /* #EC4899 */
     --secondary-foreground: 210 40% 98%;
@@ -24,7 +24,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
-    --chart-1: 243 91% 67%;
+    --chart-1: 262 84% 58%;
     --chart-2: 336 82% 61%;
     --chart-3: 10 89% 60%;
     --chart-4: 162 77% 40%;
@@ -38,7 +38,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 243 91% 67%; /* #6366F1 */
+    --primary: 262 84% 58%; /* #8B5CF6 - Artist */
     --primary-foreground: 210 40% 98%;
     --secondary: 336 82% 61%; /* #EC4899 */
     --secondary-foreground: 210 40% 98%;
@@ -51,11 +51,21 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    --chart-1: 243 91% 67%;
+    --chart-1: 262 84% 58%;
     --chart-2: 336 82% 61%;
     --chart-3: 10 89% 60%;
     --chart-4: 162 77% 40%;
     --chart-5: 270 90% 65%;
+  }
+
+  .organizer-theme {
+    --primary: 25 95% 53%; /* #EA580C - Organizer */
+    --primary-foreground: 210 40% 98%;
+  }
+
+  .dark.organizer-theme {
+    --primary: 25 95% 53%; /* #EA580C - Organizer */
+    --primary-foreground: 210 40% 98%;
   }
 }
 

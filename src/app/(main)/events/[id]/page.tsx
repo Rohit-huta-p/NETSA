@@ -55,7 +55,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         <div className="flex flex-wrap gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 capitalize">{event.category}</Badge>
+                            <Badge variant="secondary" className="bg-primary/10 text-primary capitalize font-semibold">{event.category}</Badge>
                             <Badge variant="secondary" className="capitalize">{event.skillLevel.replace('_', ' ')}</Badge>
                             {event.tags?.map(tag => <Badge key={tag} variant="outline">{tag}</Badge>)}
                         </div>
@@ -114,7 +114,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                                     </div>
                                     <Progress value={spotsFilledPercentage} className="h-2" />
                                 </div>
-                                <Button size="lg" className="w-full h-12 text-lg font-bold mt-6 bg-gradient-to-r from-purple-500 to-orange-500 text-white">Register Now</Button>
+                                <Button size="lg" className="w-full h-12 text-lg font-bold mt-6">Register Now</Button>
                                 <p className="text-xs text-center text-muted-foreground mt-3">Free cancellation up to 24 hours before the event</p>
                             </CardContent>
                         </Card>
@@ -157,7 +157,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                         <TabsContent value="discussion" className="p-6 sm:p-8 text-center">
                             <h2 className="text-2xl font-bold mb-4 font-headline">Event Discussion</h2>
                             <p className="text-muted-foreground mb-4">No comments yet. Be the first to start the conversation!</p>
-                            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white">Add Comment</Button>
+                            <Button>Add Comment</Button>
                         </TabsContent>
                     </Card>
                 </Tabs>

@@ -10,7 +10,7 @@ const events = [
   {
     id: "1",
     tag: "Workshop",
-    tagColor: "bg-purple-200 text-purple-800",
+    tagColor: "bg-primary/10 text-primary",
     title: "Contemporary Dance Workshop",
     description: "Explore fluid movements and emotional expression in this intensive contemporary dance workshop led by renowned choreographer.",
     date: "Dec 15, 2024 - 7:00 PM",
@@ -75,7 +75,7 @@ const events = [
   {
     id: "6",
     tag: "Workshop",
-    tagColor: "bg-purple-200 text-purple-800",
+    tagColor: "bg-primary/10 text-primary",
     title: "Salsa Beginners Workshop",
     description: "Learn the fundamentals of salsa dancing in this fun and energetic workshop. No partner required!",
     date: "Dec 28, 2024 - 5:00 PM",
@@ -104,7 +104,7 @@ export default function WorkshopsPage() {
               </div>
             </div>
           <div className="text-center mt-12">
-            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Workshops</Button>
+            <Button className="px-8 py-3 rounded-full font-bold">Load More Workshops</Button>
           </div>
           <div className="absolute bottom-0  right-2 z-50 lg:block">
             <ProfileCompletionCard />

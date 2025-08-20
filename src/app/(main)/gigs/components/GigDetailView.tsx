@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 
 interface GigDetailViewProps {
@@ -21,6 +22,17 @@ const renderArrayAsBadges = (arr: string[] | undefined) => {
     }
     return <span className="text-sm text-muted-foreground">Not specified</span>;
 }
+
+const tagColorMap: { [key: string]: string } = {
+    performance: "bg-primary/10 text-primary",
+    photoshoot: "bg-pink-100 text-pink-800",
+    recording: "bg-blue-100 text-blue-800",
+    event: "bg-green-100 text-green-800",
+    audition: "bg-yellow-100 text-yellow-800",
+    modeling: "bg-indigo-100 text-indigo-800",
+    teaching: "bg-teal-100 text-teal-800",
+    collaboration: "bg-gray-100 text-gray-800",
+};
 
 export function GigDetailView({ gig }: GigDetailViewProps) {
     const spotsRemaining = (gig.maxApplications ?? 0) - (gig.currentApplications ?? 0);
@@ -50,7 +62,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         <div className="flex flex-wrap gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-700 capitalize">{gig.type}</Badge>
+                            <Badge className={cn("capitalize font-semibold", tagColorMap[gig.type] || 'bg-gray-200 text-gray-800')}>{gig.type}</Badge>
                             <Badge variant="secondary" className="capitalize">{gig.experienceLevel.replace('_', ' ')}</Badge>
                              <Badge variant="outline" className="capitalize">{gig.category}</Badge>
                         </div>
@@ -104,7 +116,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                     </div>
                                     <Progress value={spotsFilledPercentage} className="h-2" />
                                 </div>
-                                <Button size="lg" className="w-full h-12 text-lg font-bold mt-6 bg-gradient-to-r from-purple-500 to-orange-500 text-white">Apply Now</Button>
+                                <Button size="lg" className="w-full h-12 text-lg font-bold mt-6">Apply Now</Button>
                                 <p className="text-xs text-center text-muted-foreground mt-3">Applications are reviewed on a rolling basis</p>
                             </CardContent>
                         </Card>

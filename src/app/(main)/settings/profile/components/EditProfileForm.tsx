@@ -147,7 +147,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
   const prev = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step - 1);
+      setCurrentStep(step => step + 1);
     }
   };
 
@@ -192,7 +192,6 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
                         type="button"
                         onClick={form.handleSubmit(processSubmit)}
                         disabled={isSubmitting} 
-                        className="bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold"
                     >
                         {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Save Changes

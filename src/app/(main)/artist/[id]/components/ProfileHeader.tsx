@@ -68,14 +68,14 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     </Link>
                 </Button>
             )}
-            <Button className="bg-gradient-to-r from-purple-500 to-orange-400 text-white font-bold">
+            <Button>
                 Get Hired
             </Button>
         </div>
       <div className="flex flex-col md:flex-row gap-8">
         <div className="relative w-28 h-28 flex-shrink-0">
             <div 
-                className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full -m-1"
+                className="absolute inset-0 bg-primary/20 rounded-full -m-1"
                 onClick={() => user?.id === artist.id && setShowUploader(true)}
             ></div>
             <Avatar className="w-full h-full border-4 border-card">

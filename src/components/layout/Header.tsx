@@ -48,7 +48,7 @@ export function Header() {
               <SheetContent side="left">
                 <nav className="grid gap-6 text-lg font-medium rounded-xl mt-8">
                   <Link href="/events" className="flex items-center gap-2 text-lg font-semibold">
-                     <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
+                     <div className="w-8 h-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                      <span className="text-2xl font-bold text-foreground">Netsa</span>
                   </Link>
                   <Link href="/events" className="hover:text-primary">Events</Link>
@@ -61,7 +61,7 @@ export function Header() {
               </SheetContent>
             </Sheet>
             <Link href="/events" className="hidden md:flex items-center gap-2">
-                 <div className="w-8 h-8 bg-purple-600 text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
+                 <div className="w-8 h-8 bg-primary text-white flex items-center justify-center rounded-lg font-bold text-xl">N</div>
                  <span className="text-2xl font-bold text-foreground">Netsa</span>
             </Link>
             <nav className="hidden md:flex items-center gap-8 text-muted-foreground font-medium ml-8">
@@ -89,7 +89,7 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                      <Avatar className="cursor-pointer h-9 w-9">
                         <AvatarImage src={user?.profileImageUrl} />
-                        <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
+                        <AvatarFallback className="bg-primary/20 text-primary font-bold">{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

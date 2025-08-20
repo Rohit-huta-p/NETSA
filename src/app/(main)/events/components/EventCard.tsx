@@ -41,7 +41,7 @@ export function EventCard({ id, tag, tagColor, title, description, date, locatio
                         data-ai-hint={imageHint}
                         className="w-full h-56 object-cover" 
                     />
-                    <span className={`absolute top-4 left-4 px-3 py-1 text-xs font-semibold rounded-full ${tagColor}`}>{tag}</span>
+                    <span className={cn("absolute top-4 left-4 px-3 py-1 text-xs font-semibold rounded-full capitalize", tagColor)}>{tag}</span>
                     <Button size="icon" variant="ghost" className="absolute top-2 right-2 bg-white/10 hover:bg-white/20 text-white rounded-full">
                         <Heart className="w-5 h-5"/>
                     </Button>

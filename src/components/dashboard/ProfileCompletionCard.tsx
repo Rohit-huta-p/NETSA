@@ -66,7 +66,7 @@ export function ProfileCompletionCard() {
         <p className="text-lg font-bold text-primary">{completionPercentage}%</p>
         <Progress value={completionPercentage} className="w-full" />
       </div>
-      <Button asChild className="w-full mt-6 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-bold">
+      <Button asChild className="w-full mt-6 font-bold">
         <Link href={`/settings/profile`}>
             Update Profile
         </Link>

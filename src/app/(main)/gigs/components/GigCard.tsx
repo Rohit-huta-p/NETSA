@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 
 // A simple mapping for tag colors based on gig type.
 const tagColorMap: { [key: string]: string } = {
-  performance: "bg-purple-100 text-purple-800",
+  performance: "bg-primary/10 text-primary",
   photoshoot: "bg-pink-100 text-pink-800",
   recording: "bg-blue-100 text-blue-800",
   event: "bg-green-100 text-green-800",
@@ -40,7 +40,7 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
             )}
         >
            <div className="flex justify-between items-start mb-2">
-                 <Badge className={cn("capitalize", tagColorMap[gig.type] || 'bg-gray-200 text-gray-800')}>{gig.type}</Badge>
+                 <Badge className={cn("capitalize font-semibold", tagColorMap[gig.type] || 'bg-gray-200 text-gray-800')}>{gig.type}</Badge>
                  <div className="text-sm text-muted-foreground">
                     {gig.createdAt ? format(new Date(gig.createdAt), "MMM dd") : ''}
                  </div>

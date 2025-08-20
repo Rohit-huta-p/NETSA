@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // A simple mapping for tag colors based on event category.
 const tagColorMap: { [key: string]: string } = {
-  performance: "bg-red-200 text-red-800",
+  performance: "bg-primary/10 text-primary",
   competition: "bg-orange-200 text-orange-800",
   masterclass: "bg-blue-200 text-blue-800",
   audition: "bg-yellow-200 text-yellow-800",
@@ -125,7 +125,7 @@ export default function EventsPage() {
             )}
           </div>
           <div className="text-center mt-12">
-            <Button className="bg-gradient-to-r from-purple-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold">Load More Events</Button>
+            <Button className="px-8 py-3 rounded-full font-bold">Load More Events</Button>
           </div>
           <div className="absolute bottom-0  right-2 z-50 lg:block">
             <ProfileCompletionCard />
