@@ -2,16 +2,26 @@
 "use client";
 
 import { useUser } from "@/hooks/useUser";
+import { usePathname } from "next/navigation";
 
 export function DiscoverSection() {
     const { user } = useUser();
+    const pathname = usePathname();
+
+    const isGigsPage = pathname.includes('/gigs');
+    const title = isGigsPage ? "Find Your Next Gig" : "Discover Events & Workshops";
+    const tagline = isGigsPage 
+        ? "Browse thousands of opportunities from top organizers and brands."
+        : "Find your next dance adventure in the city.";
+
     return (
-        <div className="text-center bg-card rounded-lg p-8 shadow-lg border">
-            {user && (
-                <h2 className="text-3xl font-bold mb-2">Welcome back, {user.firstName}!</h2>
-            )}
-            <h1 className="text-4xl font-bold">Discover Your Next <span className="text-primary">Opportunity</span></h1>
-            <p className="text-muted-foreground mt-2">Browse jobs, workshops, and connect with the community.</p>
+        <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                {title.split(' ').slice(0, -1).join(' ')} <span className="text-primary">{title.split(' ').slice(-1)}</span>
+            </h1>
+            <p className="mt-3 text-lg max-w-2xl mx-auto text-muted-foreground">
+                {tagline}
+            </p>
         </div>
     )
 }

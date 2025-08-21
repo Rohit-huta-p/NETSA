@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -57,6 +58,7 @@ export function Header() {
                     <Link href="/gigs">Gigs</Link>
                     <Link href="/events">Events</Link>
                     <Link href="/community">Community</Link>
+                    <Link href="/create">Create Event</Link>
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -65,31 +67,27 @@ export function Header() {
                 Netsa
               </Link>
               <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-muted-foreground ml-4">
-                <Link href="/gigs" className="hover:text-foreground">Gigs</Link>
                 <Link href="/events" className="hover:text-foreground">Events</Link>
                 <Link href="/community" className="hover:text-foreground">Community</Link>
+                <Link href="/create" className="hover:text-foreground">Create Event</Link>
               </nav>
             </div>
             <div className="flex-1 flex justify-center px-4">
               <div className="relative w-full max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input type="search" placeholder="Search events, artists, workshops..." className="w-full pl-10 bg-muted/50 rounded-full" />
+                <Input type="search" placeholder="Search events, artists, workshops..." className="w-full pl-10 bg-transparent rounded-full border-border h-10" />
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <ThemeToggle />
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
-              </Button>
-               <Button variant="ghost" size="icon">
-                <UserIcon className="w-5 h-5" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer h-9 w-9">
                     <AvatarImage src={user?.profileImageUrl} />
-                    <AvatarFallback className="bg-green-800 text-white font-bold">{user?.firstName?.[0]}</AvatarFallback>
+                    <AvatarFallback className="bg-primary text-primary-foreground font-bold">{user?.firstName?.[0]}</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">

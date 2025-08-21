@@ -10,6 +10,7 @@ import type { Event } from "@/lib/types";
 import { Skeleton } from '@/components/ui/skeleton';
 import { FilterBar } from '@/components/layout/FilterBar';
 import { Drama, Flame, Sparkles } from 'lucide-react';
+import { DiscoverSection } from '@/components/dashboard/DiscoverSection';
 
 function EventCardSkeleton() {
   return (
@@ -65,16 +66,9 @@ export default function EventsPage() {
   return (
     <div className="min-h-screen bg-background font-body">
       <main className="container mx-auto py-8 px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-            Discover <span className="bg-gradient-to-r from-pink-500 to-orange-400 text-transparent bg-clip-text">Events & Workshops</span>
-          </h1>
-          <p className="mt-3 text-lg max-w-2xl mx-auto text-muted-foreground">
-            Find your next dance adventure in the city.
-          </p>
-        </div>
+        <DiscoverSection />
         
-        <FilterBar />
+        <FilterBar onFilterChange={() => {}} />
 
         <div className="mt-12 relative">
           <div className="flex justify-between items-center mb-6">
