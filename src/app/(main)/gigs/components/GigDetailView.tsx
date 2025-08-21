@@ -21,6 +21,49 @@ const renderArrayAsBadges = (arr: string[] | undefined, variant: "secondary" | "
     return <span className="text-sm text-muted-foreground">Not specified</span>;
 }
 
+function DiscussionTabContent() {
+    const reviews = [
+        { name: "John Smith", role: "Organizer, 'The Grand Gala'", rating: 5, comment: "Jane is an absolute professional and a joy to work with. Her performance was breathtaking." },
+        { name: "Emily White", role: "Choreographer", rating: 5, comment: "A truly gifted dancer with a unique style. Highly recommend." },
+    ];
+
+    const renderStars = (rating: number) => {
+        return Array(5).fill(0).map((_, i) => (
+            <Star key={i} className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
+        ));
+    }
+
+    return (
+        <div className="space-y-4">
+            <h3 className="font-bold text-lg mb-2">Discussion</h3>
+            {reviews.map((review, index) => (
+                <div key={index} className="p-4 border rounded-lg">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <Avatar>
+                                <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} />
+                                <AvatarFallback>{review.name.slice(0, 2)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <p className="font-bold">{review.name}</p>
+                                <p className="text-sm text-muted-foreground">{review.role}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            {renderStars(review.rating)}
+                        </div>
+                    </div>
+                    <p className="text-muted-foreground mt-4">"{review.comment}"</p>
+                </div>
+            ))}
+             <div className="text-center py-8">
+                <Button>Add Comment</Button>
+            </div>
+        </div>
+    )
+}
+
+
 export function GigDetailView({ gig }: GigDetailViewProps) {
     const progress = gig.maxApplications ? (gig.currentApplications / gig.maxApplications) * 100 : 0;
 
@@ -28,20 +71,6 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
         <div className="-m-12">
             <div className="container mx-auto py-12">
                 <div className="max-w-5xl mx-auto">
-                    <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden ">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                            <Briefcase className="w-24 h-24 text-white/20" />
-                        </div>
-                        <div className="absolute top-4 right-4 flex gap-2">
-                            <Button size="icon" variant="secondary" className="rounded-full bg-white/20 border-none text-white hover:bg-white/30">
-                                <Heart className="w-5 h-5" />
-                            </Button>
-                            <Button size="icon" variant="secondary" className="rounded-full bg-white/20 border-none text-white hover:bg-white/30">
-                                <Share2 className="w-5 h-5" />
-                            </Button>
-                        </div>
-                    </div>
-
                     <Card className="shadow-xl rounded-2xl ">
                         <CardContent className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="md:col-span-2 space-y-6">
@@ -113,16 +142,15 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                     </Card>
 
                     <div className="mt-8">
-                         <Tabs defaultValue="description">
+                         <Tabs defaultValue="about">
                             <TabsList className="flex justify-center bg-transparent mb-6">
-                                <TabsTrigger value="description" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Full Description</TabsTrigger>
-                                <TabsTrigger value="requirements" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Artist Requirements</TabsTrigger>
-                                <TabsTrigger value="organizer" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">About the Organizer</TabsTrigger>
-                                <TabsTrigger value="company" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Company</TabsTrigger>
+                                <TabsTrigger value="about" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">About</TabsTrigger>
+                                <TabsTrigger value="requirements" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Requirements</TabsTrigger>
+                                <TabsTrigger value="discussion" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Discussion</TabsTrigger>
                             </TabsList>
                             <Card className="shadow-xl rounded-2xl">
                                <CardContent className="p-8">
-                                    <TabsContent value="description">
+                                    <TabsContent value="about">
                                         <h3 className="font-bold text-lg mb-2">About This Gig</h3>
                                         <p className="text-muted-foreground whitespace-pre-line">{gig.description}</p>
                                     </TabsContent>
@@ -144,17 +172,8 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                             <p className="text-sm text-muted-foreground">{gig.physicalRequirements || "Not specified"}</p>
                                         </div>
                                     </TabsContent>
-                                    <TabsContent value="organizer">
-                                        <h3 className="font-bold text-lg mb-2">About the Organizer</h3>
-                                        <p className="text-muted-foreground">Information about {gig.organizerInfo.name} will be displayed here.</p>
-                                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
-                                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                                            <span>{gig.organizerInfo.rating} average rating</span>
-                                        </div>
-                                    </TabsContent>
-                                    <TabsContent value="company">
-                                        <h3 className="font-bold text-lg mb-2">About {gig.organizerInfo.organization}</h3>
-                                        <p className="text-muted-foreground">Details about the company, its mission, and past projects will be displayed here.</p>
+                                    <TabsContent value="discussion">
+                                        <DiscussionTabContent />
                                     </TabsContent>
                                </CardContent>
                             </Card>
