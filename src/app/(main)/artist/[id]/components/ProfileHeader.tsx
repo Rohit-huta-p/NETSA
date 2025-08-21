@@ -1,17 +1,15 @@
-
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MapPin, Phone, Star, Instagram, Edit } from "lucide-react";
+import { Mail, Star, Edit, Camera } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
 import { updateUserProfile } from "@/lib/server/actions";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import {
   Dialog,
@@ -44,22 +42,53 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
       }
     }
   };
-
-  const stats = [
-    { value: artist.stats?.eventsAttended ?? "0", label: "Events Attended" },
-    { value: artist.stats?.eventsHosted ?? "0", label: "Events Hosted" },
-    { value: artist.stats?.connectionsCount ?? "0", label: "Connections" },
-  ]
+  
+  if (artist.role !== 'artist') return null;
 
   const skills = artist.skills || [];
-  const instagramHandle = artist.socialMedia?.instagram;
-
 
   return (
-    <div className="bg-card p-8 rounded-lg shadow-md relative border">
-        <div className="absolute top-4 right-4">
+    <div className="bg-card p-6 rounded-lg shadow-sm relative border">
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="relative">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1">
+                <Avatar className="w-full h-full border-4 border-card">
+                    <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
+                    <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
+                </Avatar>
+            </div>
+             {user?.id === artist.id && (
+              <button 
+                onClick={() => setShowUploader(true)} 
+                className="absolute bottom-1 right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 border border-border"
+              >
+                <Camera className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
+        </div>
+        <div className="flex-grow text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-4">
+            <h1 className="text-3xl font-bold">{artist.firstName} {artist.lastName}</h1>
+            <Badge className="bg-purple-600 text-white hover:bg-purple-700">{artist.artistType || 'Artist'}</Badge>
+          </div>
+          
+          <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
+            <Mail className="w-4 h-4" />
+            <span>{artist.email}</span>
+          </div>
+
+          <div className="mt-4">
+            <h3 className="font-semibold text-sm mb-2">Skills & Styles</h3>
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+              {skills.length > 0 ? skills.slice(0, 5).map(skill => (
+                  <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700">{skill}</Badge>
+              )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
+            </div>
+          </div>
+        </div>
+         <div className="absolute top-4 right-4">
             {user?.id === artist.id ? (
-                 <Button asChild>
+                 <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-500 text-white">
                     <Link href="/settings/profile">
                         <Edit className="w-4 h-4 mr-2" />
                         Edit Profile
@@ -69,63 +98,23 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 <Button>Connect</Button>
             )}
         </div>
-      <div className="flex flex-col md:flex-row items-center gap-8">
-        <div className="relative">
-            <Avatar className="w-32 h-32 md:w-40 md:h-40 border-4 border-background">
-                <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
-                <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
-            </Avatar>
-             {user?.id === artist.id && (
-              <button 
-                onClick={() => setShowUploader(true)} 
-                className="absolute bottom-2 right-2 bg-muted p-2 rounded-full hover:bg-muted-foreground/20"
-              >
-                <Edit className="w-5 h-5 text-muted-foreground" />
-              </button>
-            )}
+      </div>
+      
+      <div className="mt-6 pt-6 border-t grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+        <div>
+            <p className="text-2xl font-bold">{artist.stats?.eventsAttended ?? "0"}</p>
+            <p className="text-sm text-muted-foreground">Events Attended</p>
         </div>
-        <div className="flex-grow">
-          <h1 className="text-3xl md:text-4xl font-bold">{artist.firstName} {artist.lastName}</h1>
-          <div className="flex items-center gap-2 mt-2">
-            <div className="flex items-center gap-1">
+        <div>
+            <p className="text-2xl font-bold">{artist.stats?.connectionsCount ?? "0"}</p>
+            <p className="text-sm text-muted-foreground">Connections</p>
+        </div>
+        <div className="col-span-2 md:col-span-1">
+             <div className="flex items-center justify-center gap-1">
                 <Star className="w-5 h-5 text-yellow-400" />
-                <span className="font-bold">{artist.stats?.averageRating?.toFixed(1) ?? 'N/A'}</span>
+                <p className="text-2xl font-bold">{artist.stats?.averageRating?.toFixed(1) ?? 'N/A'}</p>
             </div>
-            <span className="text-muted-foreground">({artist.stats?.totalReviews ?? 0} reviews)</span>
-          </div>
-
-          <p className="mt-4 text-muted-foreground max-w-lg">{artist.bio || "No bio available."}</p>
-
-          <div className="mt-4 flex items-center gap-6 text-sm text-muted-foreground">
-             <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
-                <span>{artist.city || 'Not specified'}, {artist.country || ''}</span>
-            </div>
-             <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <span>{artist.email}</span>
-            </div>
-             <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
-                <span>{artist.phoneNumber || 'Not specified'}</span>
-            </div>
-            {instagramHandle && (
-                <div className="flex items-center gap-2">
-                    <Instagram className="w-4 h-4"/>
-                    <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                        {instagramHandle}
-                    </Link>
-                </div>
-            )}
-          </div>
-          
-          <Separator className="my-6" />
-
-          <div className="flex flex-wrap gap-2">
-            {skills.length > 0 ? skills.map(skill => (
-                <Badge key={skill} variant="secondary">{skill}</Badge>
-            )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
-          </div>
+            <p className="text-sm text-muted-foreground">Rating</p>
         </div>
       </div>
       
@@ -145,20 +134,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 </div>
           </DialogContent>
       </Dialog>
-
-
-      <div className="mt-8 pt-8 border-t grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-        {stats.map(stat => (
-            <div key={stat.label}>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-        ))}
-         <div>
-            <p className="text-2xl font-bold">{artist.stats?.averageRating?.toFixed(1) ?? 'N/A'}</p>
-            <p className="text-sm text-muted-foreground">Avg. Rating</p>
-        </div>
-      </div>
     </div>
   );
 }

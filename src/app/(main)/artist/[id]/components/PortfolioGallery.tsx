@@ -1,7 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import { Video } from "lucide-react";
+import { Video, Image as ImageIcon } from "lucide-react";
 
 export function PortfolioGallery() {
     const portfolioItems = [
@@ -13,18 +12,27 @@ export function PortfolioGallery() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-2xl font-bold">Gallery</CardTitle>
+                <CardTitle className="text-xl font-bold">Gallery</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {portfolioItems.map((item, index) => (
-                        <div key={index} className="relative group aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border">
-                            <Image src={item.src} alt={item.alt} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={item.hint} />
-                            {item.type === 'video' && (
-                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <Video className="w-12 h-12 text-white" />
-                                </div>
-                            )}
+                        <div key={index} className="relative group aspect-square rounded-lg overflow-hidden bg-muted">
+                             <div className="absolute inset-0 bg-muted flex items-center justify-center z-0">
+                                {item.type === 'video' ? (
+                                     <Video className="w-8 h-8 text-muted-foreground" />
+                                ) : (
+                                     <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                                )}
+                            </div>
+                            <Image 
+                                src={item.src} 
+                                alt={item.alt} 
+                                width={600} 
+                                height={600} 
+                                className="relative z-10 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                                data-ai-hint={item.hint} 
+                            />
                         </div>
                     ))}
                 </div>
