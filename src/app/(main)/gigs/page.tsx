@@ -17,13 +17,13 @@ import { useDebounce } from '@/hooks/use-debounce';
 function GigsPageSkeleton() {
   return (
     <>
-      <div className="lg:col-span-2 space-y-4">
+      <div className="lg:col-span-1 space-y-4">
         {Array.from({ length: 7 }).map((_, i) => (
             <GigCardSkeleton key={i} />
         ))}
       </div>
-      <div className="lg:col-span-3">
-        <Card className="sticky top-24">
+      <div className="lg:col-span-2">
+        <Card>
             <CardContent className="p-6">
                 <Skeleton className="h-8 w-3/4 mb-4" />
                 <Skeleton className="h-4 w-full mb-2" />
@@ -115,31 +115,30 @@ export default function GigsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 font-body">
-      <main className="p-4 sm:p-8">
+    <div className="min-h-screen bg-muted/40">
+      <main className="container mx-auto py-8">
         <GigFilters 
             filters={filters}
             onFilterChange={handleFilterChange}
         />
         <div className="mt-8">
-          <div className="mb-6">
-             <h2 className="text-2xl font-bold text-foreground">
-              {isLoading ? 'Searching for Gigs...' : `${gigsResponse?.total || 0} Gigs Found`}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold">
+              {isLoading ? 'Searching...' : `${gigsResponse?.total || 0} Gigs Found`}
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {isLoading ? (
                 <GigsPageSkeleton />
               ) : error ? (
-                <div className="text-center py-16 text-destructive bg-destructive/10 rounded-lg col-span-full">
-                  <h3 className="text-2xl font-bold">Error</h3>
-                  <p className="mb-4">{error}</p>
-                  <Button onClick={() => fetchGigs(filters)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Retry</Button>
+                <div className="text-center py-10 text-red-500 col-span-full">
+                  <p>{error}</p>
+                  <Button onClick={() => fetchGigs(filters)} className="mt-4">Retry</Button>
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-2 space-y-4 h-[calc(100vh-20rem)] overflow-y-auto pr-2">
+                  <div className="lg:col-span-1 space-y-4 h-[calc(100vh-15rem)] overflow-y-auto pr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 
@@ -149,22 +148,17 @@ export default function GigsPage() {
                         />
                     ))}
                   </div>
-                  <div className="lg:col-span-3">
-                    {selectedGig ? (
+                  <div className="lg:col-span-2">
+                    {selectedGig && (
                       <div className="sticky top-24">
                         <GigDetailView gig={selectedGig} />
                       </div>
-                    ) : (
-                        <div className="flex items-center justify-center h-full bg-muted rounded-lg sticky top-24">
-                            <p className="text-muted-foreground">Select a gig to see details</p>
-                        </div>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg col-span-full">
-                  <h3 className="text-2xl font-bold">No Gigs Available</h3>
-                  <p>There are currently no gigs posted that match your filters. Check back soon!</p>
+                <div className="text-center py-10 text-muted-foreground col-span-full">
+                  <p>No gigs found matching your criteria.</p>
                 </div>
               )}
           </div>

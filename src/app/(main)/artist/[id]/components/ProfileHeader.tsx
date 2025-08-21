@@ -56,67 +56,75 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
 
   return (
-    <div className="bg-card p-8 rounded-2xl shadow-lg relative border">
-        <div className="absolute top-6 right-6 flex items-center gap-2">
-            {user?.id === artist.id && (
-                 <Button asChild variant="outline">
+    <div className="bg-card p-8 rounded-lg shadow-md relative border">
+        <div className="absolute top-4 right-4">
+            {user?.id === artist.id ? (
+                 <Button asChild>
                     <Link href="/settings/profile">
-                      <span>
-                        <Edit className="w-4 h-4 mr-2 inline-block" />
+                        <Edit className="w-4 h-4 mr-2" />
                         Edit Profile
-                      </span>
                     </Link>
                 </Button>
+            ) : (
+                <Button>Connect</Button>
             )}
-            <Button>
-                Get Hired
-            </Button>
         </div>
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="relative w-28 h-28 flex-shrink-0">
-            <div 
-                className="absolute inset-0 bg-primary/20 rounded-full -m-1"
-                onClick={() => user?.id === artist.id && setShowUploader(true)}
-            ></div>
-            <Avatar className="w-full h-full border-4 border-card">
+      <div className="flex flex-col md:flex-row items-center gap-8">
+        <div className="relative">
+            <Avatar className="w-32 h-32 md:w-40 md:h-40 border-4 border-background">
                 <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
                 <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
             </Avatar>
              {user?.id === artist.id && (
               <button 
                 onClick={() => setShowUploader(true)} 
-                className="absolute bottom-0 -right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 transition-colors"
+                className="absolute bottom-2 right-2 bg-muted p-2 rounded-full hover:bg-muted-foreground/20"
               >
-                <Edit className="w-4 h-4 text-muted-foreground" />
+                <Edit className="w-5 h-5 text-muted-foreground" />
               </button>
             )}
         </div>
-        <div className="flex-grow mt-4 md:mt-0">
-            <h1 className="text-4xl font-bold">{artist.firstName} {artist.lastName}</h1>
-            <div className="flex items-center gap-6 mt-2 text-muted-foreground">
-                <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{artist.city || 'Not specified'}, {artist.country || ''}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Mail className="w-4 h-4" />
-                    <span>{artist.email}</span>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    <span>{artist.phoneNumber || 'Not specified'}</span>
-                </div>
+        <div className="flex-grow">
+          <h1 className="text-3xl md:text-4xl font-bold">{artist.firstName} {artist.lastName}</h1>
+          <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-1">
+                <Star className="w-5 h-5 text-yellow-400" />
+                <span className="font-bold">{artist.stats?.averageRating?.toFixed(1) ?? 'N/A'}</span>
             </div>
+            <span className="text-muted-foreground">({artist.stats?.totalReviews ?? 0} reviews)</span>
+          </div>
 
-            <Separator className="my-4" />
-          
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-2">Skills & Styles</h3>
-            <div className="flex flex-wrap gap-2">
-                {skills.length > 0 ? skills.map(skill => (
-                    <Badge key={skill} variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer font-medium">{skill}</Badge>
-                )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
+          <p className="mt-4 text-muted-foreground max-w-lg">{artist.bio || "No bio available."}</p>
+
+          <div className="mt-4 flex items-center gap-6 text-sm text-muted-foreground">
+             <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                <span>{artist.city || 'Not specified'}, {artist.country || ''}</span>
             </div>
+             <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                <span>{artist.email}</span>
+            </div>
+             <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4" />
+                <span>{artist.phoneNumber || 'Not specified'}</span>
+            </div>
+            {instagramHandle && (
+                <div className="flex items-center gap-2">
+                    <Instagram className="w-4 h-4"/>
+                    <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                        {instagramHandle}
+                    </Link>
+                </div>
+            )}
+          </div>
+          
+          <Separator className="my-6" />
+
+          <div className="flex flex-wrap gap-2">
+            {skills.length > 0 ? skills.map(skill => (
+                <Badge key={skill} variant="secondary">{skill}</Badge>
+            )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
           </div>
         </div>
       </div>
@@ -139,22 +147,16 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
       </Dialog>
 
 
-      <div className="mt-8 pt-8 border-t">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {stats.map(stat => (
-                <div key={stat.label}>
-                    <p className="text-3xl font-bold text-primary">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-
-                </div>
-            ))}
-             <div>
-                <div className="flex items-center justify-center gap-1">
-                    <p className="text-3xl font-bold text-primary">{artist.stats?.averageRating ?? '0'}</p>
-                     <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">Rating</p>
+      <div className="mt-8 pt-8 border-t grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        {stats.map(stat => (
+            <div key={stat.label}>
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
             </div>
+        ))}
+         <div>
+            <p className="text-2xl font-bold">{artist.stats?.averageRating?.toFixed(1) ?? 'N/A'}</p>
+            <p className="text-sm text-muted-foreground">Avg. Rating</p>
         </div>
       </div>
     </div>

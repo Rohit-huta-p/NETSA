@@ -10,7 +10,6 @@ const events = [
   {
     id: "1",
     tag: "Workshop",
-    tagColor: "bg-primary/10 text-primary",
     title: "Contemporary Dance Workshop",
     description: "Explore fluid movements and emotional expression in this intensive contemporary dance workshop led by renowned choreographer.",
     date: "Dec 15, 2024 - 7:00 PM",
@@ -23,7 +22,6 @@ const events = [
   {
     id: "2",
     tag: "Competition",
-    tagColor: "bg-orange-200 text-orange-800",
     title: "Hip-Hop Battle Championship",
     description: "Annual competition featuring the best street dancers from across the city. Prizes, networking, and pure talent.",
     date: "Dec 18, 2024 - 8:00 PM",
@@ -36,7 +34,6 @@ const events = [
   {
     id: "3",
     tag: "Intensive",
-    tagColor: "bg-pink-200 text-pink-800",
     title: "Ballet Intensive Weekend",
     description: "Two-day classical ballet intensive covering technique, variations, and performance skills for intermediate to advanced dancers.",
     date: "Dec 20-21, 2024",
@@ -49,7 +46,6 @@ const events = [
   {
     id: "4",
     tag: "Social",
-    tagColor: "bg-blue-200 text-blue-800",
     title: "Jazz Dance Social",
     description: "Come dance, mingle, and enjoy live jazz music in this social dance event. All levels welcome!",
     date: "Dec 22, 2024 - 6:30 PM",
@@ -62,7 +58,6 @@ const events = [
   {
     id: "5",
     tag: "Performance",
-    tagColor: "bg-red-200 text-red-800",
     title: "Modern Dance Performance",
     description: "Experience cutting-edge contemporary choreography in this evening showcase featuring local and visiting artists.",
     date: "Dec 25, 2024 - 8:00 PM",
@@ -75,7 +70,6 @@ const events = [
   {
     id: "6",
     tag: "Workshop",
-    tagColor: "bg-primary/10 text-primary",
     title: "Salsa Beginners Workshop",
     description: "Learn the fundamentals of salsa dancing in this fun and energetic workshop. No partner required!",
     date: "Dec 28, 2024 - 5:00 PM",
@@ -89,24 +83,24 @@ const events = [
   
 export default function WorkshopsPage() {
   return (
-    <div className=" min-h-screen bg-background font-body ">
+    <div className=" min-h-screen bg-background ">
       <main className="p-8 relative">
         <DiscoverSection />
         <div className="mt-8 relative">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-foreground">6 Workshops Found</h2>
+                <h2 className="text-2xl font-bold">6 Workshops Found</h2>
             </div>
             <div className="relative">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event, index) => (
                   <EventCard key={index} {...event} />
                 ))}
               </div>
             </div>
           <div className="text-center mt-12">
-            <Button className="px-8 py-3 rounded-full font-bold">Load More Workshops</Button>
+            <Button>Load More Workshops</Button>
           </div>
-          <div className="absolute bottom-0  right-2 z-50 lg:block">
+          <div className="absolute bottom-0 -right-4 -top-8 z-50 hidden lg:block">
             <ProfileCompletionCard />
           </div>
         </div>

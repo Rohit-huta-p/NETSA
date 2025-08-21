@@ -7,20 +7,6 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 
-
-// A simple mapping for tag colors based on gig type.
-const tagColorMap: { [key: string]: string } = {
-  performance: "bg-primary/10 text-primary",
-  photoshoot: "bg-pink-100 text-pink-800",
-  recording: "bg-blue-100 text-blue-800",
-  event: "bg-green-100 text-green-800",
-  audition: "bg-yellow-100 text-yellow-800",
-  modeling: "bg-indigo-100 text-indigo-800",
-  teaching: "bg-teal-100 text-teal-800",
-  collaboration: "bg-gray-100 text-gray-800",
-};
-
-
 interface GigCardProps {
     gig: Gig;
     onClick?: () => void;
@@ -34,35 +20,43 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
         <div 
             onClick={onClick}
             className={cn(
-                "group bg-card rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col h-fit border-2",
-                isActive ? "border-primary shadow-md" : "border-border/50 hover:border-primary/50",
-                "text-left w-full cursor-pointer p-5"
+                "bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full border-2",
+                isActive ? "border-primary" : "border-transparent",
+                "text-left w-full cursor-pointer"
             )}
         >
-           <div className="flex justify-between items-start mb-2">
-                 <Badge className={cn("capitalize font-semibold", tagColorMap[gig.type] || 'bg-gray-200 text-gray-800')}>{gig.type}</Badge>
-                 <div className="text-sm text-muted-foreground">
-                    {gig.createdAt ? format(new Date(gig.createdAt), "MMM dd") : ''}
-                 </div>
+           <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                    <Badge variant="secondary" className="capitalize">{gig.type}</Badge>
+                    <div className="text-xs text-muted-foreground">
+                        Posted {gig.createdAt ? format(new Date(gig.createdAt), "MMM dd") : ''}
+                    </div>
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">{gig.title}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{gig.description}</p>
            </div>
-            <h3 className="text-lg font-bold text-foreground mb-3 group-hover:text-primary transition-colors">{gig.title}</h3>
             
-            <div className="space-y-2 text-sm text-muted-foreground border-t border-border pt-3 mt-auto">
-                <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" />
+            <div className="px-4 py-2 space-y-2 text-sm text-muted-foreground border-t mt-auto">
+                <div className="flex items-center">
+                    <MapPin className="w-4 h-4 mr-2" />
                     <span>{gig.location ? `${gig.location.city}, ${gig.location.country}` : 'Location TBD'}</span>
                 </div>
-                 <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-primary" />
+                 <div className="flex items-center">
+                    <DollarSign className="w-4 h-4 mr-2" />
                     <span>
-                        {gig.compensation?.amount ? `$${gig.compensation.amount}` : 'Paid'}
-                        {gig.compensation?.type && <span className="text-xs"> ({gig.compensation.type})</span>}
+                        {gig.compensation?.amount ? `$${gig.compensation.amount}` : 'Paid Gig'}
+                        {gig.compensation?.type && <span className="text-xs capitalize"> ({gig.compensation.type})</span>}
                     </span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-primary" />
+                <div className="flex items-center">
+                    <Users className="w-4 h-4 mr-2" />
                     <span className="capitalize">{gig.experienceLevel}</span>
                 </div>
+            </div>
+             <div className="p-4">
+                <Button asChild variant="outline" className="w-full">
+                    <Link href={href}>View Details</Link>
+                </Button>
             </div>
         </div>
     );

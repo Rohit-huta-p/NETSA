@@ -21,12 +21,12 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
   return (
     <div className="space-y-8">
       <ProfileHeader artist={artist} />
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 space-y-8">
           <AboutCard artist={artist} />
-           {artist.role === 'artist' && <ProfessionalInfoCard artist={artist} />}
+          {artist.role === 'artist' && <ProfessionalInfoCard artist={artist} />}
         </div>
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-2 space-y-8">
           <PortfolioGallery />
           <Experience />
           <ReviewsList />

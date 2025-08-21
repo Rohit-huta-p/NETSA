@@ -11,7 +11,7 @@ export default async function GigDetailPage({ params }: { params: { id: string }
     }
 
     return (
-        <div className="bg-muted/40 font-body">
+        <div className="bg-muted/40">
             <div className="container mx-auto py-12">
                 <GigDetailView gig={gig} />
             </div>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -142,25 +141,25 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md shadow-lg">
+    <Card className="w-full max-w-md">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 inline-block rounded-full bg-primary/10 p-4">
-          <LogIn className="h-10 w-10 text-primary" />
+        <div className="mx-auto mb-4">
+          <LogIn className="h-12 w-12 text-primary" />
         </div>
-        <CardTitle className="text-3xl font-bold">Welcome Back!</CardTitle>
+        <CardTitle>Welcome Back</CardTitle>
         <CardDescription>Sign in to continue to your dashboard</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input placeholder="you@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -181,8 +180,7 @@ export default function LoginForm() {
             />
             <Button
               type="submit"
-              size="lg"
-              className="w-full font-bold text-base py-6"
+              className="w-full"
               disabled={isPending}
             >
               {isPending ? 'Signing In...' : 'Sign In'}

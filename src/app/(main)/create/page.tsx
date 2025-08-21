@@ -12,17 +12,17 @@ export default function CreatePage() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold font-headline tracking-tight">Create a new Gig or Event</h1>
-        <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Reach thousands of talented artists by posting your opportunity on Netsa.
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Create a new Post</h1>
+        <p className="mt-2 text-muted-foreground max-w-2xl mx-auto">
+            Reach thousands of talented artists by posting your opportunity on TalentMatch.
         </p>
       </div>
 
       <Tabs defaultValue="gig" className="w-full max-w-4xl mx-auto">
-        <TabsList className="grid w-full grid-cols-2 h-14 p-2">
-          <TabsTrigger value="gig" className="text-lg font-bold">Post a Gig</TabsTrigger>
-          <TabsTrigger value="event" className="text-lg font-bold">Post an Event</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="gig">Post a Gig</TabsTrigger>
+          <TabsTrigger value="event">Post an Event</TabsTrigger>
         </TabsList>
         <TabsContent value="gig">
             <Card>
