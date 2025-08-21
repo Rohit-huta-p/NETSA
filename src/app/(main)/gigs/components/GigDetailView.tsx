@@ -22,43 +22,11 @@ const renderArrayAsBadges = (arr: string[] | undefined, variant: "secondary" | "
 }
 
 function DiscussionTabContent() {
-    const reviews = [
-        { name: "John Smith", role: "Organizer, 'The Grand Gala'", rating: 5, comment: "Jane is an absolute professional and a joy to work with. Her performance was breathtaking." },
-        { name: "Emily White", role: "Choreographer", rating: 5, comment: "A truly gifted dancer with a unique style. Highly recommend." },
-    ];
-
-    const renderStars = (rating: number) => {
-        return Array(5).fill(0).map((_, i) => (
-            <Star key={i} className={`w-4 h-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'}`} />
-        ));
-    }
-
     return (
-        <div className="space-y-4">
-            <h3 className="font-bold text-lg mb-2">Discussion</h3>
-            {reviews.map((review, index) => (
-                <div key={index} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Avatar>
-                                <AvatarImage src={`https://placehold.co/40x40.png?text=${review.name.charAt(0)}`} />
-                                <AvatarFallback>{review.name.slice(0, 2)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <p className="font-bold">{review.name}</p>
-                                <p className="text-sm text-muted-foreground">{review.role}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            {renderStars(review.rating)}
-                        </div>
-                    </div>
-                    <p className="text-muted-foreground mt-4">"{review.comment}"</p>
-                </div>
-            ))}
-             <div className="text-center py-8">
-                <Button>Add Comment</Button>
-            </div>
+        <div className="text-center py-8">
+            <h3 className="font-bold text-lg mb-2">Event Discussion</h3>
+            <p className="text-muted-foreground">No comments yet. Be the first to start the conversation!</p>
+            <Button className="mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">Add Comment</Button>
         </div>
     )
 }
