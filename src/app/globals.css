@@ -53,10 +53,10 @@
 
   /* Organizer Theme */
   .organizer-theme {
-    --primary: 34 90% 51%; /* #EA580C -> New accent #F59E0B */
+    --primary: 22 81% 49%; /* #EA580C */
     --primary-foreground: 0 0% 100%;
     --secondary: 333 81% 64%; 
-    --ring: 34 90% 51%;
+    --ring: 22 81% 49%;
   }
 }
 
