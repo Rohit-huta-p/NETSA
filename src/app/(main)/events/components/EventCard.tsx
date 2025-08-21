@@ -26,8 +26,8 @@ export function EventCard({ id, tag, tagColor, title, description, date, locatio
         <Link href={href} className="group">
             <div 
                 className={cn(
-                    "bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full border-2",
-                    "border-border/50 group-hover:border-primary/50",
+                    "bg-card rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col h-full border",
+                    "border-border/50 group-hover:border-purple-300/50",
                     "text-left w-full cursor-pointer"
                 )}
             >
@@ -50,33 +50,33 @@ export function EventCard({ id, tag, tagColor, title, description, date, locatio
                     </div>
                 </div>
                 <div className="p-5 flex-grow flex flex-col">
-                <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-3">{description}</p>
-                <div className="space-y-3 text-sm text-muted-foreground border-t border-border pt-4">
-                    <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span>{date}</span>
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-3">{description}</p>
+                    <div className="space-y-3 text-sm text-muted-foreground border-t border-border pt-4">
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-purple-500" />
+                            <span>{date}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-purple-500" />
+                            <span>{location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-purple-500" />
+                            <span>{attendees || 0} Attending</span>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <span>{location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-primary" />
-                        <span>{attendees || 0} Attending</span>
-                    </div>
-                </div>
                 </div>
                 <div className="p-5 border-t mt-auto flex justify-between items-center bg-muted/30">
-                <div>
-                    {price !== null && price > 0 ? (
-                    <p className="text-xl font-bold text-foreground">${price}</p>
-                    ) : (
-                        <p className="text-xl font-bold text-green-500">Free</p>
-                    )}
-                </div>
-                <div className="font-bold text-primary group-hover:underline flex items-center">
-                    View Details
-                </div>
+                    <div>
+                        {price !== null && price > 0 ? (
+                        <p className="text-xl font-bold text-foreground">${price}</p>
+                        ) : (
+                            <p className="text-xl font-bold text-green-500">Free</p>
+                        )}
+                    </div>
+                    <div className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-orange-500 group-hover:underline flex items-center">
+                        Join Event
+                    </div>
                 </div>
             </div>
         </Link>

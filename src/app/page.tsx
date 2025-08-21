@@ -9,10 +9,10 @@ import { EventCard } from "@/app/(main)/events/components/EventCard";
 export default function Home() {
 
   const stats = [
-    { value: "5K+", label: "Artists", icon: <Users /> },
-    { value: "200+", label: "Events", icon: <Calendar /> },
-    { value: "50+", label: "Gigs", icon: <Star /> },
-    { value: "1K+", label: "Workshops", icon: <Layers /> },
+    { value: "5K+", label: "Artists", icon: <Users className="w-8 h-8" /> },
+    { value: "200+", label: "Events", icon: <Calendar className="w-8 h-8" /> },
+    { value: "50+", label: "Gigs", icon: <Star className="w-8 h-8" /> },
+    { value: "1K+", label: "Workshops", icon: <Layers className="w-8 h-8" /> },
   ];
 
   const events = [
@@ -105,27 +105,27 @@ export default function Home() {
       <Header />
       <main>
         {/* Hero Section */}
-        <section className="relative bg-background text-foreground overflow-hidden">
+        <section className="relative bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white overflow-hidden">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32 relative text-center">
                 <h1 className="text-5xl md:text-7xl font-bold font-headline tracking-tight">Where Movement Meets Community</h1>
-                <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-muted-foreground">
+                <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-purple-100">
                     Connect with dancers, discover workshops, book gigs, and host events. Netsa is your gateway to the performing arts community.
                 </p>
                 <div className="mt-10 flex justify-center gap-4">
-                    <Button asChild size="lg" className="font-bold px-8 py-6 text-base">
+                    <Button asChild size="lg" className="font-bold px-8 py-6 text-base bg-white text-purple-700 hover:bg-purple-50 shadow-lg">
                         <Link href="/register">Join the Community</Link>
                     </Button>
-                    <Button variant="outline" size="lg" className="font-bold px-8 py-6 text-base">
+                    <Button variant="outline" size="lg" className="font-bold px-8 py-6 text-base text-white border-white/50 hover:bg-white/10">
                         <PlayCircle className="mr-2"/>
                         Watch Demo
                     </Button>
                 </div>
                  <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
                     {stats.map((stat, index) => (
-                        <div key={index} className="bg-card p-6 rounded-xl flex flex-col items-center text-center">
-                            <div className="text-4xl mb-2 text-primary">{stat.icon}</div>
+                        <div key={index} className="bg-white/20 backdrop-blur-sm p-6 rounded-xl flex flex-col items-center text-center">
+                            <div className="text-4xl mb-2 text-white">{stat.icon}</div>
                             <p className="text-3xl font-bold">{stat.value}</p>
-                            <p className="text-sm text-muted-foreground">{stat.label}</p>
+                            <p className="text-sm text-purple-200">{stat.label}</p>
                         </div>
                     ))}
                 </div>
@@ -133,10 +133,10 @@ export default function Home() {
         </section>
 
         {/* Discover Section */}
-        <section className="py-20 bg-muted/30">
+        <section className="py-20 bg-background">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold font-headline">Discover Amazing <span className="text-primary">Events & Workshops</span></h2>
+                    <h2 className="text-4xl font-bold font-headline">Discover Amazing <span className="bg-gradient-to-r from-purple-500 to-orange-500 bg-clip-text text-transparent">Events & Workshops</span></h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                         From beginner workshops to professional gigs, find opportunities that match your passion and skill level.
                     </p>
@@ -150,10 +150,10 @@ export default function Home() {
         </section>
 
         {/* Creative Community Section */}
-        <section className="py-20">
+        <section className="py-20 bg-muted/40">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                  <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold font-headline">Join a Thriving <span className="text-primary">Creative Community</span></h2>
+                    <h2 className="text-4xl font-bold font-headline">Join a Thriving <span className="bg-gradient-to-r from-purple-500 to-orange-500 bg-clip-text text-transparent">Creative Community</span></h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                         Netsa isn’t just about events—it’s about building lasting connections and growing together as artists.
                     </p>
@@ -161,7 +161,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
                     {communityFeatures.map((feature, index) => (
                         <div key={index} className="text-center p-6">
-                            <div className="flex justify-center items-center mb-4 w-16 h-16 mx-auto bg-primary/10 rounded-full">
+                            <div className="flex justify-center items-center mb-4 w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-orange-400 text-white rounded-full">
                                 {feature.icon}
                             </div>
                             <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
@@ -169,18 +169,18 @@ export default function Home() {
                         </div>
                     ))}
                 </div>
-                 <div className="bg-muted/50 rounded-xl p-12">
+                 <div className="bg-card rounded-xl p-12 shadow-md border">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                         {communityStats.map((stat, index) => (
                             <div key={index}>
-                                <p className="text-5xl font-bold text-primary">{stat.value}</p>
+                                <p className="text-5xl font-bold bg-gradient-to-r from-purple-500 to-orange-500 bg-clip-text text-transparent">{stat.value}</p>
                                 <p className="mt-2 text-muted-foreground text-lg">{stat.label}</p>
                             </div>
                         ))}
                     </div>
                  </div>
                  <div className="text-center mt-12">
-                    <Button asChild size="lg" className="font-bold px-10 py-6 text-base">
+                    <Button asChild size="lg" className="font-bold px-10 py-6 text-base text-white bg-gradient-to-r from-purple-500 to-orange-500 hover:opacity-90">
                         <Link href="/register">Start Your Journey <ArrowRight className="ml-2"/></Link>
                     </Button>
                 </div>
