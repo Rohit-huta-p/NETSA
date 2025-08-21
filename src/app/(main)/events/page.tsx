@@ -3,49 +3,34 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { DiscoverSection } from "@/components/dashboard/DiscoverSection";
 import { EventCard } from "./components/EventCard";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { getEvents } from "@/lib/firebase/firestore";
 import type { Event } from "@/lib/types";
-import { format } from "date-fns";
 import { Skeleton } from '@/components/ui/skeleton';
-
-// A simple mapping for tag colors based on event category.
-const tagColorMap: { [key: string]: string } = {
-  performance: "bg-primary/10 text-primary",
-  competition: "bg-orange-200 text-orange-800",
-  masterclass: "bg-blue-200 text-blue-800",
-  audition: "bg-yellow-200 text-yellow-800",
-  showcase: "bg-green-200 text-green-800",
-  networking: "bg-indigo-200 text-indigo-800",
-  festival: "bg-pink-200 text-pink-800",
-  workshop: "bg-purple-200 text-purple-800", // A common one
-};
-
+import { FilterBar } from '@/components/layout/FilterBar';
+import { Drama, Flame, Sparkles } from 'lucide-react';
 
 function EventCardSkeleton() {
   return (
     <div className="bg-card rounded-2xl overflow-hidden shadow-md border">
-      <Skeleton className="h-56 w-full" />
+      <Skeleton className="h-48 w-full" />
       <div className="p-5">
         <Skeleton className="h-6 w-3/4 mb-4" />
         <Skeleton className="h-4 w-full mb-2" />
         <Skeleton className="h-4 w-5/6 mb-4" />
-        <div className="space-y-3 border-t pt-4">
+        <div className="space-y-3 border-t pt-4 mt-4">
           <Skeleton className="h-5 w-1/2" />
           <Skeleton className="h-5 w-2/3" />
-          <Skeleton className="h-5 w-1/3" />
         </div>
       </div>
-      <div className="p-5 border-t mt-auto flex justify-between items-center bg-muted/30">
-        <Skeleton className="h-8 w-1/4" />
-        <Skeleton className="h-10 w-1/3 rounded-md" />
+      <div className="p-4 border-t mt-auto">
+        <Skeleton className="h-10 w-full rounded-md" />
       </div>
     </div>
   );
 }
-  
+
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,11 +63,21 @@ export default function EventsPage() {
   }, []);
 
   return (
-    <div className=" min-h-screen bg-background font-body ">
-      <main className="p-8 relative">
-        <DiscoverSection />
-        <div className="mt-8 relative">
-          <div className="flex justify-between items-center mb-4">
+    <div className="min-h-screen bg-background font-body">
+      <main className="container mx-auto py-8 px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            Discover <span className="bg-gradient-to-r from-pink-500 to-orange-400 text-transparent bg-clip-text">Events & Workshops</span>
+          </h1>
+          <p className="mt-3 text-lg max-w-2xl mx-auto text-muted-foreground">
+            Find your next dance adventure in the city.
+          </p>
+        </div>
+        
+        <FilterBar />
+
+        <div className="mt-12 relative">
+          <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-foreground">
               {isLoading ? 'Searching for Events...' : `${events.length} Events Found`}
             </h2>
@@ -101,33 +96,23 @@ export default function EventsPage() {
             ) : events.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {events.map((event: Event) => (
-                  <EventCard 
-                    key={event.id} 
-                    id={event.id}
-                    tag={event.category}
-                    tagColor={tagColorMap[event.category] || "bg-gray-200 text-gray-800"}
-                    title={event.title}
-                    description={event.description}
-                    date={event.schedule?.startDate ? format(new Date(event.schedule.startDate), "MMM dd, yyyy") : 'Date TBD'}
-                    location={event.location ? `${event.location.city}, ${event.location.country}` : 'Location TBD'}
-                    attendees={event.currentRegistrations || 0}
-                    price={event.pricing?.amount ?? null}
-                    image={event.thumbnailUrl || "https://placehold.co/600x400.png"}
-                    imageHint={"event opportunity"}
-                  />
+                  <EventCard key={event.id} event={event} />
                 ))}
               </div>
             ) : (
                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                <h3 className="text-2xl font-bold">No Events Available</h3>
+                <Drama className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-4 text-xl font-bold">No Events Available</h3>
                 <p>There are currently no events posted. Check back soon or create one!</p>
               </div>
             )}
           </div>
           <div className="text-center mt-12">
-            <Button className="px-8 py-3 rounded-full font-bold">Load More Events</Button>
+            <Button size="lg" className="px-8 py-3 rounded-full font-bold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">
+              Load More Events
+            </Button>
           </div>
-          <div className="absolute bottom-0  right-2 z-50 lg:block">
+          <div className="absolute bottom-0 right-0 z-50 hidden xl:block">
             <ProfileCompletionCard />
           </div>
         </div>

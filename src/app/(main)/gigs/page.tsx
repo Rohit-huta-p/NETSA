@@ -11,8 +11,9 @@ import { GigCard } from './components/GigCard';
 import { GigDetailView } from './components/GigDetailView';
 import { Card, CardContent } from '@/components/ui/card';
 import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
-import { GigFilters } from './components/GigFilters';
 import { useDebounce } from '@/hooks/use-debounce';
+import { Briefcase } from 'lucide-react';
+import { FilterBar } from '@/components/layout/FilterBar';
 
 function GigsPageSkeleton() {
   return (
@@ -22,7 +23,7 @@ function GigsPageSkeleton() {
             <GigCardSkeleton key={i} />
         ))}
       </div>
-      <div className="lg:col-span-2">
+      <div className="lg:col-span-2 hidden lg:block">
         <Card>
             <CardContent className="p-6">
                 <Skeleton className="h-8 w-3/4 mb-4" />
@@ -117,10 +118,20 @@ export default function GigsPage() {
   return (
     <div className="min-h-screen bg-muted/40">
       <main className="container mx-auto py-8">
-        <GigFilters 
-            filters={filters}
-            onFilterChange={handleFilterChange}
+         <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            Find Your Next <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text">Gig</span>
+          </h1>
+          <p className="mt-3 text-lg max-w-2xl mx-auto text-muted-foreground">
+            Browse thousands of opportunities from top organizers and brands.
+          </p>
+        </div>
+
+        <FilterBar 
+            onFilterChange={handleFilterChange} 
+            searchPlaceholder="Search by title, skill, or company..."
         />
+        
         <div className="mt-8">
           <div className="mb-4">
             <h2 className="text-xl font-bold">
@@ -128,7 +139,7 @@ export default function GigsPage() {
             </h2>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
               {isLoading ? (
                 <GigsPageSkeleton />
               ) : error ? (
@@ -138,7 +149,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-1 space-y-4 h-[calc(100vh-15rem)] overflow-y-auto pr-2">
+                  <div className="lg:col-span-1 space-y-4 h-[calc(100vh-22rem)] overflow-y-auto pr-2 -mr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 
@@ -148,12 +159,18 @@ export default function GigsPage() {
                         />
                     ))}
                   </div>
-                  <div className="lg:col-span-2">
+                  <div className="lg:col-span-2 hidden lg:block">
                     {selectedGig && (
                       <div className="sticky top-24">
                         <GigDetailView gig={selectedGig} />
                       </div>
                     )}
+                     {!selectedGig && (
+                        <div className="h-full flex flex-col items-center justify-center bg-card rounded-lg">
+                            <Briefcase className="w-16 h-16 text-muted-foreground/50"/>
+                            <p className="mt-4 text-muted-foreground">Select a gig to see details</p>
+                        </div>
+                     )}
                   </div>
                 </>
               ) : (
