@@ -10,19 +10,19 @@
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
-    --primary: 262.1 83.3% 57.8%; /* Purple */
+    --primary: 259 92% 66%; /* #8B5CF6 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 12.8 84.9% 60.2%; /* Orange/Pink */
+    --secondary: 333 81% 64%; /* #EC4899 */
     --secondary-foreground: 0 0% 100%;
     --muted: 240 5% 90%;
     --muted-foreground: 240 4% 46%;
-    --accent: 240 5% 90%;
+    --accent: 38 92% 50%; /* #F59E0B */
     --accent-foreground: 224 71% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 262.1 83.3% 57.8%;
+    --ring: 259 92% 66%;
     --radius: 0.75rem;
 
     /* Custom Gradients */
@@ -30,33 +30,33 @@
   }
 
   .dark {
-    --background: 224 71% 4%;
+    --background: 244 21% 9%; /* #11101d */
     --foreground: 240 5% 96%;
-    --card: 224 71% 8%;
+    --card: 245 19% 13%; /* #1a192a */
     --card-foreground: 240 5% 96%;
-    --popover: 224 71% 4%;
+    --popover: 244 21% 9%;
     --popover-foreground: 240 5% 96%;
-    --primary: 262.1 83.3% 57.8%;
+    --primary: 259 92% 66%; /* #8B5CF6 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 12.8 84.9% 60.2%;
+    --secondary: 333 81% 64%; /* #EC4899 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 224 71% 8%;
+    --muted: 245 19% 13%;
     --muted-foreground: 240 4% 64%;
-    --accent: 224 71% 8%;
+    --accent: 38 92% 50%; /* #F59E0B */
     --accent-foreground: 240 5% 96%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 224 71% 10%;
-    --input: 224 71% 10%;
-    --ring: 262.1 83.3% 57.8%;
+    --border: 245 19% 18%; /* Darker border */
+    --input: 245 19% 18%;
+    --ring: 259 92% 66%;
   }
 
   /* Organizer Theme */
   .organizer-theme {
-    --primary: 22 96% 53%; /* #EA580C */
+    --primary: 34 90% 51%; /* #EA580C -> New accent #F59E0B */
     --primary-foreground: 0 0% 100%;
-    --secondary: 350 89% 60%; /* Complementary Pink/Red */
-    --ring: 22 96% 53%;
+    --secondary: 333 81% 64%; 
+    --ring: 34 90% 51%;
   }
 }
 

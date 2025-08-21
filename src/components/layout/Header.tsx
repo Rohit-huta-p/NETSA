@@ -67,6 +67,7 @@ export function Header() {
                 Netsa
               </Link>
               <nav className="hidden md:flex items-center space-x-6 text-sm font-medium text-muted-foreground ml-4">
+              <Link href="/gigs" className="hover:text-foreground">Gigs</Link>
                 <Link href="/events" className="hover:text-foreground">Events</Link>
                 <Link href="/community" className="hover:text-foreground">Community</Link>
                 <Link href="/create" className="hover:text-foreground">Create Event</Link>
