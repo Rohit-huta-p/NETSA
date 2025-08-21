@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Menu, Search, Bell, User as UserIcon, LogOut } from "lucide-react";
+import { Menu, Search, Bell, User as UserIcon, LogOut, PlusCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -79,6 +79,7 @@ export function Header() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
@@ -99,6 +100,12 @@ export function Header() {
                                 <Link href={`/artist/${user.id}`}>
                                     <UserIcon className="mr-2 h-4 w-4" />
                                     <span>Profile</span>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/create">
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    <span>Create</span>
                                 </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
