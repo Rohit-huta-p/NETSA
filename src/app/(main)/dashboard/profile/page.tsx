@@ -30,7 +30,11 @@ export default async function EditProfilePage() {
     }
     
     return (
-        <div className="container mx-auto py-10">
+        <div className="space-y-8">
+             <div>
+                <h1 className="text-3xl font-bold">Profile & Settings</h1>
+                <p className="text-muted-foreground">Manage your personal and professional information.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div className="md:col-span-1">
                     <ProfileCompletion user={user} />
