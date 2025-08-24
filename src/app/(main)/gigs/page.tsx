@@ -90,7 +90,7 @@ export default function GigsPage() {
         setSelectedGig(null);
       }
     } catch (e: any) {
-        if (e.response?.data?.message.includes('permission-denied') || e.response?.data?.message.includes('insufficient permissions')) {
+        if (e.response?.data?.message && (e.response.data.message.includes('permission-denied') || e.response.data.message.includes('insufficient permissions'))) {
           setError("You don't have permission to view these gigs. Please check your Firestore security rules.");
         } else {
             setError(e.response?.data?.message || "Failed to load gigs. Please try again later.");
@@ -188,8 +188,10 @@ export default function GigsPage() {
                   </div>
                 </>
               ) : (
-                <div className="text-center py-10 text-muted-foreground col-span-full">
-                  <p>No gigs found matching your criteria.</p>
+                <div className="text-center py-10 text-muted-foreground col-span-full border-2 border-dashed rounded-lg">
+                   <Briefcase className="w-12 h-12 mx-auto text-muted-foreground/50"/>
+                  <h3 className="mt-4 text-xl font-bold">No Gigs Found</h3>
+                  <p>No gigs were found that match your current filters. Try broadening your search!</p>
                 </div>
               )}
           </div>
