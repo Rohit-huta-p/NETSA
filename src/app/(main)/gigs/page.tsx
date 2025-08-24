@@ -149,7 +149,7 @@ export default function GigsPage() {
                 </div>
               ) : gigs.length > 0 ? (
                 <>
-                  <div className="lg:col-span-1 space-y-4 h-[calc(100vh-22rem)] overflow-y-auto pr-2 -mr-2">
+                  <div className="lg:col-span-1 space-y-4 h-[80vh] overflow-y-auto pr-2 -mr-2">
                     {gigs.map((gig: Gig) => (
                         <GigCard 
                             key={gig.id || Math.random()} 

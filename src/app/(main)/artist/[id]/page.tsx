@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getUserProfile_Admin } from "@/lib/server/actions";
@@ -8,25 +9,32 @@ import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkele
 import { AboutCard } from "./components/AboutCard";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
-  const { data: artist, error } = await getUserProfile_Admin(artistId);
+  const { data: profile, error } = await getUserProfile_Admin(artistId);
 
-  if (error || !artist) {
+  if (error || !profile) {
     console.error(`ArtistProfileContent: Failed to load profile for ${artistId}. Reason:`, error);
     notFound();
   }
 
   return (
     <div className="space-y-8">
-      <ProfileHeader artist={artist} />
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <div className="lg:col-span-1">
-          <AboutCard artist={artist} />
+      <ProfileHeader artist={profile} />
+      {profile.role === 'artist' && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="lg:col-span-1">
+            <AboutCard artist={profile} />
+          </div>
+          <div className="lg:col-span-2 space-y-8">
+            <PortfolioGallery />
+            <Experience />
+          </div>
         </div>
-        <div className="lg:col-span-2 space-y-8">
-          <PortfolioGallery />
-          <Experience />
+      )}
+      {profile.role === 'organizer' && (
+        <div className="space-y-8">
+          <Experience /> 
         </div>
-      </div>
+      )}
     </div>
   )
 }

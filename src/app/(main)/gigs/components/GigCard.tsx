@@ -19,7 +19,7 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
         <button 
             onClick={onClick}
             className={cn(
-                "bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full border-2 text-left w-full",
+                "bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col  border-2 text-left w-full",
                 isActive ? "border-primary shadow-lg" : "border-card hover:border-border",
             )}
         >

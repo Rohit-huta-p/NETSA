@@ -111,10 +111,10 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
 
                     <div className="mt-8">
                          <Tabs defaultValue="about">
-                            <TabsList className="flex justify-center bg-transparent mb-6">
-                                <TabsTrigger value="about" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">About</TabsTrigger>
-                                <TabsTrigger value="requirements" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Requirements</TabsTrigger>
-                                <TabsTrigger value="discussion" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Discussion</TabsTrigger>
+                            <TabsList className="grid lg:grid-cols-3 bg-[#F1F5F9] mb-6">
+                                <TabsTrigger value="about" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">About</TabsTrigger>
+                                <TabsTrigger value="requirements" className="text-md  rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Requirements</TabsTrigger>
+                                <TabsTrigger value="discussion" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Discussion</TabsTrigger>
                             </TabsList>
                             <Card className="shadow-xl rounded-2xl">
                                <CardContent className="p-8">
