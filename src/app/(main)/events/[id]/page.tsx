@@ -43,7 +43,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     </div>
                 </div>
 
-                <Card className="shadow-xl rounded-2xl -mt-24">
+                <Card className="shadow-xl rounded-2x">
                     <CardContent className="p-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="md:col-span-2 space-y-6">
@@ -110,14 +110,13 @@ export default async function EventDetailPage({ params }: { params: { id: string
                         </div>
                     </CardContent>
                 </Card>
-
                 <div className="mt-8">
                      <Tabs defaultValue="about">
-                        <TabsList className="flex justify-center bg-transparent mb-6">
-                            <TabsTrigger value="about" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">About</TabsTrigger>
-                            <TabsTrigger value="attendees" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Attendees ({attendees.length})</TabsTrigger>
-                            <TabsTrigger value="discussion" className="text-lg px-8 py-2 rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg">Discussion</TabsTrigger>
-                        </TabsList>
+                     <TabsList className="grid grid-cols-2 bg-[#F1F5F9] mb-6">
+                                <TabsTrigger value="about" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">About</TabsTrigger>
+                                {/* <TabsTrigger value="requirements" className="text-md  rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Requirements</TabsTrigger> */}
+                                <TabsTrigger value="discussion" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Discussion</TabsTrigger>
+                            </TabsList>
                         <Card className="shadow-xl rounded-2xl">
                            <CardContent className="p-8">
                                 <TabsContent value="about">
@@ -134,19 +133,6 @@ export default async function EventDetailPage({ params }: { params: { id: string
 
                                     <h3 className="font-bold mt-6 mb-2 text-xl">Requirements:</h3>
                                     <p className="text-muted-foreground pl-2">No prior experience required. Wear comfortable clothes and bring water.</p>
-                                </TabsContent>
-                                <TabsContent value="attendees">
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {attendees.map(attendee => (
-                                            <div key={attendee.name} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                                                <Avatar>
-                                                    <AvatarImage src={attendee.image} />
-                                                    <AvatarFallback>{attendee.name.slice(0,2)}</AvatarFallback>
-                                                </Avatar>
-                                                <span className="text-sm font-medium">{attendee.name}</span>
-                                            </div>
-                                        ))}
-                                    </div>
                                 </TabsContent>
                                 <TabsContent value="discussion" className="text-center py-8">
                                     <p className="text-muted-foreground">No comments yet.</p>

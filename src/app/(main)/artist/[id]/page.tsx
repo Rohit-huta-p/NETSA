@@ -19,7 +19,7 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
   return (
     <div className="space-y-8">
       <ProfileHeader artist={profile} />
-      {profile.role === 'artist' && (
+     
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           <div className="lg:col-span-1">
             <AboutCard artist={profile} />
@@ -29,7 +29,6 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
             <Experience />
           </div>
         </div>
-      )}
       {profile.role === 'organizer' && (
         <div className="space-y-8">
           <Experience /> 

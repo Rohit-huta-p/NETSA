@@ -95,6 +95,7 @@ interface Organizer {
   // Organization/Company Info
   organizationType: 'company' | 'individual' | 'agency' | 'institution' | 'event_management';
   organizationName?: string; // Company name or individual brand name
+  bio?: string;
   jobTitle?: string;
   organizationDescription?: string;
   organizationWebsite?: string;

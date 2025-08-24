@@ -22,7 +22,7 @@ const getAge = (dob: Date | undefined) => {
 };
 
 export function AboutCard({ artist }: AboutCardProps) {
-    if (artist.role !== 'artist') return null;
+
 
     const age = getAge(artist.dob);
     const height = artist.height;
@@ -35,30 +35,35 @@ export function AboutCard({ artist }: AboutCardProps) {
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg">About</h3>
                 <p className="text-sm text-muted-foreground mt-2">{artist.bio || "No bio available."}</p>
+                {
+                    artist.role === 'artist' && (
+                        <>
+                                <div className="grid grid-cols-3 gap-4 text-sm mt-6">
+                                    <div>
+                                        <p className="text-muted-foreground">Age</p>
+                                        <p className="font-semibold">{age || 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Height</p>
+                                        <p className="font-semibold">{height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)} inches` : 'N/A'}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted-foreground">Skin tone</p>
+                                        <p className="font-semibold">{skinTone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                                <Separator className="my-6" />
 
-                <div className="grid grid-cols-3 gap-4 text-sm mt-6">
-                    <div>
-                        <p className="text-muted-foreground">Age</p>
-                        <p className="font-semibold">{age || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p className="text-muted-foreground">Height</p>
-                        <p className="font-semibold">{height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)} inches` : 'N/A'}</p>
-                    </div>
-                     <div>
-                        <p className="text-muted-foreground">Skin tone</p>
-                        <p className="font-semibold">{skinTone || 'N/A'}</p>
-                    </div>
-                </div>
+                                <h3 className="font-bold text-lg">Skills & Styles</h3>
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {skills.length > 0 ? skills.map(skill => (
+                                        <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700">{skill}</Badge>
+                                    )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
+                                </div>
+                        </>
+                    )
+                }
 
-                <Separator className="my-6" />
-
-                <h3 className="font-bold text-lg">Skills & Styles</h3>
-                <div className="flex flex-wrap gap-2 mt-3">
-                    {skills.length > 0 ? skills.map(skill => (
-                        <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700">{skill}</Badge>
-                    )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
-                </div>
                 
                 <Separator className="my-6" />
 
