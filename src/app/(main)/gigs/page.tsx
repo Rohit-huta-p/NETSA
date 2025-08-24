@@ -14,6 +14,8 @@ import { GigCardSkeleton } from './components/skeletons/GigCardSkeleton';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Briefcase } from 'lucide-react';
 import { FilterBar } from '@/components/layout/FilterBar';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useRouter } from 'next/navigation';
 
 function GigsPageSkeleton() {
   return (
@@ -53,6 +55,8 @@ export default function GigsPage() {
   });
 
   const debouncedSearch = useDebounce(filters.search, 300);
+  const isMobile = useIsMobile();
+  const router = useRouter();
 
   const gigs = gigsResponse?.gigs || [];
   
@@ -79,7 +83,9 @@ export default function GigsPage() {
       });
       setGigsResponse(response.data);
       if (response.data.gigs.length > 0) {
-        setSelectedGig(response.data.gigs[0]);
+        if(!isMobile) {
+            setSelectedGig(response.data.gigs[0]);
+        }
       } else {
         setSelectedGig(null);
       }
@@ -93,7 +99,7 @@ export default function GigsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isMobile]);
   
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -113,6 +119,14 @@ export default function GigsPage() {
 
   const handleFilterChange = (filterName: keyof GetGigsQuery, value: string) => {
     setFilters(prev => ({ ...prev, [filterName]: value }));
+  }
+
+  const handleGigClick = (gig: Gig) => {
+    if (isMobile) {
+        router.push(`/gigs/${gig.id}`);
+    } else {
+        setSelectedGig(gig);
+    }
   }
 
   return (
@@ -154,7 +168,7 @@ export default function GigsPage() {
                         <GigCard 
                             key={gig.id || Math.random()} 
                             gig={gig}
-                            onClick={() => setSelectedGig(gig)}
+                            onClick={() => handleGigClick(gig)}
                             isActive={selectedGig?.id === gig.id}
                         />
                     ))}

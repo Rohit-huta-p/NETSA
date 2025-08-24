@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import type { Gig } from "@/lib/types";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { useIsMobile } from "@/hooks/use-mobile";
+import React from "react";
 
 interface GigCardProps {
     gig: Gig;
@@ -13,16 +16,14 @@ interface GigCardProps {
 }
 
 export function GigCard({ gig, onClick, isActive }: GigCardProps) {
+    const isMobile = useIsMobile();
     const href = `/gigs/${gig.id}`;
     
-    return (
-        <button 
-            onClick={onClick}
-            className={cn(
+    const content = (
+        <div className={cn(
                 "bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col  border-2 text-left w-full",
                 isActive ? "border-primary shadow-lg" : "border-card hover:border-border",
-            )}
-        >
+            )}>
            <div className="p-4">
                 <div className="flex justify-between items-start mb-2">
                     <Badge variant="secondary" className="capitalize bg-purple-100 text-purple-700">{gig.type}</Badge>
@@ -51,6 +52,19 @@ export function GigCard({ gig, onClick, isActive }: GigCardProps) {
                     <span className="capitalize">{gig.experienceLevel}</span>
                 </div>
             </div>
+        </div>
+    );
+
+    if (isMobile) {
+        return <Link href={href} className="block">{content}</Link>;
+    }
+    
+    return (
+        <button 
+            onClick={onClick}
+            className="w-full"
+        >
+            {content}
         </button>
     );
   }
