@@ -101,7 +101,7 @@ export default function GigsPage() {
                                     <AlertTitle>No Gigs Found</AlertTitle>
                                     <AlertDescription>
                                         There are no gigs matching your current filters. Try adjusting your search.
-                                    </a-container>
+                                    </AlertDescription>
                                 </Alert>
                             )}
                             
