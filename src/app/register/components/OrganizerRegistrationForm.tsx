@@ -156,7 +156,8 @@ export default function OrganizerRegistrationForm() {
                 title: "Welcome to TalentMatch!",
                 description: "Your organizer account has been created. Let's find some talent!",
             });
-            window.location.href = '/events';
+            const redirectUrl = newProfile.role === 'organizer' ? '/dashboard' : '/events';
+            window.location.href = redirectUrl;
         },
         onError: async (error: any) => {
             const errorMessage = handleAppError(error, 'Organizer Registration');

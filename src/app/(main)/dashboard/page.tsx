@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useUser } from "@/hooks/useUser";
@@ -16,8 +17,8 @@ export default function DashboardPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && user && user.role !== 'organizer') {
-            router.push('/events'); 
+        if (!loading && !user) {
+            router.push('/login'); 
         }
     }, [user, loading, router]);
 
@@ -25,7 +26,7 @@ export default function DashboardPage() {
         return <div>Loading...</div>;
     }
 
-    if (!user || user.role !== 'organizer') {
+    if (!user) {
         return (
             <div className="container mx-auto py-10">
                 <Alert variant="destructive">
@@ -37,6 +38,20 @@ export default function DashboardPage() {
                 </Alert>
             </div>
         );
+    }
+
+    if (user.role !== 'organizer') {
+        return (
+            <div className="container mx-auto py-10">
+                 <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Welcome, {user.firstName}</AlertTitle>
+                    <AlertDescription>
+                        This is your dashboard. Content for your role will be available soon.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        )
     }
     
     return (

@@ -140,7 +140,8 @@ export default function ArtistRegistrationForm() {
                     title: "Welcome to TalentMatch!",
                     description: "Your artist account has been created. Let's find your next opportunity!",
                 });
-                window.location.href = '/events';
+                 const redirectUrl = newProfile.role === 'organizer' ? '/dashboard' : '/events';
+                window.location.href = redirectUrl;
             } else {
                 toast({
                     variant: "destructive",

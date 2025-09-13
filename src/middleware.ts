@@ -2,23 +2,23 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const protectedRoutes = ['/settings', '/create']; 
+const protectedRoutes = ['/settings', '/create', '/dashboard']; 
 const authRoutes = ['/login', '/register'];
-const publicRoutes = ['/', '/events', '/gigs']; 
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const tokenCookie = request.cookies.get('user-token');
   
-  // If user is NOT logged in and tries to access a protected page
   if (protectedRoutes.some(route => pathname.startsWith(route)) && !tokenCookie) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirectedFrom', pathname)
     return NextResponse.redirect(loginUrl);
   }
 
-  // If user IS logged in and tries to access an auth page (login/register)
   if (tokenCookie && authRoutes.some(route => pathname.startsWith(route))) {
+    // This part is tricky without knowing the role from the cookie directly.
+    // The client-side redirect in the login/registration forms is more reliable.
+    // For now, we can default to a general page.
     return NextResponse.redirect(new URL('/events', request.url));
   }
   
