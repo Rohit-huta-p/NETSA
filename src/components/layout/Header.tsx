@@ -21,8 +21,6 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 export function Header() {
     const { user } = useUser();
     const pathname = usePathname();
-
-    const isDiscoveryPage = pathname.startsWith('/events') || pathname.startsWith('/gigs');
     
     return (
       <header className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
@@ -30,29 +28,39 @@ export function Header() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-6">
                  <Link href="/" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">N</div>
+                    <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">N</div>
                     <span className="font-bold text-lg">Netsa</span>
                  </Link>
 
-                <nav className="hidden md:flex items-center gap-4">
-                     <Button variant={pathname.startsWith("/events") ? "secondary" : "ghost"} asChild>
-                        <Link href="/events">Events</Link>
-                     </Button>
+                {user?.role === 'organizer' ? (
+                  <nav className="hidden md:flex items-center gap-2">
+                      <Button variant={pathname.startsWith("/dashboard") ? "secondary" : "ghost"} asChild>
+                        <Link href="/dashboard">Dashboard</Link>
+                      </Button>
+                      <Button variant={pathname.startsWith("/posts") ? "secondary" : "ghost"} asChild>
+                        <Link href="#">My Posts</Link>
+                      </Button>
+                      <Button variant={pathname.startsWith("/create") ? "secondary" : "ghost"} asChild>
+                        <Link href="/create">Create Gig/Event</Link>
+                      </Button>
+                  </nav>
+                ) : (
+                  <nav className="hidden md:flex items-center gap-4">
+                      <Button variant={pathname.startsWith("/events") ? "secondary" : "ghost"} asChild>
+                          <Link href="/events">Events</Link>
+                      </Button>
                       <Button variant={pathname.startsWith("/gigs") ? "secondary" : "ghost"} asChild>
-                        <Link href="/gigs">Gigs</Link>
-                     </Button>
-                </nav>
+                          <Link href="/gigs">Gigs</Link>
+                      </Button>
+                  </nav>
+                )}
             </div>
            
-            <div className="flex items-center gap-4">
-              {user?.role === 'organizer' && (
-                <Button asChild>
-                  <Link href="/create">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create
-                  </Link>
-                </Button>
-              )}
+            <div className="flex items-center gap-2">
+               <div className="relative hidden sm:block">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input placeholder="Search events, artists, workshops..." className="pl-9 w-64" />
+              </div>
 
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
@@ -72,6 +80,12 @@ export function Header() {
                         <>
                             <DropdownMenuLabel>{user.firstName} {user.lastName}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                                <Link href="/dashboard">
+                                    <UserIcon className="mr-2 h-4 w-4" />
+                                    <span>Dashboard</span>
+                                </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                                 <Link href="/create">
                                     <PlusCircle className="mr-2 h-4 w-4" />
