@@ -37,8 +37,8 @@ export function Header() {
                       <Button variant={pathname.startsWith("/dashboard") ? "secondary" : "ghost"} asChild>
                         <Link href="/dashboard">Dashboard</Link>
                       </Button>
-                      <Button variant={pathname.startsWith("/posts") ? "secondary" : "ghost"} asChild>
-                        <Link href="#">My Posts</Link>
+                      <Button variant={pathname.startsWith("/myposts") ? "secondary" : "ghost"} asChild>
+                        <Link href="/myposts">My Posts</Link>
                       </Button>
                       <Button variant={pathname.startsWith("/create") ? "secondary" : "ghost"} asChild>
                         <Link href="/create">Create Gig/Event</Link>

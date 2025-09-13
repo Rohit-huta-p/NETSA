@@ -78,10 +78,17 @@ export async function getUserProfile(userId: string) {
     }
 } 
 
-export async function getEvents() {
+export async function getEvents(organizerId?: string) {
     try {
         const eventsCollection = collection(db, 'events');
-        const eventSnapshot = await getDocs(eventsCollection);
+        const constraints = [];
+        if (organizerId) {
+            constraints.push(where('organizerId', '==', organizerId));
+        }
+
+        const q = query(eventsCollection, ...constraints);
+        const eventSnapshot = await getDocs(q);
+
         const eventsList = eventSnapshot.docs.map(doc => {
             const data = doc.data();
             const serializableData = convertTimestamps(data);
@@ -93,7 +100,6 @@ export async function getEvents() {
         return { data: [], error: error.message };
     }
 }
-
 
 export async function getEvent(eventId: string) {
     try {
@@ -109,6 +115,23 @@ export async function getEvent(eventId: string) {
     } catch (error: any) {
         console.error("Error fetching event:", error);
         return { data: null, error: error.message };
+    }
+}
+
+export async function getMyGigs(organizerId: string) {
+    try {
+        const gigsCollectionRef = collection(db, 'gigs');
+        const q = query(gigsCollectionRef, where('organizerId', '==', organizerId));
+        const querySnapshot = await getDocs(q);
+        const gigsList = querySnapshot.docs.map(doc => {
+            const data = doc.data();
+            const serializableData = convertTimestamps(data);
+            return { id: doc.id, ...serializableData };
+        }) as Gig[];
+        return { data: gigsList, error: null };
+    } catch (error: any) {
+        console.error("Error fetching user's gigs: ", error.message);
+        return { data: [], error: error.message };
     }
 }
 
