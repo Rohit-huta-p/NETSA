@@ -41,17 +41,12 @@ export default function DashboardPage() {
     }
 
     if (user.role !== 'organizer') {
-        return (
-            <div className="container mx-auto py-10">
-                 <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Welcome, {user.firstName}</AlertTitle>
-                    <AlertDescription>
-                        This is your dashboard. Content for your role will be available soon.
-                    </AlertDescription>
-                </Alert>
-            </div>
-        )
+         // Instead of showing a message, redirect non-organizers away
+        useEffect(() => {
+            router.push('/events');
+        }, [router]);
+        
+        return <div>Redirecting...</div>;
     }
     
     return (

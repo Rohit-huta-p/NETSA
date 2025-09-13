@@ -4,50 +4,32 @@
 import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { OrganizerWelcome } from "./(main)/dashboard/components/OrganizerWelcome";
-import { YourEvents } from "./(main)/dashboard/components/YourEvents";
-import { DashboardSidebar } from "./(main)/dashboard/components/DashboardSidebar";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-
-export default function DashboardPage() {
+export default function HomePage() {
     const { user, loading } = useUser();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && !user) {
+        if (loading) {
+            return;
+        }
+        if (!user) {
             router.push('/login'); 
+        } else if (user.role === 'organizer') {
+            router.push('/dashboard');
+        } else {
+            router.push('/events');
         }
     }, [user, loading, router]);
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (!user) {
-         return <div>Loading...</div>;
-    }
-
-    if (user.role !== 'organizer') {
-        useEffect(() => {
-            router.push('/events');
-        }, [router]);
-        return <div>Redirecting...</div>;
-    }
-    
+    // Display a loading skeleton or a blank page while redirecting
     return (
-        <div className="bg-muted/30">
-            <div className="container mx-auto py-8">
-                <OrganizerWelcome name={user.firstName} />
-                <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    <div className="lg:col-span-2">
-                        <YourEvents />
-                    </div>
-                    <div className="lg:col-span-1">
-                        <DashboardSidebar />
-                    </div>
-                </div>
+         <div className="flex flex-col items-center justify-center min-h-screen p-4">
+            <div className="w-full max-w-md space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-12 w-full" />
             </div>
         </div>
     );
