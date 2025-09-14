@@ -65,7 +65,7 @@ export default function MyPostsPage() {
   return (
     <div className="bg-muted/30 min-h-screen">
         <MyPostsHeader />
-        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 -mt-20">
+        <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 ">
             <FilterSortBar 
                 onSortChange={setSort}
                 onTypeChange={setPostType}

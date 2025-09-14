@@ -13,7 +13,7 @@ interface FilterSortBarProps {
 
 export function FilterSortBar({ onSortChange, onTypeChange }: FilterSortBarProps) {
     return (
-        <div className="bg-card p-4 rounded-xl shadow-sm border flex flex-col md:flex-row items-center gap-4">
+        <div className=" p-4 rounded-xl shadow-sm flex flex-col md:flex-row items-center gap-4">
             <div className="grid grid-cols-2 md:flex md:flex-row gap-4 w-full md:w-auto">
                 <div>
                     <label className="text-xs font-medium text-muted-foreground">Sort by</label>

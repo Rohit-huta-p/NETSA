@@ -24,16 +24,25 @@ export function PostCard({ post }: PostCardProps) {
     ];
     
     return (
-        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300 ">
             <CardContent className="p-4 flex flex-col sm:flex-row items-start gap-4">
-                <div className="relative w-full sm:w-28 h-24 sm:h-24 flex-shrink-0">
-                   <Image 
-                        src={post.thumbnailUrl || (isEvent ? "https://placehold.co/600x400/E9D5FF/6B21A8?text=Event" : "https://placehold.co/600x400/FBCFE8/86198F?text=Gig")}
-                        alt={post.title}
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded-md"
-                   />
+                <div className="relative w-full sm:w-28 h-24 sm:h-24 flex-shrink-0 rounded-md overflow-hidden">
+                   {post.thumbnailUrl ? (
+                        <Image 
+                            src={post.thumbnailUrl}
+                            alt={post.title}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-md"
+                        />
+                   ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-tr from-[#F3E8FF] to-[#FFEDD5]">
+                           {isEvent 
+                                ? <Drama className="w-8 h-8 text-purple-400" />
+                                : <Briefcase className="w-8 h-8 text-orange-400" />
+                            }
+                        </div>
+                   )}
                 </div>
 
                 <div className="flex-grow">
@@ -42,7 +51,7 @@ export function PostCard({ post }: PostCardProps) {
                         {post.status === 'draft' && <Badge variant="outline">Draft</Badge>}
                         <Badge variant="secondary" className="capitalize bg-purple-100 text-purple-700">{post.postType}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-1 w-[70%]">
                         {post.description}
                     </p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground mt-3">
