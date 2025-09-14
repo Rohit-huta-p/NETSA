@@ -6,7 +6,7 @@ import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { OrganizerWelcome } from "./components/OrganizerWelcome";
-import { YourEvents } from "./components/YourEvents";
+import { YourPosts } from "./components/YourPosts";
 import { DashboardSidebar } from "./components/DashboardSidebar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -55,7 +55,7 @@ export default function DashboardPage() {
                 <OrganizerWelcome name={user.firstName} />
                 <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                     <div className="lg:col-span-2">
-                        <YourEvents />
+                        <YourPosts />
                     </div>
                     <div className="lg:col-span-1">
                         <DashboardSidebar />
