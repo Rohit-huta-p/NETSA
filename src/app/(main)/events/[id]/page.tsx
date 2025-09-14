@@ -1,14 +1,14 @@
 
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users, Share2, Heart, Star, MapPin, Drama } from "lucide-react";
 import { getEvent } from "@/lib/firebase/firestore";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { EventSidebarCard } from "../components/EventSidebarCard";
+import { Button } from "@/components/ui/button";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
     const { data: event, error } = await getEvent(params.id);
@@ -17,14 +17,6 @@ export default async function EventDetailPage({ params }: { params: { id: string
         notFound();
     }
     
-    const attendees = Array.from({ length: event.currentRegistrations || 0 }, (_, i) => ({
-        name: `Attendee ${i + 1}`,
-        image: `https://placehold.co/40x40.png?text=A${i+1}`
-    }));
-    
-    const progress = event.maxParticipants ? (event.currentRegistrations / event.maxParticipants) * 100 : 0;
-    const spotsRemaining = event.maxParticipants - event.currentRegistrations;
-
   return (
     <div className="bg-muted/30">
         <div className="container mx-auto py-12">
@@ -90,22 +82,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
                             </div>
 
                             <div className="md:col-span-1">
-                                <Card className="shadow-lg rounded-xl border-2 border-primary/10">
-                                    <CardContent className="p-6">
-                                        <p className="text-3xl font-bold text-center text-primary mb-1">₹{event.pricing.amount}/-</p>
-                                        <p className="text-sm text-center text-muted-foreground mb-4">per person</p>
-                                        
-                                        <div className="mb-4">
-                                            <div className="flex justify-between items-center text-xs font-medium text-muted-foreground mb-1">
-                                                <p>Spots remaining:</p>
-                                                <p className="text-primary font-bold">{spotsRemaining}</p>
-                                            </div>
-                                            <Progress value={progress} className="h-2" />
-                                        </div>
-                                        <Button size="lg" className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">Register Now</Button>
-                                        <p className="text-xs text-center text-muted-foreground mt-3">Free cancellation up to 24 hours before event</p>
-                                    </CardContent>
-                                </Card>
+                               <EventSidebarCard event={event} />
                             </div>
                         </div>
                     </CardContent>
