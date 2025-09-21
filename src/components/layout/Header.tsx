@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Search, Bell, User as UserIcon, PlusCircle } from "lucide-react";
+import { Search, Bell, User as UserIcon, PlusCircle, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUser } from "@/hooks/useUser";
@@ -15,12 +15,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase/config";
+import { useUserStore } from "@/store/userStore";
 
 export function Header() {
     const { user } = useUser();
     const pathname = usePathname();
+    const router = useRouter();
+    const { clearUser } = useUserStore();
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        clearUser();
+        router.push('/login');
+    };
     
     return (
       <header className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
@@ -97,6 +108,11 @@ export function Header() {
                                     <UserIcon className="mr-2 h-4 w-4" />
                                     <span>My Profile</span>
                                 </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={handleLogout}>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Logout</span>
                             </DropdownMenuItem>
                         </>
                     ) : (

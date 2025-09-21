@@ -77,16 +77,18 @@ export default function GigsPage() {
     }, [gigsResponse, selectedGig, isMobile]);
 
     return (
-        <div className="bg-muted/40 min-h-screen flex flex-col p-5 h-screen">
+        <div className="bg-muted/40 relative flex flex-col p-5 min-h-screen">
              <div className="container mx-auto">
                 <DiscoverSection />
                 <div className="mt-8">
                      <FilterBar onFilterChange={handleFilterChange} searchPlaceholder="Search for gigs..." />
                 </div>
             </div>
-            <div className="flex-grow container mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start overflow-hidden mt-8">
+
+            {/* GIG LIST AND GIG DETAIL VIEW */}
+            <div className="flex grid grid-cols-1 md:grid-cols-12 gap-8 items-start h-screen overflow-hidden mt-8">
                 <div className="md:col-span-4 lg:col-span-3 h-full overflow-hidden">
-                     <ScrollArea className="h-full pr-4">
+                     <ScrollArea className="h-screen">
                         <div className="space-y-4">
                             {isLoading && Array.from({ length: 5 }).map((_, i) => <GigCardSkeleton key={i} />)}
 
@@ -122,8 +124,8 @@ export default function GigsPage() {
                      </ScrollArea>
                 </div>
 
-                <div className="md:col-span-8 lg:col-span-9 hidden md:block h-full overflow-hidden">
-                    <ScrollArea className="h-full">
+                <div className="md:col-span-8 lg:col-span-9 hidden md:block h-full overflow-hidden ">
+                    <ScrollArea className="h-screen">
                         {selectedGig ? (
                             <GigDetailView gig={selectedGig} />
                         ) : (
@@ -141,7 +143,7 @@ export default function GigsPage() {
                     </ScrollArea>
                 </div>
             </div>
-             <div className="absolute top-24 right-10 hidden xl:block">
+             <div className="absolute bottom-24 right-10 hidden xl:block">
                  <ProfileCompletionCard />
             </div>
         </div>

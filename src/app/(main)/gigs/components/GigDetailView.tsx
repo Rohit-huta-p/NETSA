@@ -36,8 +36,8 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
     const progress = gig.maxApplications ? (gig.currentApplications / gig.maxApplications) * 100 : 0;
 
     return (
-        <div className="-m-12">
-            <div className="container mx-auto py-12">
+        <div className="">
+            <div className="">
                 <div className="max-w-5xl mx-auto">
                     <Card className="shadow-xl rounded-2xl ">
                         <CardContent className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
