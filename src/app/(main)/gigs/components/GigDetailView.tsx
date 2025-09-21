@@ -1,4 +1,6 @@
 
+"use client";
+
 import type { Gig } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,7 @@ import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
+import { useUser } from "@/hooks/useUser";
 
 interface GigDetailViewProps {
     gig: Gig;
@@ -31,8 +34,29 @@ function DiscussionTabContent() {
     )
 }
 
+function ApplicationsTabContent() {
+    // Placeholder for applications, you can fetch and display real data here
+     const applications = [
+        { name: 'John Doe', status: 'Pending' },
+        { name: 'Jane Smith', status: 'Shortlisted' },
+    ];
+    return (
+        <div className="space-y-4">
+            <h3 className="font-bold text-lg mb-2">Applications ({applications.length})</h3>
+            {applications.map((app, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <p className="font-medium">{app.name}</p>
+                    <Badge variant={app.status === 'Shortlisted' ? 'default' : 'outline'}>{app.status}</Badge>
+                </div>
+            ))}
+        </div>
+    )
+}
+
 
 export function GigDetailView({ gig }: GigDetailViewProps) {
+    const { user } = useUser();
+    const isOrganizer = user?.id === gig.organizerId;
     const progress = gig.maxApplications ? (gig.currentApplications / gig.maxApplications) * 100 : 0;
 
     return (
@@ -102,7 +126,9 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                                 <Progress value={progress} className="h-2" />
                                             </div>
                                         )}
-                                        <Button size="lg" className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">Apply Now</Button>
+                                        <Button size="lg" className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">
+                                            {isOrganizer ? 'View Applications' : 'Apply Now'}
+                                        </Button>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -113,7 +139,9 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                          <Tabs defaultValue="about">
                             <TabsList className="grid lg:grid-cols-3 bg-[#F1F5F9] mb-6">
                                 <TabsTrigger value="about" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">About</TabsTrigger>
-                                <TabsTrigger value="requirements" className="text-md  rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Requirements</TabsTrigger>
+                                <TabsTrigger value="requirements" className="text-md  rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">
+                                    {isOrganizer ? "Applications" : "Requirements"}
+                                </TabsTrigger>
                                 <TabsTrigger value="discussion" className="text-md rounded-md w-full px-8 py-2 data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-lg">Discussion</TabsTrigger>
                             </TabsList>
                             <Card className="shadow-xl rounded-2xl">
@@ -122,23 +150,27 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                         <h3 className="font-bold text-lg mb-2">About This Gig</h3>
                                         <p className="text-muted-foreground whitespace-pre-line">{gig.description}</p>
                                     </TabsContent>
-                                    <TabsContent value="requirements" className="space-y-4">
-                                        <div>
-                                            <h4 className="font-semibold mb-2">Required Artist Types</h4>
-                                            <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.artistType, "outline")}</div>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold mb-2">Required Skills</h4>
-                                            <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.requiredSkills, "outline")}</div>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold mb-2">Required Styles</h4>
-                                            <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.requiredStyles, "outline")}</div>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold">Physical Requirements</h4>
-                                            <p className="text-sm text-muted-foreground">{gig.physicalRequirements || "Not specified"}</p>
-                                        </div>
+                                    <TabsContent value="requirements">
+                                         {isOrganizer ? <ApplicationsTabContent /> : (
+                                            <div className="space-y-4">
+                                                <div>
+                                                    <h4 className="font-semibold mb-2">Required Artist Types</h4>
+                                                    <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.artistType, "outline")}</div>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold mb-2">Required Skills</h4>
+                                                    <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.requiredSkills, "outline")}</div>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold mb-2">Required Styles</h4>
+                                                    <div className="flex flex-wrap gap-2">{renderArrayAsBadges(gig.requiredStyles, "outline")}</div>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold">Physical Requirements</h4>
+                                                    <p className="text-sm text-muted-foreground">{gig.physicalRequirements || "Not specified"}</p>
+                                                </div>
+                                            </div>
+                                        )}
                                     </TabsContent>
                                     <TabsContent value="discussion">
                                         <DiscussionTabContent />
@@ -152,3 +184,5 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
         </div>
     )
 }
+
+    
