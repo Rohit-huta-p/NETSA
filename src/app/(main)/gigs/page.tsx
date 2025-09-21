@@ -77,7 +77,7 @@ export default function GigsPage() {
     }, [gigsResponse, selectedGig, isMobile]);
 
     return (
-        <div className="bg-muted/40 min-h-screen flex flex-col">
+        <div className="bg-muted/40 flex flex-col h-[calc(100vh-4rem)]">
              <div className="container mx-auto py-10">
                 <DiscoverSection />
                 <div className="mt-8">
@@ -85,8 +85,8 @@ export default function GigsPage() {
                 </div>
             </div>
             <div className="flex-grow container mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start overflow-hidden">
-                <div className="md:col-span-4 lg:col-span-3 h-full overflow-y-auto">
-                    <div className="space-y-4 pr-2">
+                <ScrollArea className="md:col-span-4 lg:col-span-3 h-[calc(100vh-18rem)]">
+                    <div className="space-y-4 pr-4">
                         {isLoading && Array.from({ length: 5 }).map((_, i) => <GigCardSkeleton key={i} />)}
 
                         {isError && (
@@ -118,24 +118,24 @@ export default function GigsPage() {
                             />
                         ))}
                     </div>
-                </div>
+                </ScrollArea>
 
-                <div className="md:col-span-8 lg:col-span-9 hidden md:block h-full overflow-y-auto">
+                <ScrollArea className="md:col-span-8 lg:col-span-9 hidden md:block h-[calc(100vh-18rem)]">
                     {selectedGig ? (
                         <GigDetailView gig={selectedGig} />
                     ) : (
                         !isLoading && (
-                            <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
+                            <div className="flex items-center justify-center h-full bg-card rounded-lg border">
                                 <p className="text-muted-foreground">Select a gig to see the details</p>
                             </div>
                         )
                     )}
                         {isLoading && (
-                        <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
+                        <div className="flex items-center justify-center h-full bg-card rounded-lg border">
                                 <p className="text-muted-foreground">Loading gig details...</p>
                         </div>
                     )}
-                </div>
+                </ScrollArea>
             </div>
              <div className="absolute top-24 right-10 hidden xl:block">
                  <ProfileCompletionCard />
