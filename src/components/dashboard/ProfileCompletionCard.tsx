@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useUser";
 import { UserProfile } from "@/store/userStore";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { CheckCircle, Circle, X } from "lucide-react";
 
 const getProfileCompletion = (user: UserProfile | null): { percentage: number, missing: string[], checklist: Record<string, boolean> } => {
@@ -44,9 +44,10 @@ const getProfileCompletion = (user: UserProfile | null): { percentage: number, m
 
 export function ProfileCompletionCard() {
   const { user } = useUser();
+  const [isVisible, setIsVisible] = useState(true);
   const { percentage, checklist } = useMemo(() => getProfileCompletion(user), [user]);
   
-  if (!user || user.role !== 'artist' || percentage >= 100) {
+  if (!user || user.role !== 'artist' || percentage >= 100 || !isVisible) {
     return null;
   }
 
@@ -59,7 +60,7 @@ export function ProfileCompletionCard() {
                     Boost your visibility to recruiters
                 </p>
             </div>
-            <Button variant="ghost" size="icon" className="h-7 w-7 -mt-2 -mr-2"><X className="w-4 h-4"/></Button>
+            <Button onClick={() => setIsVisible(false)} variant="ghost" size="icon" className="h-7 w-7 -mt-2 -mr-2"><X className="w-4 h-4"/></Button>
         </div>
       
       <div className="flex items-center gap-4 mt-4">
