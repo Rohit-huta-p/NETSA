@@ -100,9 +100,15 @@ export function useUser() {
                             ...authUser,
                             ...serializableData,
                             id: authUser.uid, // ensure id is set from authUser
+                            token: token,
                         });
                     }
                 } else {
+                     const token = await authUser.getIdToken();
+                     // If user exists but token is missing, update it
+                     if (user && !user.token) {
+                         setUser({ ...user, token });
+                     }
                     console.log("useUser.ts: onAuthStateChanged - Current app user is already up-to-date.");
                 }
             } else {

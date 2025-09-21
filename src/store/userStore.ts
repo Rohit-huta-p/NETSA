@@ -144,7 +144,7 @@ interface Organizer {
 }
 
 
-export type UserProfile = (Artist | Organizer) & Omit<User, 'uid' | 'email'>;
+export type UserProfile = (Artist | Organizer) & Omit<User, 'uid' | 'email'> & { token?: string };
 
 interface UserState {
   user: UserProfile | null;

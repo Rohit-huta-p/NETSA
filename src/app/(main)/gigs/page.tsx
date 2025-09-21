@@ -30,6 +30,8 @@ const fetchGigs = async (filters: Partial<GetGigsQuery>, token: string | null) =
             'Authorization': `Bearer ${token}`
         }
      });
+     console.log("GIGS fetched: ",data);
+     
     return data;
 };
 
