@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DiscoverSection } from '@/components/dashboard/DiscoverSection';
 import { ProfileCompletionCard } from '@/components/dashboard/ProfileCompletionCard';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const fetchGigs = async (filters: Partial<GetGigsQuery>, token: string | null) => {
@@ -76,66 +77,66 @@ export default function GigsPage() {
     }, [gigsResponse, selectedGig, isMobile]);
 
     return (
-        <div className="bg-muted/40 min-h-screen">
+        <div className="bg-muted/40 min-h-screen flex flex-col">
              <div className="container mx-auto py-10">
                 <DiscoverSection />
                 <div className="mt-8">
                      <FilterBar onFilterChange={handleFilterChange} searchPlaceholder="Search for gigs..." />
                 </div>
-                 <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-8 items-start">
-                    <div className="md:col-span-4 lg:col-span-3">
-                        <div className="space-y-4">
-                            {isLoading && Array.from({ length: 5 }).map((_, i) => <GigCardSkeleton key={i} />)}
+            </div>
+            <div className="flex-grow container mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start overflow-hidden">
+                <div className="md:col-span-4 lg:col-span-3 h-full overflow-y-auto">
+                    <div className="space-y-4 pr-2">
+                        {isLoading && Array.from({ length: 5 }).map((_, i) => <GigCardSkeleton key={i} />)}
 
-                            {isError && (
-                                 <Alert variant="destructive">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>Error</AlertTitle>
-                                    <AlertDescription>
-                                        There was a problem fetching gigs. Please try again later.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-
-                            {!isLoading && !isError && gigsResponse?.gigs.length === 0 && (
-                                <Alert>
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>No Gigs Found</AlertTitle>
-                                    <AlertDescription>
-                                        There are no gigs matching your current filters. Try adjusting your search.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-                            
-                            {!isLoading && !isError && gigsResponse?.gigs.map((gig: Gig) => (
-                                <GigCard 
-                                    key={gig.id} 
-                                    gig={gig} 
-                                    onClick={() => handleGigClick(gig)}
-                                    isActive={selectedGig?.id === gig.id}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="md:col-span-8 lg:col-span-9 sticky top-24 hidden md:block">
-                        {selectedGig ? (
-                            <GigDetailView gig={selectedGig} />
-                        ) : (
-                            !isLoading && (
-                                <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
-                                    <p className="text-muted-foreground">Select a gig to see the details</p>
-                                </div>
-                            )
+                        {isError && (
+                                <Alert variant="destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>Error</AlertTitle>
+                                <AlertDescription>
+                                    There was a problem fetching gigs. Please try again later.
+                                </AlertDescription>
+                            </Alert>
                         )}
-                         {isLoading && (
-                            <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
-                                 <p className="text-muted-foreground">Loading gig details...</p>
-                            </div>
+
+                        {!isLoading && !isError && gigsResponse?.gigs.length === 0 && (
+                            <Alert>
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>No Gigs Found</AlertTitle>
+                                <AlertDescription>
+                                    There are no gigs matching your current filters. Try adjusting your search.
+                                </AlertDescription>
+                            </Alert>
                         )}
+                        
+                        {!isLoading && !isError && gigsResponse?.gigs.map((gig: Gig) => (
+                            <GigCard 
+                                key={gig.id} 
+                                gig={gig} 
+                                onClick={() => handleGigClick(gig)}
+                                isActive={selectedGig?.id === gig.id}
+                            />
+                        ))}
                     </div>
                 </div>
-             </div>
+
+                <div className="md:col-span-8 lg:col-span-9 hidden md:block h-full overflow-y-auto">
+                    {selectedGig ? (
+                        <GigDetailView gig={selectedGig} />
+                    ) : (
+                        !isLoading && (
+                            <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
+                                <p className="text-muted-foreground">Select a gig to see the details</p>
+                            </div>
+                        )
+                    )}
+                        {isLoading && (
+                        <div className="flex items-center justify-center h-[60vh] bg-card rounded-lg border">
+                                <p className="text-muted-foreground">Loading gig details...</p>
+                        </div>
+                    )}
+                </div>
+            </div>
              <div className="absolute top-24 right-10 hidden xl:block">
                  <ProfileCompletionCard />
             </div>
