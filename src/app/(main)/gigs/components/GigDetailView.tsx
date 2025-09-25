@@ -156,7 +156,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                             size="lg" 
                                             className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
                                             onClick={isOrganizer ? undefined : handleApply}
-                                            disabled={isApplying}
+                                            disabled={isApplying || isOrganizer}
                                         >
                                             {isApplying ? (
                                                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</>
