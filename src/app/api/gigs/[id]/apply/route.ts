@@ -53,8 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
             const applicationDoc = await transaction.get(applicationRef);
             if (applicationDoc.exists) {
-                // By throwing an error, we abort the transaction and can send a specific status code.
-                // We'll create a custom error type to be specific.
+                // This is a custom error to be caught specifically.
                 const error = new Error('You have already applied for this gig.');
                 (error as any).code = 'ALREADY_APPLIED';
                 throw error;
@@ -79,14 +78,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     } catch (error: any) {
         console.error(`Error submitting application for gig ${gigId} by user ${user.uid}:`, error);
         
+        // Specific handling for our custom 'ALREADY_APPLIED' error.
         if (error.code === 'ALREADY_APPLIED') {
-             return NextResponse.json({ message: error.message }, { status: 409 });
+             return NextResponse.json({ message: error.message }, { status: 409 }); // 409 Conflict is appropriate here.
         }
         
         if (error.message === "Gig not found.") {
             return NextResponse.json({ message: "Gig not found." }, { status: 404 });
         }
         
+        // For any other errors, return a generic 500 status.
         return NextResponse.json({ message: 'An internal server error occurred', error: error.message }, { status: 500 });
     }
 }
