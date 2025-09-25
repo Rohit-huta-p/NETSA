@@ -1,6 +1,6 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { dbAdmin, authAdmin } from '@/lib/server/admin';
+import { dbAdmin, authAdmin } from '@/lib/firebase/admin';
 import { getUserProfile_Admin } from '@/lib/server/actions';
 import { FieldValue } from 'firebase-admin/firestore';
 
