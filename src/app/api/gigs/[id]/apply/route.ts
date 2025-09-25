@@ -4,6 +4,7 @@ import { dbAdmin, authAdmin } from '@/lib/firebase/admin';
 import { getUserProfile_Admin } from '@/lib/server/actions';
 import { FieldValue } from 'firebase-admin/firestore';
 
+
 async function getAuthUser(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
