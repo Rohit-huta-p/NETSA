@@ -6,12 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
 import { useUser } from "@/hooks/useUser";
+import { useState } from "react";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
 
 interface GigDetailViewProps {
     gig: Gig;
@@ -56,8 +59,31 @@ function ApplicationsTabContent() {
 
 export function GigDetailView({ gig }: GigDetailViewProps) {
     const { user } = useUser();
+    const { toast } = useToast();
+    const [isApplying, setIsApplying] = useState(false);
     const isOrganizer = user?.id === gig.organizerId;
     const progress = gig.maxApplications ? (gig.currentApplications / gig.maxApplications) * 100 : 0;
+
+    const handleApply = async () => {
+        if (!user || user.role !== 'artist') {
+            toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in as an artist to apply.' });
+            return;
+        }
+
+        setIsApplying(true);
+        try {
+            const token = user.token;
+            await axios.post(`/api/gigs/${gig.id}/apply`, {}, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            toast({ title: 'Success!', description: 'Your application has been submitted.' });
+        } catch (error: any) {
+            const message = error.response?.data?.message || 'An error occurred while applying.';
+            toast({ variant: 'destructive', title: 'Application Failed', description: message });
+        } finally {
+            setIsApplying(false);
+        }
+    }
 
     return (
         <div className="">
@@ -126,8 +152,17 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                                 <Progress value={progress} className="h-2" />
                                             </div>
                                         )}
-                                        <Button size="lg" className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity">
-                                            {isOrganizer ? 'View Applications' : 'Apply Now'}
+                                        <Button 
+                                            size="lg" 
+                                            className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
+                                            onClick={isOrganizer ? undefined : handleApply}
+                                            disabled={isApplying}
+                                        >
+                                            {isApplying ? (
+                                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</>
+                                            ) : (
+                                                isOrganizer ? 'View Applications' : 'Apply Now'
+                                            )}
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -184,5 +219,3 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
         </div>
     )
 }
-
-    

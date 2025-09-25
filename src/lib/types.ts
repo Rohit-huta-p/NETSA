@@ -1,5 +1,6 @@
 
 
+
 export interface GetGigsQuery {
   page?: number;
   limit?: number;
@@ -30,6 +31,14 @@ export interface GetGigsResponse {
   };
 }
 
+export interface Application {
+    artistId: string;
+    artistName: string;
+    artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
+    status: 'pending' | 'shortlisted' | 'hired' | 'rejected';
+    appliedAt: Date;
+}
+
 export interface Gig {
     id: string;
     // Basic Info
@@ -50,7 +59,7 @@ export interface Gig {
     // Requirements
     artistType: string[];
     requiredSkills?: string[];
-    requiredStyles?: string[]; // Dance styles, music genres, etc.
+    requiredStyles?: string[]; // Dance styles, music genres, acting techniques
     experienceLevel: 'beginner' | 'intermediate' | 'advanced' | 'professional';
     // Demographic Requirements
     ageRange?: {
