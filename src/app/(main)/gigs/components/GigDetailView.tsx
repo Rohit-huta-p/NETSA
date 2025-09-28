@@ -1,12 +1,12 @@
 
 "use client";
 
-import type { Gig } from "@/lib/types";
+import type { Gig, Application } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama, Loader2, User, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +15,10 @@ import { useUser } from "@/hooks/useUser";
 import { useState } from "react";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface GigDetailViewProps {
     gig: Gig;
@@ -37,21 +41,77 @@ function DiscussionTabContent() {
     )
 }
 
-function ApplicationsTabContent() {
-    // Placeholder for applications, you can fetch and display real data here
-     const applications = [
-        { name: 'John Doe', status: 'Pending' },
-        { name: 'Jane Smith', status: 'Shortlisted' },
-    ];
+const fetchApplications = async (gigId: string, token: string | undefined): Promise<Application[]> => {
+    if (!token) throw new Error("Not authenticated");
+    const { data } = await axios.get(`/api/gigs/${gigId}/applications`, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    return data.applications;
+};
+
+function ApplicationsTabContent({ gigId }: { gigId: string }) {
+    const { user } = useUser();
+    const { data: applications, isLoading, isError, error } = useQuery({
+        queryKey: ['gig-applications', gigId],
+        queryFn: () => fetchApplications(gigId, user?.token),
+        enabled: !!user?.token && !!gigId,
+    });
+
+    if (isLoading) {
+        return (
+            <div className="space-y-4">
+                <h3 className="font-bold text-lg mb-2">Applications</h3>
+                {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+            </div>
+        )
+    }
+
+    if (isError) {
+        return (
+            <div>
+                <h3 className="font-bold text-lg mb-2">Applications</h3>
+                <p className="text-destructive">Error loading applications: {error.message}</p>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-4">
-            <h3 className="font-bold text-lg mb-2">Applications ({applications.length})</h3>
-            {applications.map((app, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <p className="font-medium">{app.name}</p>
-                    <Badge variant={app.status === 'Shortlisted' ? 'default' : 'outline'}>{app.status}</Badge>
+            <h3 className="font-bold text-lg mb-2">Applications ({applications?.length || 0})</h3>
+            {applications && applications.length > 0 ? (
+                 <div className="border rounded-lg">
+                    {applications.map((app, index) => (
+                        <div key={app.artistId} className={`flex items-center justify-between p-4 ${index < applications.length - 1 ? 'border-b' : ''}`}>
+                            <div className="flex items-center gap-4">
+                                <Avatar>
+                                    {/* Placeholder for applicant image */}
+                                    <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <Link href={`/artist/${app.artistId}`} className="font-semibold hover:underline">{app.artistName}</Link>
+                                    <p className="text-sm text-muted-foreground capitalize">{app.artistType}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <Badge variant={app.status === 'pending' ? 'outline' : 'default'} className="capitalize">{app.status}</Badge>
+                                <p className="text-sm text-muted-foreground">{format(new Date(app.appliedAt), 'MMM dd, yyyy')}</p>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4"/></Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                        <DropdownMenuItem>Shortlist</DropdownMenuItem>
+                                        <DropdownMenuItem>Reject</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            ) : (
+                <p className="text-muted-foreground text-center py-8">No applications yet.</p>
+            )}
         </div>
     )
 }
@@ -156,12 +216,12 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                             size="lg" 
                                             className="w-full font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:opacity-90 transition-opacity"
                                             onClick={isOrganizer ? undefined : handleApply}
-                                            disabled={isApplying || isOrganizer}
+                                            disabled={isApplying || (isOrganizer && gig.currentApplications === 0)}
                                         >
                                             {isApplying ? (
                                                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Applying...</>
                                             ) : (
-                                                isOrganizer ? 'View Applications' : 'Apply Now'
+                                                isOrganizer ? `View Applications (${gig.currentApplications})` : 'Apply Now'
                                             )}
                                         </Button>
                                     </CardContent>
@@ -186,7 +246,7 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
                                         <p className="text-muted-foreground whitespace-pre-line">{gig.description}</p>
                                     </TabsContent>
                                     <TabsContent value="requirements">
-                                         {isOrganizer ? <ApplicationsTabContent /> : (
+                                         {isOrganizer ? <ApplicationsTabContent gigId={gig.id} /> : (
                                             <div className="space-y-4">
                                                 <div>
                                                     <h4 className="font-semibold mb-2">Required Artist Types</h4>

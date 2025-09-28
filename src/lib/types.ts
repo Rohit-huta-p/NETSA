@@ -1,6 +1,7 @@
 
 
 
+
 export interface GetGigsQuery {
   page?: number;
   limit?: number;
@@ -47,6 +48,7 @@ export interface Gig {
     type: 'performance' | 'photoshoot' | 'recording' | 'event' | 'audition' | 'modeling' | 'teaching' | 'collaboration';
     category: string; // More specific categorization
     imageUrl?: string;
+    thumbnailUrl?: string; // Add this line
     // Organizer Info
     organizerId: string;
     organizerInfo: {

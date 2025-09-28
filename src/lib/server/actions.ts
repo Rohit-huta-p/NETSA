@@ -152,7 +152,7 @@ export async function addGig(organizerId: string, gigData: Partial<Gig>): Promis
         description: gigData.description || '',
         type: gigData.type || 'performance',
         category: gigData.category || '',
-        imageUrl: gigData.imageUrl,
+        thumbnailUrl: gigData.thumbnailUrl,
         artistType: gigData.artistType || [],
         requiredSkills: gigData.requiredSkills || [],
         requiredStyles: gigData.requiredStyles || [],
