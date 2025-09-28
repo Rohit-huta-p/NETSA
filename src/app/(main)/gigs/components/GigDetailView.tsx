@@ -117,35 +117,37 @@ function ApplicationsTabContent({ gigId }: { gigId: string }) {
                                         </DropdownMenu>
                                         <CollapsibleTrigger asChild>
                                             <Button variant="ghost" size="icon">
-                                                <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                                                <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                                             </Button>
                                         </CollapsibleTrigger>
                                     </div>
                                 </div>
-                                <CollapsibleContent className="px-4 pb-4 space-y-4">
-                                    <div className="bg-muted p-4 rounded-md text-sm space-y-3">
-                                        <div>
-                                            <h4 className="font-semibold text-xs text-muted-foreground mb-1">Bio</h4>
-                                            <p className="text-foreground">{app.bio || 'No bio provided.'}</p>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-xs text-muted-foreground mb-1">Location</h4>
-                                            <p className="text-foreground">{app.location || 'Not specified'}</p>
-                                        </div>
-                                         <div className="grid grid-cols-2 gap-4">
+                                <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                                    <div className="px-4 pb-4 space-y-4">
+                                        <div className="bg-muted p-4 rounded-md text-sm space-y-3">
                                             <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Skills</h4>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {app.skills && app.skills.length > 0 ? app.skills.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
-                                                </div>
+                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Bio</h4>
+                                                <p className="text-foreground">{app.bio || 'No bio provided.'}</p>
                                             </div>
-                                             <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Styles</h4>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {app.styles && app.styles.length > 0 ? app.styles.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
-                                                </div>
+                                            <div>
+                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Location</h4>
+                                                <p className="text-foreground">{app.location || 'Not specified'}</p>
                                             </div>
-                                         </div>
+                                             <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Skills</h4>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {app.skills && app.skills.length > 0 ? app.skills.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
+                                                    </div>
+                                                </div>
+                                                 <div>
+                                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Styles</h4>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {app.styles && app.styles.length > 0 ? app.styles.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
+                                                    </div>
+                                                </div>
+                                             </div>
+                                        </div>
                                     </div>
                                 </CollapsibleContent>
                             </div>
@@ -322,3 +324,5 @@ export function GigDetailView({ gig }: GigDetailViewProps) {
         </div>
     )
 }
+
+    
