@@ -70,6 +70,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 artistType: artistProfile.artistType,
                 status: 'pending',
                 appliedAt: FieldValue.serverTimestamp(),
+                bio: artistProfile.bio || '',
+                location: artistProfile.city ? `${artistProfile.city}, ${artistProfile.country}` : 'Not specified',
+                skills: artistProfile.skills || [],
+                styles: artistProfile.styles || [],
             };
             
             transaction.set(applicationRef, applicationData);

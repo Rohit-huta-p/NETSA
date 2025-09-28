@@ -2,6 +2,7 @@
 
 
 
+
 export interface GetGigsQuery {
   page?: number;
   limit?: number;
@@ -38,6 +39,10 @@ export interface Application {
     artistType: 'dancer' | 'singer' | 'model' | 'musician' | 'dj' | 'actor' | 'other';
     status: 'pending' | 'shortlisted' | 'hired' | 'rejected';
     appliedAt: Date;
+    bio?: string;
+    location?: string;
+    skills?: string[];
+    styles?: string[];
 }
 
 export interface Gig {
