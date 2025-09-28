@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama, Loader2, User, MoreVertical } from "lucide-react";
+import { Calendar, MapPin, Users, DollarSign, Briefcase, Star, Clock, Target, Share2, Heart, Drama, Loader2, User, MoreVertical, ChevronDown } from "lucide-react";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
@@ -19,6 +19,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 interface GigDetailViewProps {
     gig: Gig;
@@ -51,6 +53,8 @@ const fetchApplications = async (gigId: string, token: string | undefined): Prom
 
 function ApplicationsTabContent({ gigId }: { gigId: string }) {
     const { user } = useUser();
+    const [openApplicationId, setOpenApplicationId] = useState<string | null>(null);
+
     const { data: applications, isLoading, isError, error } = useQuery({
         queryKey: ['gig-applications', gigId],
         queryFn: () => fetchApplications(gigId, user?.token),
@@ -81,32 +85,71 @@ function ApplicationsTabContent({ gigId }: { gigId: string }) {
             {applications && applications.length > 0 ? (
                  <div className="border rounded-lg">
                     {applications.map((app, index) => (
-                        <div key={app.artistId} className={`flex items-center justify-between p-4 ${index < applications.length - 1 ? 'border-b' : ''}`}>
-                            <div className="flex items-center gap-4">
-                                <Avatar>
-                                    {/* Placeholder for applicant image */}
-                                    <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <Link href={`/artist/${app.artistId}`} className="font-semibold hover:underline">{app.artistName}</Link>
-                                    <p className="text-sm text-muted-foreground capitalize">{app.artistType}</p>
+                        <Collapsible 
+                            key={app.artistId} 
+                            asChild
+                            open={openApplicationId === app.artistId}
+                            onOpenChange={() => setOpenApplicationId(openApplicationId === app.artistId ? null : app.artistId)}
+                        >
+                            <div className={cn(index < applications.length - 1 && "border-b")}>
+                                <div className="flex items-center justify-between p-4">
+                                    <div className="flex items-center gap-4">
+                                        <Avatar>
+                                            <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <Link href={`/artist/${app.artistId}`} className="font-semibold hover:underline">{app.artistName}</Link>
+                                            <p className="text-sm text-muted-foreground capitalize">{app.artistType}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant={app.status === 'pending' ? 'outline' : 'default'} className="capitalize">{app.status}</Badge>
+                                        <p className="text-sm text-muted-foreground hidden md:block">{format(new Date(app.appliedAt), 'MMM dd, yyyy')}</p>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4"/></Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent>
+                                                <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                                <DropdownMenuItem>Shortlist</DropdownMenuItem>
+                                                <DropdownMenuItem>Reject</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                        <CollapsibleTrigger asChild>
+                                            <Button variant="ghost" size="icon">
+                                                <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:-rotate-180" />
+                                            </Button>
+                                        </CollapsibleTrigger>
+                                    </div>
                                 </div>
+                                <CollapsibleContent className="px-4 pb-4 space-y-4">
+                                    <div className="bg-muted p-4 rounded-md text-sm space-y-3">
+                                        <div>
+                                            <h4 className="font-semibold text-xs text-muted-foreground mb-1">Bio</h4>
+                                            <p className="text-foreground">{app.bio || 'No bio provided.'}</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-xs text-muted-foreground mb-1">Location</h4>
+                                            <p className="text-foreground">{app.location || 'Not specified'}</p>
+                                        </div>
+                                         <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Skills</h4>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {app.skills && app.skills.length > 0 ? app.skills.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
+                                                </div>
+                                            </div>
+                                             <div>
+                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Styles</h4>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {app.styles && app.styles.length > 0 ? app.styles.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
+                                                </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </CollapsibleContent>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <Badge variant={app.status === 'pending' ? 'outline' : 'default'} className="capitalize">{app.status}</Badge>
-                                <p className="text-sm text-muted-foreground">{format(new Date(app.appliedAt), 'MMM dd, yyyy')}</p>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4"/></Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent>
-                                        <DropdownMenuItem>View Profile</DropdownMenuItem>
-                                        <DropdownMenuItem>Shortlist</DropdownMenuItem>
-                                        <DropdownMenuItem>Reject</DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                        </div>
+                        </Collapsible>
                     ))}
                 </div>
             ) : (
