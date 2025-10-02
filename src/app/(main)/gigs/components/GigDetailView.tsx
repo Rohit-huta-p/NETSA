@@ -81,83 +81,86 @@ function ApplicationsTabContent({ gigId }: { gigId: string }) {
 
     return (
         <div className="space-y-4">
-            <h3 className="font-bold text-lg mb-2">Applications ({applications?.length || 0})</h3>
-            {applications && applications.length > 0 ? (
-                 <div className="border rounded-lg">
-                    {applications.map((app, index) => (
-                        <Collapsible 
-                            key={app.artistId} 
-                            asChild
-                            open={openApplicationId === app.artistId}
-                            onOpenChange={() => setOpenApplicationId(openApplicationId === app.artistId ? null : app.artistId)}
-                        >
-                            <div className={cn(index < applications.length - 1 && "border-b")}>
-                                <div className="flex items-center justify-between p-4">
-                                    <div className="flex items-center gap-4">
-                                        <Avatar>
-                                            <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
-                                        </Avatar>
-                                        <div>
-                                            <Link href={`/artist/${app.artistId}`} className="font-semibold hover:underline">{app.artistName}</Link>
-                                            <p className="text-sm text-muted-foreground capitalize">{app.artistType}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Badge variant={app.status === 'pending' ? 'outline' : 'default'} className="capitalize">{app.status}</Badge>
-                                        <p className="text-sm text-muted-foreground hidden md:block">{format(new Date(app.appliedAt), 'MMM dd, yyyy')}</p>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4"/></Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent>
-                                                <DropdownMenuItem>View Profile</DropdownMenuItem>
-                                                <DropdownMenuItem>Shortlist</DropdownMenuItem>
-                                                <DropdownMenuItem>Reject</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                        <CollapsibleTrigger asChild>
-                                            <Button variant="ghost" size="icon">
-                                                <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
-                                            </Button>
-                                        </CollapsibleTrigger>
+        <h3 className="font-bold text-lg mb-2">Applications ({applications?.length || 0})</h3>
+        {applications && applications.length > 0 ? (
+             <div className="border rounded-lg shadow-sm">
+                {applications.map((app, index) => (
+                    <Collapsible 
+                        key={app.artistId} 
+                        open={openApplicationId === app.artistId}
+                        onOpenChange={() => setOpenApplicationId(openApplicationId === app.artistId ? null : app.artistId)}
+                    >
+                        <div className={cn("bg-white", index < applications.length - 1 && "border-b")}>
+                            <div className="flex items-center justify-between p-4">
+                                <div className="flex items-center gap-4">
+                                    <Avatar>
+                                        <AvatarFallback><User className="w-4 h-4 text-gray-500"/></AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <Link href={`/artist/${app.artistId}`} className="font-semibold hover:underline text-gray-800">{app.artistName}</Link>
+                                        <p className="text-sm text-gray-500 capitalize">{app.artistType}</p>
                                     </div>
                                 </div>
-                                <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
-                                    <div className="px-4 pb-4 space-y-4">
-                                        <div className="bg-muted p-4 rounded-md text-sm space-y-3">
-                                            <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Bio</h4>
-                                                <p className="text-foreground">{app.bio || 'No bio provided.'}</p>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-xs text-muted-foreground mb-1">Location</h4>
-                                                <p className="text-foreground">{app.location || 'Not specified'}</p>
-                                            </div>
-                                             <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Skills</h4>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {app.skills && app.skills.length > 0 ? app.skills.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
-                                                    </div>
-                                                </div>
-                                                 <div>
-                                                    <h4 className="font-semibold text-xs text-muted-foreground mb-1">Styles</h4>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {app.styles && app.styles.length > 0 ? app.styles.map(s => <Badge key={s} variant="secondary">{s}</Badge>) : <p>None</p>}
-                                                    </div>
-                                                </div>
-                                             </div>
-                                        </div>
-                                    </div>
-                                </CollapsibleContent>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                    <Badge variant={app.status === 'pending' ? 'outline' : 'default'} className="capitalize">{app.status}</Badge>
+                                    <p className="text-sm text-gray-500 hidden md:block">{format(new Date(app.appliedAt), 'MMM dd, yyyy')}</p>
+                                    
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4 text-gray-500"/></Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem>View Profile</DropdownMenuItem>
+                                            <DropdownMenuItem>Shortlist</DropdownMenuItem>
+                                            <DropdownMenuItem>Reject</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    
+                                    <CollapsibleTrigger asChild>
+                                        <Button variant="ghost" size="icon" aria-label={openApplicationId === app.artistId ? "Collapse application details" : "Expand application details"}>
+                                            {/* The rotation transition for smoothness is already applied here */}
+                                            <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                                        </Button>
+                                    </CollapsibleTrigger>
+                                </div>
                             </div>
-                        </Collapsible>
-                    ))}
-                </div>
-            ) : (
-                <p className="text-muted-foreground text-center py-8">No applications yet.</p>
-            )}
-        </div>
+                            {/* The smooth height transition is defined by these animation classes */}
+                            <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+                                <div className="px-4 pb-4 space-y-4">
+                                    <div className="bg-gray-50 p-4 rounded-lg text-sm space-y-4">
+                                        <div>
+                                            <h4 className="font-semibold text-xs text-gray-500 mb-1 uppercase tracking-wider">Bio</h4>
+                                            <p className="text-gray-700">{app.bio || 'No bio provided.'}</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-xs text-gray-500 mb-1 uppercase tracking-wider">Location</h4>
+                                            <p className="text-gray-700">{app.location || 'Not specified'}</p>
+                                        </div>
+                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <h4 className="font-semibold text-xs text-gray-500 mb-1 uppercase tracking-wider">Skills</h4>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {app.skills && app.skills.length > 0 ? app.skills.map(s => <Badge key={s} variant="secondary" className="bg-blue-50 text-blue-600">{s}</Badge>) : <p className="text-gray-500">None</p>}
+                                                </div>
+                                            </div>
+                                             <div>
+                                                <h4 className="font-semibold text-xs text-gray-500 mb-1 uppercase tracking-wider">Styles</h4>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {app.styles && app.styles.length > 0 ? app.styles.map(s => <Badge key={s} variant="secondary" className="bg-green-50 text-green-600">{s}</Badge>) : <p className="text-gray-500">None</p>}
+                                                </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+                            </CollapsibleContent>
+                        </div>
+                    </Collapsible>
+                ))}
+            </div>
+        ) : (
+            <p className="text-gray-500 text-center py-8">No applications yet.</p>
+        )}
+    </div>
     )
 }
 

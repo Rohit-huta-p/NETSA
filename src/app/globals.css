@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -71,5 +72,25 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-poppins);
     @apply font-bold;
+  }
+}
+
+@layer components {
+  .button-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 2px;
+    background-color: hsl(var(--primary));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease-out;
+  }
+
+  .button-underline:hover::after,
+  .button-underline[data-active='true']::after {
+    transform: scaleX(1);
   }
 }

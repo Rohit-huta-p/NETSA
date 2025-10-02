@@ -20,6 +20,7 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { useUserStore } from "@/store/userStore";
+import { cn } from "@/lib/utils";
 
 export function Header() {
     const { user } = useUser();
@@ -45,22 +46,22 @@ export function Header() {
 
                 {user?.role === 'organizer' ? (
                   <nav className="hidden md:flex items-center gap-2">
-                      <Button variant={pathname.startsWith("/dashboard") ? "secondary" : "ghost"} asChild>
+                      <Button variant={"ghost"} className="button-underline" data-active={pathname.startsWith("/dashboard")} asChild>
                         <Link href="/dashboard">Dashboard</Link>
                       </Button>
-                      <Button variant={pathname.startsWith("/myposts") ? "secondary" : "ghost"} asChild>
+                      <Button variant={"ghost"} className="button-underline" data-active={pathname.startsWith("/myposts")} asChild>
                         <Link href="/myposts">My Posts</Link>
                       </Button>
-                      <Button variant={pathname.startsWith("/create") ? "secondary" : "ghost"} asChild>
+                      <Button variant={"ghost"} className="button-underline" data-active={pathname.startsWith("/create")} asChild>
                         <Link href="/create">Create Gig/Event</Link>
                       </Button>
                   </nav>
                 ) : (
                   <nav className="hidden md:flex items-center gap-4">
-                      <Button variant={pathname.startsWith("/events") ? "secondary" : "ghost"} asChild>
+                      <Button variant={"ghost"} className="button-underline" data-active={pathname.startsWith("/events")} asChild>
                           <Link href="/events">Events</Link>
                       </Button>
-                      <Button variant={pathname.startsWith("/gigs") ? "secondary" : "ghost"} asChild>
+                      <Button variant={"ghost"} className="button-underline" data-active={pathname.startsWith("/gigs")} asChild>
                           <Link href="/gigs">Gigs</Link>
                       </Button>
                   </nav>
