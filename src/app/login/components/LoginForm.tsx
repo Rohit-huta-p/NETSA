@@ -120,7 +120,7 @@ export default function LoginForm() {
               title: 'Success!',
               description: 'You have successfully signed in.',
             });
-            const redirectUrl = data.role === 'organizer' ? '/dashboard' : '/events';
+            const redirectUrl = data.role === 'organizer' ? '/dashboard' : '/';
             window.location.href = redirectUrl;
         }
     },

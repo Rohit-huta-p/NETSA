@@ -93,4 +93,15 @@
   .button-underline[data-active='true']::after {
     transform: scaleX(1);
   }
+
+  .btn-gradient-flip {
+    background-image: linear-gradient(to right, #8B5CF6 0%, #EC4899 50%, #8B5CF6 100%);
+    background-size: 200% 100%;
+    background-position: left center;
+    transition: background-position 0.5s ease;
+  }
+
+  .btn-gradient-flip:hover {
+    background-position: right center;
+  }
 }

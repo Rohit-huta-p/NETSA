@@ -17,7 +17,7 @@ export function OrganizerWelcome({ name }: OrganizerWelcomeProps) {
                 <p className="text-muted-foreground mt-1">Manage your events, review applications, and grow your community</p>
             </div>
             <div className="flex gap-2 mt-4 sm:mt-0">
-                <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-500 text-white">
+                <Button asChild className="btn-gradient-flip text-white">
                     <Link href="/create">
                         <Plus className="mr-2 h-4 w-4" />
                         Post a Gig / Event
