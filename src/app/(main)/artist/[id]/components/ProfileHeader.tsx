@@ -124,6 +124,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                         handleFieldChange('lastName', lastName.join(' '));
                     }}
                     className="text-3xl font-bold"
+                    as="heading"
                 />
                 <EditableField 
                     isEditing={isEditing}
@@ -139,6 +140,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     isEditing={isEditing}
                     value={editedArtist.email}
                     onSave={(value) => handleFieldChange('email', value)}
+                    as="span"
                 />
             </div>
 

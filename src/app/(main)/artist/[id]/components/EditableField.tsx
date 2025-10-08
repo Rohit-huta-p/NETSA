@@ -13,7 +13,7 @@ interface EditableFieldProps {
     value: string;
     onSave: (newValue: string) => void;
     className?: string;
-    as?: 'input' | 'badge' | 'span';
+    as?: 'heading' | 'badge' | 'span';
 }
 
 export function EditableField({ isEditing, value, onSave, className, as = 'span' }: EditableFieldProps) {
@@ -38,7 +38,9 @@ export function EditableField({ isEditing, value, onSave, className, as = 'span'
                 className={cn(
                     "h-auto p-0 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
                     className,
-                    as === 'badge' && "bg-purple-600 text-white hover:bg-purple-700 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    as === 'heading' && "!text-3xl !font-bold text-gray-900 dark:text-gray-50 w-[50%]",
+                    as === 'span' && "text-gray-900 dark:text-gray-50",
+                    as === 'badge' && "bg-purple-600 text-white hover:bg-purple-700 px-2.5 py-0.5 rounded-full text-xs font-semibold w-fit"
                 )}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave();
