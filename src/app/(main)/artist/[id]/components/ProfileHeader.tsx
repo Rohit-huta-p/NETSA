@@ -86,14 +86,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
           </div>
            <div className="absolute top-4 right-4">
-              {user?.id === artist.id ? (
-                   <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-500 text-white">
-                      <Link href="/settings/profile">
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Profile
-                      </Link>
-                  </Button>
-              ) : (
+              {user?.id !== artist.id && (
                   <Button>Connect</Button>
               )}
           </div>
@@ -186,14 +179,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
           </div>
            <div className="absolute top-4 right-4">
-              {user?.id === artist.id ? (
-                   <Button asChild className="bg-gradient-to-r from-purple-600 to-pink-500 text-white">
-                      <Link href="/settings/profile">
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Profile
-                      </Link>
-                  </Button>
-              ) : (
+              {user?.id !== artist.id && (
                   <Button>Connect</Button>
               )}
           </div>

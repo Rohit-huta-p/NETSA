@@ -86,7 +86,7 @@ export default function GigsPage() {
             </div>
 
             {/* GIG LIST AND GIG DETAIL VIEW */}
-            <div className="flex grid grid-cols-1 md:grid-cols-12 gap-8 items-start h-screen overflow-hidden mt-8">
+            <div className="flex grid grid-cols-1 md:grid-cols-12 gap-1 items-start h-screen overflow-hidden mt-8">
                 <div className="md:col-span-4 lg:col-span-3 h-full overflow-hidden">
                      <ScrollArea className="h-screen">
                         <div className="space-y-4">
@@ -143,7 +143,7 @@ export default function GigsPage() {
                     </ScrollArea>
                 </div>
             </div>
-             <div className="absolute bottom-24 right-10 hidden xl:block">
+             <div className="fixed bottom-6 right-6 hidden xl:block">
                  <ProfileCompletionCard />
             </div>
         </div>
