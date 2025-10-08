@@ -85,9 +85,14 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
               </div>
             </div>
           </div>
-           <div className="absolute top-4 right-4">
-              {user?.id !== artist.id && (
-                  <Button>Connect</Button>
+           <div className="absolute top-4 right-4 flex items-center gap-2">
+              {user?.id === artist.id ? (
+                <Button variant="outline">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              ) : (
+                <Button>Connect</Button>
               )}
           </div>
         </div>
@@ -178,11 +183,16 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
 
           </div>
-           <div className="absolute top-4 right-4">
-              {user?.id !== artist.id && (
-                  <Button>Connect</Button>
+           <div className="absolute top-4 right-4 flex items-center gap-2">
+              {user?.id === artist.id ? (
+                <Button variant="outline">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              ) : (
+                <Button>Connect</Button>
               )}
-          </div>
+           </div>
         </div>
         
         <div className="mt-6 pt-6 border-t grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
@@ -225,3 +235,5 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
+
+    
