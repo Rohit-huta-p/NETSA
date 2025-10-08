@@ -4,10 +4,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Star, Edit, Camera, MapPin, Phone } from "lucide-react";
+import { Mail, Star, Edit, Camera, MapPin, Phone, Save, X as CloseIcon, PlusCircle, Check } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserStore } from "@/store/userStore";
 import { updateUserProfile } from "@/lib/server/actions";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { EditableField } from "./EditableField";
+import { Input } from "@/components/ui/input";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
@@ -27,7 +29,14 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
   const [showUploader, setShowUploader] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedArtist, setEditedArtist] = useState(artist);
+  const [newSkill, setNewSkill] = useState("");
   const { toast } = useToast();
+
+  useEffect(() => {
+    setEditedArtist(artist);
+  }, [artist]);
 
   const handleProfileImageUpload = async (url: string) => {
     if (user) {
@@ -36,6 +45,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
       const result = await updateUserProfile(user.id, { profileImageUrl: url });
       if (result.success) {
         setUser(updatedProfile);
+        setEditedArtist(prev => ({...prev, profileImageUrl: url}));
         toast({ title: "Success", description: "Profile picture updated!" });
         setShowUploader(false);
       } else {
@@ -43,20 +53,58 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
       }
     }
   };
+
+  const handleSave = async () => {
+    if (user) {
+        const { id, email, role, ...updateData } = editedArtist;
+        const result = await updateUserProfile(user.id, updateData);
+        if (result.success) {
+            setUser({ ...user, ...editedArtist });
+            toast({ title: "Success", description: "Profile updated!" });
+            setIsEditing(false);
+        } else {
+             toast({ variant: 'destructive', title: "Error", description: result.error });
+        }
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedArtist(artist);
+    setIsEditing(false);
+  };
+
+  const handleFieldChange = (field: keyof UserProfile, value: any) => {
+    setEditedArtist(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() && editedArtist.role === 'artist' && !editedArtist.skills?.includes(newSkill.trim())) {
+        const updatedSkills = [...(editedArtist.skills || []), newSkill.trim()];
+        handleFieldChange('skills', updatedSkills);
+        setNewSkill("");
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove: string) => {
+     if (editedArtist.role === 'artist') {
+        const updatedSkills = editedArtist.skills?.filter(skill => skill !== skillToRemove);
+        handleFieldChange('skills', updatedSkills);
+    }
+  }
   
   if (artist.role === 'artist') {
-    const skills = artist.skills || [];
+    const skills = editedArtist.skills || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="relative">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1">
                   <Avatar className="w-full h-full border-4 border-card">
-                      <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
-                      <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
+                      <AvatarImage src={editedArtist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
+                      <AvatarFallback>{editedArtist.firstName?.[0]}{editedArtist.lastName?.[0]}</AvatarFallback>
                   </Avatar>
               </div>
-               {user?.id === artist.id && (
+               {isEditing && (
                 <button 
                   onClick={() => setShowUploader(true)} 
                   className="absolute bottom-1 right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 border border-border"
@@ -67,30 +115,75 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           </div>
           <div className="flex-grow text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-4">
-              <h1 className="text-3xl font-bold">{artist.firstName} {artist.lastName}</h1>
-              <Badge className="bg-purple-600 text-white hover:bg-purple-700">{artist.artistType || 'Artist'}</Badge>
+                <EditableField 
+                    isEditing={isEditing}
+                    value={`${editedArtist.firstName} ${editedArtist.lastName}`}
+                    onSave={(value) => {
+                        const [firstName, ...lastName] = value.split(' ');
+                        handleFieldChange('firstName', firstName);
+                        handleFieldChange('lastName', lastName.join(' '));
+                    }}
+                    className="text-3xl font-bold"
+                />
+                <EditableField 
+                    isEditing={isEditing}
+                    value={editedArtist.artistType || 'Artist'}
+                    onSave={(value) => handleFieldChange('artistType', value)}
+                    as="badge"
+                />
             </div>
             
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
-              <span>{artist.email}</span>
+              <EditableField 
+                    isEditing={isEditing}
+                    value={editedArtist.email}
+                    onSave={(value) => handleFieldChange('email', value)}
+                />
             </div>
 
             <div className="mt-4">
               <h3 className="font-semibold text-sm mb-2">Skills & Styles</h3>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                {skills.length > 0 ? skills.slice(0, 5).map(skill => (
-                    <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700">{skill}</Badge>
-                )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
+                {skills.length > 0 ? skills.map(skill => (
+                    <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700 relative pr-6">
+                        {skill}
+                        {isEditing && (
+                            <button onClick={() => handleRemoveSkill(skill)} className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full hover:bg-black/10">
+                                <CloseIcon className="w-3 h-3" />
+                            </button>
+                        )}
+                    </Badge>
+                )) : !isEditing && <p className="text-sm text-muted-foreground">No skills specified.</p>}
+                {isEditing && (
+                     <div className="flex items-center gap-1">
+                        <Input 
+                            value={newSkill} 
+                            onChange={(e) => setNewSkill(e.target.value)} 
+                            placeholder="Add skill" 
+                            className="h-7 w-24"
+                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddSkill() }}
+                        />
+                        <Button onClick={handleAddSkill} size="icon" variant="ghost" className="h-7 w-7">
+                            <Check className="w-4 h-4" />
+                        </Button>
+                    </div>
+                )}
               </div>
             </div>
           </div>
            <div className="absolute top-4 right-4 flex items-center gap-2">
               {user?.id === artist.id ? (
-                <Button variant="outline">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
+                 isEditing ? (
+                    <>
+                        <Button variant="outline" size="sm" onClick={handleCancel}><CloseIcon className="w-4 h-4 mr-1"/>Cancel</Button>
+                        <Button size="sm" onClick={handleSave}><Save className="w-4 h-4 mr-1"/>Save</Button>
+                    </>
+                ) : (
+                     <Button variant="outline" onClick={() => setIsEditing(true)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                )
               ) : (
                 <Button>Connect</Button>
               )}
@@ -186,8 +279,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
            <div className="absolute top-4 right-4 flex items-center gap-2">
               {user?.id === artist.id ? (
                 <Button variant="outline">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
+                  <Edit className="w-4 h-4" />
                 </Button>
               ) : (
                 <Button>Connect</Button>
@@ -235,5 +327,3 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
-
-    
