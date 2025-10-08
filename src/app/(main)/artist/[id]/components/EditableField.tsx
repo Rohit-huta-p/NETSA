@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface EditableFieldProps {
     isEditing: boolean;
@@ -34,13 +35,14 @@ export function EditableField({ isEditing, value, onSave, className, as = 'span'
             <Input 
                 value={currentValue}
                 onChange={(e) => setCurrentValue(e.target.value)}
-                className={`h-8 ${className}`}
+                className={cn("h-auto p-0 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0", className)}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave();
                     if (e.key === 'Escape') setCurrentValue(value);
                 }}
+                 onBlur={handleSave} // Save when focus is lost
+                 autoFocus
             />
         </div>
     );
 }
-
