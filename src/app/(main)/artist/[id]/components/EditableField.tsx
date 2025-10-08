@@ -21,7 +21,7 @@ export function EditableField({ isEditing, value, onSave, className, as = 'span'
     
     if (!isEditing) {
         if (as === 'badge') {
-             return <Badge className="bg-purple-600 text-white hover:bg-purple-700">{value}</Badge>;
+             return <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>{value}</Badge>;
         }
         return <span className={className}>{value}</span>;
     }
@@ -35,7 +35,11 @@ export function EditableField({ isEditing, value, onSave, className, as = 'span'
             <Input 
                 value={currentValue}
                 onChange={(e) => setCurrentValue(e.target.value)}
-                className={cn("h-auto p-0 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0", className)}
+                className={cn(
+                    "h-auto p-0 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
+                    className,
+                    as === 'badge' && "bg-purple-600 text-white hover:bg-purple-700 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                )}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter') handleSave();
                     if (e.key === 'Escape') setCurrentValue(value);
@@ -46,3 +50,5 @@ export function EditableField({ isEditing, value, onSave, className, as = 'span'
         </div>
     );
 }
+
+    
