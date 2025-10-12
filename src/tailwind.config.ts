@@ -88,10 +88,6 @@ const config = {
           "0%": { backgroundPosition: "200% 0" },
           "100%": { backgroundPosition: "-200% 0" },
         },
-        "typewriter": {
-          "from": { width: "0" },
-          "to": { width: "100%" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -100,7 +96,6 @@ const config = {
         "collapsible-up": "collapsible-up 0.2s ease-out",
         "loader-progress": "loader-progress 1.5s ease-in-out infinite",
         "shimmer": "shimmer 1.5s ease-in-out infinite",
-        "typewriter": "typewriter 0.5s steps(40, end) forwards",
       },
     },
   },

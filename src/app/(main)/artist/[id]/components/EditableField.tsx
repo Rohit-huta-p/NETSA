@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -8,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2 } from "lucide-react";
+import { TextShimmer } from "@/components/core/TextShimmer";
 
 interface EditableFieldProps {
   canEdit: boolean;
@@ -64,9 +65,8 @@ export function EditableField({
 
     if (isLoading) {
         return (
-             <div className={cn("flex items-center gap-2", className)}>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-muted-foreground/70">Saving...</span>
+            <div className={cn(className, "px-2 py-1 -mx-2 -my-1")}>
+                <TextShimmer duration={1.5}>{displayValue}</TextShimmer>
             </div>
         )
     }
