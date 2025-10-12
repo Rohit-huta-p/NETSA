@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface EditableFieldProps {
     canEdit: boolean;
@@ -18,6 +19,7 @@ interface EditableFieldProps {
     placeholder?: string;
     isLink?: boolean;
     linkPrefix?: string;
+    isLoading?: boolean;
 }
 
 export function EditableField({ 
@@ -28,7 +30,8 @@ export function EditableField({
     as = 'span', 
     placeholder,
     isLink = false,
-    linkPrefix = ''
+    linkPrefix = '',
+    isLoading = false
 }: EditableFieldProps) {
     const [currentValue, setCurrentValue] = useState(value);
     const [isEditing, setIsEditing] = useState(false);
@@ -38,6 +41,13 @@ export function EditableField({
         setCurrentValue(value);
     }, [value]);
     
+    if (isLoading) {
+        if (as === 'heading') return <Skeleton className="h-10 w-48" />;
+        if (as === 'badge') return <Skeleton className="h-6 w-20 rounded-full" />;
+        if (as === 'textarea') return <Skeleton className="h-20 w-full" />;
+        return <Skeleton className="h-5 w-32" />;
+    }
+
     // If we can't edit at all, just show the value.
     if (!canEdit) {
         if (as === 'badge') {

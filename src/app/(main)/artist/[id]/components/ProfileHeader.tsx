@@ -4,7 +4,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Star, Edit, Camera, MapPin, Phone, Save, X as CloseIcon, PlusCircle, Check } from "lucide-react";
+import { Mail, Star, Edit, Camera, MapPin, Phone, Save, X as CloseIcon, PlusCircle, Check, Loader2 } from "lucide-react";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useState, useEffect } from "react";
@@ -36,6 +36,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isMobileEditMode, setIsMobileEditMode] = useState(false);
+  const [loadingField, setLoadingField] = useState<string | null>(null);
   
   const isOwnProfile = user?.id === artist.id;
   const canEdit = isOwnProfile && (!isMobile || isMobileEditMode);
@@ -46,6 +47,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   const handleProfileImageUpload = async (url: string) => {
     if (user) {
+      setLoadingField('profileImageUrl');
       const updatedProfile = { ...user, profileImageUrl: url };
       
       const result = await updateUserProfile(user.id, { profileImageUrl: url });
@@ -57,11 +59,13 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
       } else {
         toast({ variant: 'destructive', title: "Error", description: result.error });
       }
+      setLoadingField(null);
     }
   };
 
   const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
     if (user && isOwnProfile) {
+        setLoadingField(field);
         const updateData: { [key: string]: any } = {};
         
         if (field.includes('.')) {
@@ -87,6 +91,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         } else {
              toast({ variant: 'destructive', title: "Error", description: result.error });
         }
+        setLoadingField(null);
     }
   };
 
@@ -115,12 +120,13 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                   </Avatar>
               </div>
                {(isOwnProfile && (!isMobile || isMobileEditMode)) && (
-                <button 
+                 <button 
                   onClick={() => setShowUploader(true)} 
                   className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
-                >
-                  <Camera className="w-6 h-6 text-white" />
-                </button>
+                  disabled={loadingField !== null}
+                 >
+                   {loadingField === 'profileImageUrl' ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Camera className="w-6 h-6 text-white" />}
+                 </button>
               )}
           </div>
           <div className="flex-grow text-center md:text-left">
@@ -135,12 +141,14 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     }}
                     className="text-3xl font-bold"
                     as="heading"
+                    isLoading={loadingField === 'firstName' || loadingField === 'lastName'}
                 />
                 <EditableField 
                     canEdit={canEdit}
                     value={editedArtist.artistType || 'Artist'}
                     onSave={(value) => handleFieldSave('artistType', value)}
                     as="badge"
+                    isLoading={loadingField === 'artistType'}
                 />
             </div>
             
@@ -151,6 +159,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     value={editedArtist.email}
                     onSave={(value) => handleFieldSave('email', value)}
                     as="span"
+                    isLoading={loadingField === 'email'}
                 />
             </div>
 
@@ -332,5 +341,3 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
-
-    

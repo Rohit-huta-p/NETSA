@@ -40,12 +40,14 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     
     const [artist, setArtist] = useState(initialArtist);
     const [isMobileEditMode, setIsMobileEditMode] = useState(false);
+    const [loadingField, setLoadingField] = useState<string | null>(null);
 
     const isOwnProfile = user?.id === artist.id;
     const canEdit = isOwnProfile && (!isMobile || isMobileEditMode);
 
     const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
         if (!user || !isOwnProfile) return;
+        setLoadingField(field);
 
         const updateData: { [key: string]: any } = {};
         
@@ -71,6 +73,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
         } else {
              toast({ variant: 'destructive', title: "Error", description: result.error });
         }
+        setLoadingField(null);
     };
 
     const handleSaveEdits = () => {
@@ -114,6 +117,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                     onSave={(value) => handleFieldSave('bio', value)}
                     className="text-sm text-muted-foreground mt-2"
                     placeholder="No bio available."
+                    isLoading={loadingField === 'bio'}
                 />
                 
                 {artist.role === 'artist' && (
@@ -131,6 +135,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                     }}
                                     className="font-semibold"
                                     placeholder="N/A"
+                                    isLoading={loadingField === 'dob'}
                                 />
                             </div>
                             <div>
@@ -147,6 +152,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                     }}
                                     className="font-semibold"
                                     placeholder="N/A"
+                                    isLoading={loadingField === 'height'}
                                 />
                             </div>
                             <div>
@@ -157,6 +163,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                     onSave={(value) => handleFieldSave('skinTone', value)}
                                     className="font-semibold"
                                     placeholder="N/A"
+                                    isLoading={loadingField === 'skinTone'}
                                 />
                             </div>
                         </div>
@@ -190,6 +197,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                 placeholder="instagram.com/handle"
                                 isLink={true}
                                 linkPrefix="https://instagram.com/"
+                                isLoading={loadingField === 'socialMedia.instagram'}
                             />
                         </div>
                     </div>
