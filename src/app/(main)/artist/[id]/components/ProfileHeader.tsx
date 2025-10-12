@@ -33,6 +33,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const [editedArtist, setEditedArtist] = useState(artist);
   const [newSkill, setNewSkill] = useState("");
   const { toast } = useToast();
+  
+  const isOwnProfile = user?.id === artist.id;
 
   useEffect(() => {
     setEditedArtist(artist);
@@ -54,41 +56,49 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     }
   };
 
-  const handleSave = async () => {
-    if (user) {
-        const { id, email, role, ...updateData } = editedArtist;
+  const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
+    if (user && isOwnProfile) {
+        const updateData: { [key: string]: any } = {};
+        
+        if (field.includes('.')) {
+            const [parent, child] = field.split('.');
+            const currentParent = (user as any)[parent] || {};
+            updateData[parent] = { ...currentParent, [child]: value };
+        } else {
+            updateData[field] = value;
+        }
+
         const result = await updateUserProfile(user.id, updateData);
+
         if (result.success) {
-            setUser({ ...user, ...editedArtist });
-            toast({ title: "Success", description: "Profile updated!" });
-            setIsEditing(false);
+            const updatedUser = { ...user, ...updateData };
+            // Deep merge for nested objects
+             if (field.includes('.')) {
+                const [parent, child] = field.split('.');
+                updatedUser[parent] = { ...((user as any)[parent] || {}), [child]: value };
+            }
+            setUser(updatedUser);
+            setEditedArtist(prev => ({...prev, ...updatedUser}));
+            toast({ title: "Success", description: `${String(field)} updated!` });
         } else {
              toast({ variant: 'destructive', title: "Error", description: result.error });
         }
     }
   };
 
-  const handleCancel = () => {
-    setEditedArtist(artist);
-    setIsEditing(false);
-  };
 
-  const handleFieldChange = (field: keyof UserProfile, value: any) => {
-    setEditedArtist(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleAddSkill = () => {
+  const handleAddSkill = async () => {
     if (newSkill.trim() && editedArtist.role === 'artist' && !editedArtist.skills?.includes(newSkill.trim())) {
         const updatedSkills = [...(editedArtist.skills || []), newSkill.trim()];
-        handleFieldChange('skills', updatedSkills);
+        await handleFieldSave('skills', updatedSkills);
         setNewSkill("");
     }
   };
 
-  const handleRemoveSkill = (skillToRemove: string) => {
+  const handleRemoveSkill = async (skillToRemove: string) => {
      if (editedArtist.role === 'artist') {
         const updatedSkills = editedArtist.skills?.filter(skill => skill !== skillToRemove);
-        handleFieldChange('skills', updatedSkills);
+        await handleFieldSave('skills', updatedSkills);
     }
   }
   
@@ -97,39 +107,39 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <div className="relative">
+          <div className="relative group/avatar">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1">
                   <Avatar className="w-full h-full border-4 border-card">
                       <AvatarImage src={editedArtist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="woman portrait" />
                       <AvatarFallback>{editedArtist.firstName?.[0]}{editedArtist.lastName?.[0]}</AvatarFallback>
                   </Avatar>
               </div>
-               {isEditing && (
+               {isOwnProfile && (
                 <button 
                   onClick={() => setShowUploader(true)} 
-                  className="absolute bottom-1 right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 border border-border"
+                  className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
                 >
-                  <Camera className="w-4 h-4 text-muted-foreground" />
+                  <Camera className="w-6 h-6 text-white" />
                 </button>
               )}
           </div>
           <div className="flex-grow text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-4">
+            <div className="flex items-center justify-center md:justify-start gap-1">
                 <EditableField 
-                    isEditing={isEditing}
+                    canEdit={isOwnProfile}
                     value={`${editedArtist.firstName} ${editedArtist.lastName}`}
                     onSave={(value) => {
                         const [firstName, ...lastName] = value.split(' ');
-                        handleFieldChange('firstName', firstName);
-                        handleFieldChange('lastName', lastName.join(' '));
+                        handleFieldSave('firstName', firstName);
+                        handleFieldSave('lastName', lastName.join(' '));
                     }}
                     className="text-3xl font-bold"
                     as="heading"
                 />
                 <EditableField 
-                    isEditing={isEditing}
+                    canEdit={isOwnProfile}
                     value={editedArtist.artistType || 'Artist'}
-                    onSave={(value) => handleFieldChange('artistType', value)}
+                    onSave={(value) => handleFieldSave('artistType', value)}
                     as="badge"
                 />
             </div>
@@ -137,9 +147,9 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
               <EditableField 
-                    isEditing={isEditing}
+                    canEdit={isOwnProfile}
                     value={editedArtist.email}
-                    onSave={(value) => handleFieldChange('email', value)}
+                    onSave={(value) => handleFieldSave('email', value)}
                     as="span"
                 />
             </div>
@@ -148,16 +158,16 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
               <h3 className="font-semibold text-sm mb-2">Skills & Styles</h3>
               <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                 {skills.length > 0 ? skills.map(skill => (
-                    <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700 relative pr-6">
+                    <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700 relative pr-6 group">
                         {skill}
-                        {isEditing && (
-                            <button onClick={() => handleRemoveSkill(skill)} className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full hover:bg-black/10">
+                        {isOwnProfile && (
+                            <button onClick={() => handleRemoveSkill(skill)} className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full hover:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <CloseIcon className="w-3 h-3" />
                             </button>
                         )}
                     </Badge>
-                )) : !isEditing && <p className="text-sm text-muted-foreground">No skills specified.</p>}
-                {isEditing && (
+                )) : !isOwnProfile && <p className="text-sm text-muted-foreground">No skills specified.</p>}
+                {isOwnProfile && (
                      <div className="flex items-center gap-1">
                         <Input 
                             value={newSkill} 
@@ -175,21 +185,10 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
           </div>
            <div className="absolute top-4 right-4 flex items-center gap-2">
-              {user?.id === artist.id ? (
-                 isEditing ? (
-                    <>
-                        <Button variant="outline" size="sm" onClick={handleCancel}><CloseIcon className="w-4 h-4 mr-1"/>Cancel</Button>
-                        <Button size="sm" onClick={handleSave}><Save className="w-4 h-4 mr-1"/>Save</Button>
-                    </>
-                ) : (
-                     <Button variant="outline" onClick={() => setIsEditing(true)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                )
-              ) : (
+              {!isOwnProfile && (
                 <Button>Connect</Button>
               )}
-          </div>
+           </div>
         </div>
         
         <div className="mt-6 pt-6 border-t grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
@@ -235,19 +234,19 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     return (
        <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="relative">
+          <div className="relative group/avatar">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1">
                   <Avatar className="w-full h-full border-4 border-card">
                       <AvatarImage src={artist.profileImageUrl || "https://placehold.co/200x200.png"} data-ai-hint="person portrait" />
                       <AvatarFallback>{artist.firstName?.[0]}{artist.lastName?.[0]}</AvatarFallback>
                   </Avatar>
               </div>
-               {user?.id === artist.id && (
+               {isOwnProfile && (
                 <button 
                   onClick={() => setShowUploader(true)} 
-                  className="absolute bottom-1 right-1 bg-muted p-2 rounded-full hover:bg-muted-foreground/20 border border-border"
+                  className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
                 >
-                  <Camera className="w-4 h-4 text-muted-foreground" />
+                  <Camera className="w-6 h-6 text-white" />
                 </button>
               )}
           </div>
@@ -329,3 +328,5 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
+
+    
