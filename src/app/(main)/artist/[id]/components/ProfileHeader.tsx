@@ -23,6 +23,7 @@ import { EditableField } from "./EditableField";
 import { Input } from "@/components/ui/input";
 import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
 import { DANCE_SKILLS, DANCE_STYLES } from "@/lib/skills-data";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
@@ -33,8 +34,11 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const [showUploader, setShowUploader] = useState(false);
   const [editedArtist, setEditedArtist] = useState(artist);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [isMobileEditMode, setIsMobileEditMode] = useState(false);
   
   const isOwnProfile = user?.id === artist.id;
+  const canEdit = isOwnProfile && (!isMobile || isMobileEditMode);
 
   useEffect(() => {
     setEditedArtist(artist);
@@ -85,6 +89,17 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         }
     }
   };
+
+   const handleSaveEdits = () => {
+    // In this model, saves are done field-by-field, so this just exits edit mode
+    setIsMobileEditMode(false);
+    toast({ title: "Profile Updated", description: "Your changes have been saved." });
+  };
+
+  const handleCancelEdits = () => {
+    setEditedArtist(artist); // Revert any unsaved changes if we were batching
+    setIsMobileEditMode(false);
+  };
   
   if (artist.role === 'artist') {
     const skills = editedArtist.skills || [];
@@ -99,7 +114,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                       <AvatarFallback>{editedArtist.firstName?.[0]}{editedArtist.lastName?.[0]}</AvatarFallback>
                   </Avatar>
               </div>
-               {isOwnProfile && (
+               {(isOwnProfile && (!isMobile || isMobileEditMode)) && (
                 <button 
                   onClick={() => setShowUploader(true)} 
                   className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
@@ -111,7 +126,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           <div className="flex-grow text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-1">
                 <EditableField 
-                    canEdit={isOwnProfile}
+                    canEdit={canEdit}
                     value={`${editedArtist.firstName} ${editedArtist.lastName}`}
                     onSave={(value) => {
                         const [firstName, ...lastName] = value.split(' ');
@@ -122,7 +137,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                     as="heading"
                 />
                 <EditableField 
-                    canEdit={isOwnProfile}
+                    canEdit={canEdit}
                     value={editedArtist.artistType || 'Artist'}
                     onSave={(value) => handleFieldSave('artistType', value)}
                     as="badge"
@@ -132,7 +147,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
               <EditableField 
-                    canEdit={isOwnProfile}
+                    canEdit={canEdit}
                     value={editedArtist.email}
                     onSave={(value) => handleFieldSave('email', value)}
                     as="span"
@@ -141,7 +156,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
             <div className="mt-4">
               <MultiSelectEditable
-                  isOwnProfile={isOwnProfile}
+                  isOwnProfile={isOwnProfile && (!isMobile || isMobileEditMode)}
                   label="Skills"
                   placeholder="Add a skill..."
                   options={DANCE_SKILLS}
@@ -151,7 +166,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
              <div className="mt-4">
                <MultiSelectEditable
-                  isOwnProfile={isOwnProfile}
+                  isOwnProfile={isOwnProfile && (!isMobile || isMobileEditMode)}
                   label="Styles"
                   placeholder="Add a style..."
                   options={DANCE_STYLES}
@@ -161,9 +176,22 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
           </div>
            <div className="absolute top-4 right-4 flex items-center gap-2">
-              {!isOwnProfile && (
-                <Button>Connect</Button>
-              )}
+              {isOwnProfile && isMobile ? (
+                  isMobileEditMode ? (
+                      <>
+                          <Button variant="ghost" size="icon" onClick={handleCancelEdits}><CloseIcon className="w-5 h-5 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" onClick={handleSaveEdits}><Check className="w-5 h-5 text-green-500" /></Button>
+                      </>
+                  ) : (
+                      <Button variant="outline" size="icon" onClick={() => setIsMobileEditMode(true)}>
+                          <Edit className="w-4 h-4" />
+                      </Button>
+                  )
+              ) : !isOwnProfile ? (
+                 <Button>Connect</Button>
+              ) : null}
+
+              {!isOwnProfile && !isMobile && <Button>Connect</Button>}
            </div>
         </div>
         
@@ -304,3 +332,5 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
+
+    

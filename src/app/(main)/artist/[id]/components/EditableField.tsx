@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EditableFieldProps {
     canEdit: boolean;
@@ -17,7 +18,9 @@ interface EditableFieldProps {
 export function EditableField({ canEdit, value, onSave, className, as = 'span' }: EditableFieldProps) {
     const [currentValue, setCurrentValue] = useState(value);
     const [isEditing, setIsEditing] = useState(false);
+    const isMobile = useIsMobile();
     
+    // If we can't edit at all, just show the value.
     if (!canEdit) {
         if (as === 'badge') {
              return <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>{value}</Badge>;
@@ -25,26 +28,30 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
         return <span className={className}>{value}</span>;
     }
 
+    // This handles both saving and exiting edit mode
     const handleSave = () => {
         if (currentValue !== value) {
             onSave(currentValue);
         }
         setIsEditing(false);
     }
+    
+    // In mobile, 'isEditing' is controlled by the parent component's 'canEdit' prop
+    // In desktop, 'isEditing' is controlled by local click/blur state
+    const isCurrentlyEditing = isMobile ? canEdit : isEditing;
 
-    if (!isEditing) {
-        const hoverClasses = "hover:bg-muted/70 rounded-md cursor-text";
-        // Use a div for heading to ensure block-level behavior for background
+    if (!isCurrentlyEditing) {
+        const hoverClasses = !isMobile ? "hover:bg-gray-100/10 rounded-md cursor-text" : "";
         const Wrapper = as === 'heading' ? 'div' : (as === 'badge' ? 'div' : 'span'); 
         
         return (
             <Wrapper 
-                onClick={() => setIsEditing(true)} 
+                onClick={() => !isMobile && setIsEditing(true)} 
                 className={cn(
                     "transition-colors", 
                     hoverClasses, 
                     as === 'span' && 'px-2 py-1 -mx-2 -my-1',
-                    as === 'heading' && 'px-2 -mx-2 rounded-lg' // Padding for heading hover
+                    as === 'heading' && 'px-2 -mx-2 rounded-lg'
                 )}
             >
                 {as === 'badge' ? (
@@ -63,7 +70,7 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
             <Input 
                 value={currentValue}
                 onChange={(e) => setCurrentValue(e.target.value)}
-                style={as === 'heading' || as === 'badge' ? { width: calculatedWidth } : undefined} 
+                style={(as === 'heading' || as === 'badge') ? { width: calculatedWidth } : undefined} 
                 className={cn(
                     "h-auto p-0 border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
                     className,
@@ -84,3 +91,5 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
         </div>
     );
 }
+
+    
