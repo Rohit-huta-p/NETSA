@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Link from 'next/link';
+import * as React from 'react';
 
 interface EditableFieldProps {
     canEdit: boolean;
@@ -36,37 +37,24 @@ export function EditableField({
     const [isEditing, setIsEditing] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
     const isMobile = useIsMobile();
+    const wasLoading = useRef(false);
+
+    useEffect(() => {
+      // When loading completes (wasLoading=true, isLoading=false), trigger animation
+      if (wasLoading.current && !isLoading) {
+        setIsAnimating(true);
+        const timer = setTimeout(() => setIsAnimating(false), 550); // Animation duration
+        return () => clearTimeout(timer);
+      }
+      // Update our ref to track the loading state for the next render
+      wasLoading.current = isLoading;
+    }, [isLoading]);
     
+    // Sync internal state if the prop value changes from outside
     useEffect(() => {
         setCurrentValue(value);
-        if (!isLoading && value) {
-            setIsAnimating(true);
-            const timer = setTimeout(() => setIsAnimating(false), 500); // Duration of typewriter animation
-            return () => clearTimeout(timer);
-        }
-    }, [value, isLoading]);
+    }, [value]);
     
-    if (isLoading) {
-        const shimmerClass = "animate-shimmer bg-gradient-to-r from-transparent via-white/50 to-transparent bg-[length:200%_100%]";
-        if (as === 'heading') return <div className={cn("h-10 w-48 rounded-md", shimmerClass, className)} />;
-        if (as === 'badge') return <div className={cn("h-6 w-20 rounded-full", shimmerClass, className)} />;
-        if (as === 'textarea') return <div className={cn("h-20 w-full rounded-md", shimmerClass, className)} />;
-        return <div className={cn("h-5 w-32 rounded-md", shimmerClass, className)} />;
-    }
-
-    // If we can't edit at all, just show the value.
-    if (!canEdit) {
-        if (as === 'badge') {
-             return <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>{value || placeholder}</Badge>;
-        }
-        if (as === 'textarea') {
-            return <p className={cn("whitespace-pre-line", className)}>{value || placeholder}</p>;
-        }
-        if (isLink) {
-            return value.includes('No ') ? <span className={className}>{value}</span> : <Link href={`${linkPrefix}${value}`} target="_blank" rel="noopener noreferrer" className={cn("hover:underline", className)}>{value}</Link>
-        }
-        return <span className={cn(className, isAnimating && "animate-typewriter")}>{value || placeholder}</span>;
-    }
 
     const handleSave = () => {
         if (currentValue !== value) {
@@ -77,15 +65,25 @@ export function EditableField({
     
     const isCurrentlyEditing = isMobile ? canEdit : isEditing;
 
+    const textShimmerClasses = 
+        "animate-shimmer bg-clip-text text-transparent bg-gradient-to-r from-gray-300/50 via-gray-50 to-gray-300/50 dark:from-gray-700/50 dark:via-gray-100 dark:to-gray-700/50 bg-[length:400%_100%]";
+
+    // DISPLAY STATE: Not editing, show text
     if (!isCurrentlyEditing) {
-        const hoverClasses = !isMobile ? "hover:bg-gray-100/10 rounded-md cursor-text" : "";
+        const hoverClasses = canEdit && !isMobile ? "hover:bg-gray-100/10 dark:hover:bg-white/10 rounded-md cursor-text" : "";
         const Wrapper = as === 'heading' ? 'div' : (as === 'badge' ? 'div' : (as === 'textarea' ? 'p' : 'span'));
         
-        const displayValue = value || placeholder;
+        const displayValue = value || placeholder || '';
+
+        const typewriterClasses = isAnimating 
+            ? 'animate-typewriter overflow-hidden whitespace-nowrap border-r-2 border-r-primary/50' 
+            : '';
+        
+        const calculatedTextWidth = `${displayValue.length}ch`;
 
         return (
             <Wrapper 
-                onClick={() => !isMobile && setIsEditing(true)} 
+                onClick={() => canEdit && !isMobile && setIsEditing(true)} 
                 className={cn(
                     "transition-colors", 
                     hoverClasses, 
@@ -100,14 +98,25 @@ export function EditableField({
                 ) : isLink ? (
                      value.includes('No ') ? <span className={className}>{value}</span> : <Link href={`${linkPrefix}${value}`} target="_blank" rel="noopener noreferrer" className={cn("hover:underline", className)}>{value}</Link>
                 ) : (
-                    <span className={cn(className, !value && "text-muted-foreground/70", isAnimating && 'animate-typewriter overflow-hidden whitespace-nowrap')}>{displayValue}</span>
+                    <span 
+                        className={cn(
+                            className, 
+                            !value && "text-muted-foreground/70", 
+                            isLoading ? textShimmerClasses : typewriterClasses,
+                        )}
+                        style={isAnimating ? { width: calculatedTextWidth, display: 'inline-block' } : {display: 'inline-block'}} 
+                    >
+                        {isLoading ? (value || 'Loading...').replace(/./g, ' ') : displayValue}
+                        {!isLoading && displayValue}
+                    </span>
                 )}
             </Wrapper>
         );
     }
     
-    const calculatedWidth = `${Math.max(currentValue?.length || 0, placeholder?.length || 0) + 4}ch`;
-    
+    // EDITING STATE: Show Input/Textarea
+    const calculatedWidth = `${Math.max(currentValue?.length || 0, placeholder?.length || 0, 1) + 1.5}ch`;
+
     const commonInputProps = {
         value: currentValue,
         onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setCurrentValue(e.target.value),
@@ -137,7 +146,7 @@ export function EditableField({
         <div className="flex items-center">
             <Input 
                 {...commonInputProps}
-                style={(as === 'heading' || as === 'badge') ? { width: calculatedWidth } : undefined} 
+                style={(as === 'heading' || as === 'badge' || as === 'span') ? { width: calculatedWidth } : undefined} 
                 className={cn(
                     "h-auto p-0 border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
                     className,
@@ -149,4 +158,3 @@ export function EditableField({
         </div>
     );
 }
-    

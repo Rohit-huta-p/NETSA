@@ -68,6 +68,21 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        shimmer: {
+          '0%': { 'background-position': '-468px 0' },
+          '100%': { 'background-position': '468px 0' },
+        },
+        
+        // NEW: Keyframes for Typewriter (Character Reveal)
+        'typewriter-cursor': {
+          '0%': { 'border-right-color': 'transparent' },
+          '50%': { 'border-right-color': 'currentColor' },
+          '100%': { 'border-right-color': 'transparent' },
+        },
+        'typewriter-text': {
+          '0%': { width: '0' },
+          '100%': { width: '100%' },
+        },
         'accordion-down': {
           from: {
             height: '0',
@@ -99,6 +114,9 @@ export default {
         },
       },
       animation: {
+        'shimmer': 'shimmer 1.5s infinite linear',
+        // NEW: Typewriter Animation
+        'typewriter': 'typewriter-text 0.5s steps(30, end), typewriter-cursor 0.5s step-end infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         // NEW: Animations for smooth Collapsible open/close
