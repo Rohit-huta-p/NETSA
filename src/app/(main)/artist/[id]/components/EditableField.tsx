@@ -34,11 +34,18 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
 
     if (!isEditing) {
         const hoverClasses = "hover:bg-muted/70 rounded-md cursor-text";
-        const Wrapper = as === 'badge' ? 'div' : 'span';
+        // Use a div for heading to ensure block-level behavior for background
+        const Wrapper = as === 'heading' ? 'div' : (as === 'badge' ? 'div' : 'span'); 
+        
         return (
             <Wrapper 
                 onClick={() => setIsEditing(true)} 
-                className={cn("transition-colors", hoverClasses, as === 'span' && 'px-2 py-1 -mx-2 -my-1')}
+                className={cn(
+                    "transition-colors", 
+                    hoverClasses, 
+                    as === 'span' && 'px-2 py-1 -mx-2 -my-1',
+                    as === 'heading' && 'px-2 -mx-2 rounded-lg' // Padding for heading hover
+                )}
             >
                 {as === 'badge' ? (
                      <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>{value}</Badge>
@@ -60,7 +67,7 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
                 className={cn(
                     "h-auto p-0 border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
                     className,
-                    as === 'heading' && "!text-3xl !font-bold text-gray-900 dark:text-gray-50 ",
+                    as === 'heading' && "!text-3xl !font-bold text-gray-900 dark:text-gray-50 px-2",
                     as === 'span' && "text-gray-900 dark:text-gray-50 px-2",
                     as === 'badge' && "bg-purple-600 text-white hover:bg-purple-700 px-2.5 py-0.5 rounded-full text-xs font-semibold"
                 )}
@@ -77,5 +84,3 @@ export function EditableField({ canEdit, value, onSave, className, as = 'span' }
         </div>
     );
 }
-
-    
