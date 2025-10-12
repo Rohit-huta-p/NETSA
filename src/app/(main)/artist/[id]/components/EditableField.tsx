@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import Link from 'next/link';
-import { Skeleton } from '@/components/ui/skeleton';
 
 interface EditableFieldProps {
     canEdit: boolean;
@@ -35,17 +34,24 @@ export function EditableField({
 }: EditableFieldProps) {
     const [currentValue, setCurrentValue] = useState(value);
     const [isEditing, setIsEditing] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const isMobile = useIsMobile();
-
+    
     useEffect(() => {
         setCurrentValue(value);
-    }, [value]);
+        if (!isLoading && value) {
+            setIsAnimating(true);
+            const timer = setTimeout(() => setIsAnimating(false), 500); // Duration of typewriter animation
+            return () => clearTimeout(timer);
+        }
+    }, [value, isLoading]);
     
     if (isLoading) {
-        if (as === 'heading') return <Skeleton className="h-10 w-48" />;
-        if (as === 'badge') return <Skeleton className="h-6 w-20 rounded-full" />;
-        if (as === 'textarea') return <Skeleton className="h-20 w-full" />;
-        return <Skeleton className="h-5 w-32" />;
+        const shimmerClass = "animate-shimmer bg-gradient-to-r from-transparent via-white/50 to-transparent bg-[length:200%_100%]";
+        if (as === 'heading') return <div className={cn("h-10 w-48 rounded-md", shimmerClass, className)} />;
+        if (as === 'badge') return <div className={cn("h-6 w-20 rounded-full", shimmerClass, className)} />;
+        if (as === 'textarea') return <div className={cn("h-20 w-full rounded-md", shimmerClass, className)} />;
+        return <div className={cn("h-5 w-32 rounded-md", shimmerClass, className)} />;
     }
 
     // If we can't edit at all, just show the value.
@@ -59,7 +65,7 @@ export function EditableField({
         if (isLink) {
             return value.includes('No ') ? <span className={className}>{value}</span> : <Link href={`${linkPrefix}${value}`} target="_blank" rel="noopener noreferrer" className={cn("hover:underline", className)}>{value}</Link>
         }
-        return <span className={className}>{value || placeholder}</span>;
+        return <span className={cn(className, isAnimating && "animate-typewriter")}>{value || placeholder}</span>;
     }
 
     const handleSave = () => {
@@ -94,7 +100,7 @@ export function EditableField({
                 ) : isLink ? (
                      value.includes('No ') ? <span className={className}>{value}</span> : <Link href={`${linkPrefix}${value}`} target="_blank" rel="noopener noreferrer" className={cn("hover:underline", className)}>{value}</Link>
                 ) : (
-                    <span className={cn(className, !value && "text-muted-foreground/70")}>{displayValue}</span>
+                    <span className={cn(className, !value && "text-muted-foreground/70", isAnimating && 'animate-typewriter overflow-hidden whitespace-nowrap')}>{displayValue}</span>
                 )}
             </Wrapper>
         );
