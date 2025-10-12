@@ -105,3 +105,18 @@
     background-position: right center;
   }
 }
+/* globals.css */
+.shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.6) 50%,
+    rgba(255,255,255,0) 100%
+  );
+  background-size: 400% 100%;
+  background-position: 200% 0;          /* starting point so it sweeps across */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  will-change: background-position;
+}
