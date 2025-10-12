@@ -1,15 +1,27 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+"use client";
+
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { UserProfile } from "@/store/userStore";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Instagram } from "lucide-react";
+import { Instagram, Edit, Save, X as CloseIcon, Check } from "lucide-react";
+import { useState } from "react";
+import { useUserStore } from "@/store/userStore";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { updateUserProfile } from "@/lib/server/actions";
+import { EditableField } from "./EditableField";
+import { DANCE_SKILLS } from "@/lib/skills-data";
+import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
 
 interface AboutCardProps {
     artist: UserProfile;
 }
 
-const getAge = (dob: Date | undefined) => {
+const getAge = (dob: Date | undefined | string) => {
     if (!dob) return null;
     const today = new Date();
     const birthDate = new Date(dob);
@@ -21,50 +33,146 @@ const getAge = (dob: Date | undefined) => {
     return age;
 };
 
-export function AboutCard({ artist }: AboutCardProps) {
+export function AboutCard({ artist: initialArtist }: AboutCardProps) {
+    const { user, setUser } = useUserStore();
+    const isMobile = useIsMobile();
+    const { toast } = useToast();
+    
+    const [artist, setArtist] = useState(initialArtist);
+    const [isMobileEditMode, setIsMobileEditMode] = useState(false);
 
+    const isOwnProfile = user?.id === artist.id;
+    const canEdit = isOwnProfile && (!isMobile || isMobileEditMode);
+
+    const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
+        if (!user || !isOwnProfile) return;
+
+        const updateData: { [key: string]: any } = {};
+        
+        if (field.includes('.')) {
+            const [parent, child] = field.split('.');
+            const currentParent = (user as any)[parent] || {};
+            updateData[parent] = { ...currentParent, [child]: value };
+        } else {
+            updateData[field] = value;
+        }
+
+        const result = await updateUserProfile(user.id, updateData);
+
+        if (result.success) {
+            const updatedUser = { ...user, ...updateData };
+             if (field.includes('.')) {
+                const [parent, child] = field.split('.');
+                updatedUser[parent] = { ...((user as any)[parent] || {}), [child]: value };
+            }
+            setUser(updatedUser);
+            setArtist(prev => ({...prev, ...updatedUser}));
+            toast({ title: "Success", description: `${String(field)} updated!` });
+        } else {
+             toast({ variant: 'destructive', title: "Error", description: result.error });
+        }
+    };
+
+    const handleSaveEdits = () => {
+        setIsMobileEditMode(false);
+        toast({ title: "Profile Updated", description: "Your changes have been saved." });
+    };
+
+    const handleCancelEdits = () => {
+        setArtist(initialArtist); 
+        setIsMobileEditMode(false);
+    };
 
     const age = getAge(artist.dob);
     const height = artist.height;
     const skinTone = artist.skinTone;
-    const instagramHandle = artist.socialMedia?.instagram ;
+    const instagramHandle = artist.socialMedia?.instagram;
     const skills = artist.skills || [];
     
     return (
-        <Card>
+        <Card className="relative">
+            {isOwnProfile && isMobile && (
+                 <div className="absolute top-4 right-4 flex items-center gap-2">
+                    {isMobileEditMode ? (
+                        <>
+                            <Button variant="ghost" size="icon" onClick={handleCancelEdits}><CloseIcon className="w-5 h-5 text-destructive" /></Button>
+                            <Button variant="ghost" size="icon" onClick={handleSaveEdits}><Check className="w-5 h-5 text-green-500" /></Button>
+                        </>
+                    ) : (
+                        <Button variant="outline" size="icon" onClick={() => setIsMobileEditMode(true)}>
+                            <Edit className="w-4 h-4" />
+                        </Button>
+                    )}
+                 </div>
+            )}
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg">About</h3>
-                <p className="text-sm text-muted-foreground mt-2">{artist.bio || "No bio available."}</p>
-                {
-                    artist.role === 'artist' && (
-                        <>
-                                <div className="grid grid-cols-3 gap-4 text-sm mt-6">
-                                    <div>
-                                        <p className="text-muted-foreground">Age</p>
-                                        <p className="font-semibold">{age || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted-foreground">Height</p>
-                                        <p className="font-semibold">{height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)} inches` : 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-muted-foreground">Skin tone</p>
-                                        <p className="font-semibold">{skinTone || 'N/A'}</p>
-                                    </div>
-                                </div>
-                                <Separator className="my-6" />
-
-                                <h3 className="font-bold text-lg">Skills & Styles</h3>
-                                <div className="flex flex-wrap gap-2 mt-3">
-                                    {skills.length > 0 ? skills.map(skill => (
-                                        <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700">{skill}</Badge>
-                                    )) : <p className="text-sm text-muted-foreground">No skills specified.</p>}
-                                </div>
-                        </>
-                    )
-                }
-
+                <EditableField
+                    as="textarea"
+                    canEdit={canEdit}
+                    value={artist.bio || ""}
+                    onSave={(value) => handleFieldSave('bio', value)}
+                    className="text-sm text-muted-foreground mt-2"
+                    placeholder="No bio available."
+                />
                 
+                {artist.role === 'artist' && (
+                    <>
+                        <div className="grid grid-cols-3 gap-4 text-sm mt-6">
+                            <div>
+                                <p className="text-muted-foreground">Age</p>
+                                 <EditableField
+                                    canEdit={canEdit}
+                                    value={age?.toString() || 'N/A'}
+                                    onSave={(value) => {
+                                        const newDob = new Date();
+                                        newDob.setFullYear(newDob.getFullYear() - parseInt(value));
+                                        handleFieldSave('dob', newDob.toISOString());
+                                    }}
+                                    className="font-semibold"
+                                    placeholder="N/A"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Height</p>
+                                <EditableField
+                                    canEdit={canEdit}
+                                    value={height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)}"` : 'N/A'}
+                                    onSave={(value) => {
+                                        const parts = value.replace('"', '').split("'");
+                                        const feet = parseInt(parts[0] || '0');
+                                        const inches = parseInt(parts[1] || '0');
+                                        const cm = (feet * 30.48) + (inches * 2.54);
+                                        handleFieldSave('height', cm);
+                                    }}
+                                    className="font-semibold"
+                                    placeholder="N/A"
+                                />
+                            </div>
+                            <div>
+                                <p className="text-muted-foreground">Skin tone</p>
+                                 <EditableField
+                                    canEdit={canEdit}
+                                    value={skinTone || 'N/A'}
+                                    onSave={(value) => handleFieldSave('skinTone', value)}
+                                    className="font-semibold"
+                                    placeholder="N/A"
+                                />
+                            </div>
+                        </div>
+                        <Separator className="my-6" />
+
+                        <MultiSelectEditable
+                          isOwnProfile={canEdit}
+                          label="Skills & Styles"
+                          placeholder="Add a skill..."
+                          options={DANCE_SKILLS}
+                          value={skills}
+                          onChange={(newSkills) => handleFieldSave('skills', newSkills)}
+                      />
+                    </>
+                )}
+
                 <Separator className="my-6" />
 
                 <div className="flex items-center justify-between p-4 rounded-lg border">
@@ -74,15 +182,20 @@ export function AboutCard({ artist }: AboutCardProps) {
                         </div>
                         <div>
                             <p className="font-semibold">Instagram</p>
-                            <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
-                                { !instagramHandle ? <span>No Instagram linked.</span> : <span>instagram.com/{instagramHandle}</span> }
-                            </Link>
+                             <EditableField
+                                canEdit={canEdit}
+                                value={instagramHandle || "No Instagram linked."}
+                                onSave={(value) => handleFieldSave('socialMedia.instagram', value)}
+                                className="text-sm text-primary"
+                                placeholder="instagram.com/handle"
+                                isLink={true}
+                                linkPrefix="https://instagram.com/"
+                            />
                         </div>
                     </div>
-                    <p className="text-2xl font-bold text-muted-foreground">...</p>
                 </div>
-
             </CardContent>
         </Card>
-    )
+    );
 }
+    
