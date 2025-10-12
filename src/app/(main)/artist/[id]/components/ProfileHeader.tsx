@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { EditableField } from "./EditableField";
 import { Input } from "@/components/ui/input";
+import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
+import { DANCE_SKILLS, DANCE_STYLES } from "@/lib/skills-data";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
@@ -29,9 +31,7 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
   const [showUploader, setShowUploader] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [editedArtist, setEditedArtist] = useState(artist);
-  const [newSkill, setNewSkill] = useState("");
   const { toast } = useToast();
   
   const isOwnProfile = user?.id === artist.id;
@@ -85,25 +85,10 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         }
     }
   };
-
-
-  const handleAddSkill = async () => {
-    if (newSkill.trim() && editedArtist.role === 'artist' && !editedArtist.skills?.includes(newSkill.trim())) {
-        const updatedSkills = [...(editedArtist.skills || []), newSkill.trim()];
-        await handleFieldSave('skills', updatedSkills);
-        setNewSkill("");
-    }
-  };
-
-  const handleRemoveSkill = async (skillToRemove: string) => {
-     if (editedArtist.role === 'artist') {
-        const updatedSkills = editedArtist.skills?.filter(skill => skill !== skillToRemove);
-        await handleFieldSave('skills', updatedSkills);
-    }
-  }
   
   if (artist.role === 'artist') {
     const skills = editedArtist.skills || [];
+    const styles = editedArtist.styles || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-center gap-6">
@@ -155,33 +140,24 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             </div>
 
             <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-2">Skills & Styles</h3>
-              <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                {skills.length > 0 ? skills.map(skill => (
-                    <Badge key={skill} variant="secondary" className="bg-purple-100 text-purple-700 relative pr-6 group">
-                        {skill}
-                        {isOwnProfile && (
-                            <button onClick={() => handleRemoveSkill(skill)} className="absolute top-1/2 right-1 -translate-y-1/2 rounded-full hover:bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <CloseIcon className="w-3 h-3" />
-                            </button>
-                        )}
-                    </Badge>
-                )) : !isOwnProfile && <p className="text-sm text-muted-foreground">No skills specified.</p>}
-                {isOwnProfile && (
-                     <div className="flex items-center gap-1">
-                        <Input 
-                            value={newSkill} 
-                            onChange={(e) => setNewSkill(e.target.value)} 
-                            placeholder="Add skill" 
-                            className="h-7 w-24"
-                            onKeyDown={(e) => { if (e.key === 'Enter') handleAddSkill() }}
-                        />
-                        <Button onClick={handleAddSkill} size="icon" variant="ghost" className="h-7 w-7">
-                            <Check className="w-4 h-4" />
-                        </Button>
-                    </div>
-                )}
-              </div>
+              <MultiSelectEditable
+                  isOwnProfile={isOwnProfile}
+                  label="Skills"
+                  placeholder="Add a skill..."
+                  options={DANCE_SKILLS}
+                  value={skills}
+                  onChange={(newSkills) => handleFieldSave('skills', newSkills)}
+              />
+            </div>
+             <div className="mt-4">
+               <MultiSelectEditable
+                  isOwnProfile={isOwnProfile}
+                  label="Styles"
+                  placeholder="Add a style..."
+                  options={DANCE_STYLES}
+                  value={styles}
+                  onChange={(newStyles) => handleFieldSave('styles', newStyles)}
+              />
             </div>
           </div>
            <div className="absolute top-4 right-4 flex items-center gap-2">
@@ -328,5 +304,3 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   return null;
 }
-
-    
