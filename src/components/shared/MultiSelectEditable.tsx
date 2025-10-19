@@ -38,7 +38,6 @@ export function MultiSelectEditable({
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState("");
-  const isMobile = useIsMobile();
 
   const handleUnselect = (item: string) => {
     onChange(value.filter((i) => i !== item));
@@ -84,7 +83,7 @@ export function MultiSelectEditable({
   }
 
   return (
-    <div className={cn("group/container relative rounded-md p-2 -m-2 transition-colors", !isMobile && "hover:bg-muted/70")}>
+    <div className={cn("group/container relative rounded-md p-2 -m-2 transition-colors", isOwnProfile && "hover:bg-muted/70")}>
         <h3 className="font-semibold text-sm mb-2">{label}</h3>
         <Popover open={open} onOpenChange={setOpen}>
             <div className="flex flex-wrap gap-1 items-center">
@@ -100,7 +99,7 @@ export function MultiSelectEditable({
                     </Badge>
                 ))}
                  <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 transition-opacity", isMobile ? "opacity-100" : "opacity-0 group-hover/container:opacity-100")}>
+                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 transition-opacity opacity-0 group-hover/container:opacity-100")}>
                         <PlusCircle className="w-4 h-4 text-muted-foreground"/>
                     </Button>
                 </PopoverTrigger>

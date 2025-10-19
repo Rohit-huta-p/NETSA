@@ -45,11 +45,11 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   const [editedArtist, setEditedArtist] = useState(artist);
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [isMobileEditMode, setIsMobileEditMode] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
   const isOwnProfile = user?.id === artist.id;
-  const canEdit = isOwnProfile && (!isMobile || isMobileEditMode);
+  const canEdit = isOwnProfile && isEditMode;
 
   useEffect(() => {
     setEditedArtist(artist);
@@ -105,13 +105,13 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
   const handleSaveEdits = () => {
     // Field-by-field saves already happened
-    setIsMobileEditMode(false);
+    setIsEditMode(false);
     toast({ title: "Profile Updated", description: "Your changes have been saved." });
   };
 
   const handleCancelEdits = () => {
     setEditedArtist(artist);
-    setIsMobileEditMode(false);
+    setIsEditMode(false);
   };
 
   if (artist.role === "artist") {
@@ -133,7 +133,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 </AvatarFallback>
               </Avatar>
             </div>
-            {isOwnProfile && (!isMobile || isMobileEditMode) && (
+            {isOwnProfile && (
               <button
                 onClick={() => setShowUploader(true)}
                 className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
@@ -151,7 +151,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           <div className="flex-grow text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-1">
               <EditableField
-                canEdit={canEdit}
+                canEdit={canEdit || (isOwnProfile && !isMobile)}
                 value={`${editedArtist.firstName ?? ""} ${editedArtist.lastName ?? ""}`.trim()}
                 onSave={(value) => {
                   const [firstName, ...lastName] = value.split(" ");
@@ -163,7 +163,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 isLoading={loadingField === "firstName" || loadingField === "lastName"}
               />
               <EditableField
-                canEdit={canEdit}
+                canEdit={canEdit || (isOwnProfile && !isMobile)}
                 value={editedArtist.artistType || "Artist"}
                 onSave={(value) => handleFieldSave("artistType", value)}
                 as="badge"
@@ -174,7 +174,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
               <EditableField
-                canEdit={canEdit}
+                canEdit={canEdit || (isOwnProfile && !isMobile)}
                 value={editedArtist.email}
                 onSave={(value) => handleFieldSave("email", value)}
                 as="span"
@@ -184,7 +184,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
             <div className="mt-4">
               <MultiSelectEditable
-                isOwnProfile={isOwnProfile && (!isMobile || isMobileEditMode)}
+                isOwnProfile={isOwnProfile}
                 label="Skills"
                 placeholder="Add a skill..."
                 options={DANCE_SKILLS}
@@ -195,7 +195,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
             <div className="mt-4">
               <MultiSelectEditable
-                isOwnProfile={isOwnProfile && (!isMobile || isMobileEditMode)}
+                isOwnProfile={isOwnProfile}
                 label="Styles"
                 placeholder="Add a style..."
                 options={DANCE_STYLES}
@@ -206,8 +206,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            {isOwnProfile && isMobile ? (
-              isMobileEditMode ? (
+            {isOwnProfile ? (
+              isEditMode ? (
                 <>
                   <Button variant="ghost" size="icon" onClick={handleCancelEdits}>
                     <CloseIcon className="w-5 h-5 text-destructive" />
@@ -217,15 +217,13 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                   </Button>
                 </>
               ) : (
-                <Button variant="outline" size="icon" onClick={() => setIsMobileEditMode(true)}>
+                <Button variant="outline" size="icon" onClick={() => setIsEditMode(true)}>
                   <Edit className="w-4 h-4" />
                 </Button>
               )
-            ) : !isOwnProfile ? (
+            ) : (
               <Button>Connect</Button>
-            ) : null}
-
-            {!isOwnProfile && !isMobile && <Button>Connect</Button>}
+            )}
           </div>
         </div>
 
