@@ -113,7 +113,7 @@ export function EditableField({
       <Textarea
         {...commonInputProps}
         className={cn(
-          "h-auto bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
+          "h-auto bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
           className
         )}
         rows={3}
@@ -127,7 +127,7 @@ export function EditableField({
         {...commonInputProps}
         style={as === "heading" || as === "badge" || as === "span" ? { width: calculatedWidth } : undefined}
         className={cn(
-          "h-auto p-0 border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
+          "h-auto p-0 border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
           className,
           as === "heading" && "!text-3xl !font-bold text-gray-900 dark:text-gray-50 px-2",
           as === "span" && "text-gray-900 dark:text-gray-50 px-2",
