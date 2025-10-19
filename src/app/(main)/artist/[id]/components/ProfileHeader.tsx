@@ -32,28 +32,26 @@ import {
 
 import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
 import { DANCE_SKILLS, DANCE_STYLES } from "@/lib/skills-data";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { EditableField } from "./EditableField";
 
 interface ProfileHeaderProps {
   artist: UserProfile;
 }
 
-export function ProfileHeader({ artist }: ProfileHeaderProps) {
+export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
   const [showUploader, setShowUploader] = useState(false);
-  const [editedArtist, setEditedArtist] = useState(artist);
+  const [artist, setArtist] = useState(initialArtist);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   const [isEditMode, setIsEditMode] = useState(false);
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
-  const isOwnProfile = user?.id === artist.id;
+  const isOwnProfile = user?.id === initialArtist.id;
   const canEdit = isOwnProfile && isEditMode;
 
   useEffect(() => {
-    setEditedArtist(artist);
-  }, [artist]);
+    setArtist(initialArtist);
+  }, [initialArtist]);
 
   const handleProfileImageUpload = async (url: string) => {
     if (!user) return;
@@ -63,7 +61,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
     const result = await updateUserProfile(user.id, { profileImageUrl: url });
     if (result.success) {
       setUser(updatedProfile);
-      setEditedArtist((prev) => ({ ...prev, profileImageUrl: url }));
+      setArtist((prev) => ({ ...prev, profileImageUrl: url }));
       toast({ title: "Success", description: "Profile picture updated!" });
       setShowUploader(false);
     } else {
@@ -95,7 +93,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         (updatedUser as any)[parent] = { ...((user as any)[parent] || {}), [child]: value };
       }
       setUser(updatedUser);
-      setEditedArtist((prev) => ({ ...prev, ...updatedUser }));
+      setArtist((prev) => ({ ...prev, ...updatedUser }));
       toast({ title: "Success", description: `${String(field)} updated!` });
     } else {
       toast({ variant: "destructive", title: "Error", description: result.error });
@@ -104,19 +102,19 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   };
 
   const handleSaveEdits = () => {
-    // Field-by-field saves already happened
+    // Field-by-field saves already happened via onBlur
     setIsEditMode(false);
     toast({ title: "Profile Updated", description: "Your changes have been saved." });
   };
 
   const handleCancelEdits = () => {
-    setEditedArtist(artist);
+    setArtist(initialArtist); // Revert to original data
     setIsEditMode(false);
   };
 
   if (artist.role === "artist") {
-    const skills = editedArtist.skills || [];
-    const styles = editedArtist.styles || [];
+    const skills = artist.skills || [];
+    const styles = artist.styles || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-center gap-6">
@@ -124,12 +122,12 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 p-1">
               <Avatar className="w-full h-full border-4 border-card">
                 <AvatarImage
-                  src={editedArtist.profileImageUrl || "https://placehold.co/200x200.png"}
+                  src={artist.profileImageUrl || "https://placehold.co/200x200.png"}
                   data-ai-hint="woman portrait"
                 />
                 <AvatarFallback>
-                  {editedArtist.firstName?.[0]}
-                  {editedArtist.lastName?.[0]}
+                  {artist.firstName?.[0]}
+                  {artist.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -151,8 +149,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           <div className="flex-grow text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-1">
               <EditableField
-                canEdit={canEdit || (isOwnProfile && !isMobile)}
-                value={`${editedArtist.firstName ?? ""} ${editedArtist.lastName ?? ""}`.trim()}
+                canEdit={canEdit}
+                value={`${artist.firstName ?? ""} ${artist.lastName ?? ""}`.trim()}
                 onSave={(value) => {
                   const [firstName, ...lastName] = value.split(" ");
                   handleFieldSave("firstName", firstName);
@@ -163,8 +161,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                 isLoading={loadingField === "firstName" || loadingField === "lastName"}
               />
               <EditableField
-                canEdit={canEdit || (isOwnProfile && !isMobile)}
-                value={editedArtist.artistType || "Artist"}
+                canEdit={canEdit}
+                value={artist.artistType || "Artist"}
                 onSave={(value) => handleFieldSave("artistType", value)}
                 as="badge"
                 isLoading={loadingField === "artistType"}
@@ -174,8 +172,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
               <EditableField
-                canEdit={canEdit || (isOwnProfile && !isMobile)}
-                value={editedArtist.email}
+                canEdit={canEdit}
+                value={artist.email}
                 onSave={(value) => handleFieldSave("email", value)}
                 as="span"
                 isLoading={loadingField === "email"}
@@ -206,7 +204,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            {isOwnProfile ? (
+            {isOwnProfile && (
               isEditMode ? (
                 <>
                   <Button variant="ghost" size="icon" onClick={handleCancelEdits}>
@@ -221,9 +219,8 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
                   <Edit className="w-4 h-4" />
                 </Button>
               )
-            ) : (
-              <Button>Connect</Button>
             )}
+            {!isOwnProfile && <Button>Connect</Button>}
           </div>
         </div>
 
@@ -268,7 +265,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
   }
 
   if (artist.role === "organizer") {
-    const specialization = artist.specialization || [];
+    const specialization = (artist as any).specialization || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-start gap-6">
@@ -319,7 +316,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
               <h3 className="font-semibold text-sm mb-2">Types of Events Organized</h3>
               <div className="flex flex-wrap gap-2">
                 {specialization.length > 0 ? (
-                  specialization.map((spec) => (
+                  specialization.map((spec: string) => (
                     <Badge key={spec} variant="secondary" className="bg-purple-100 text-purple-700">
                       {spec}
                     </Badge>
@@ -332,14 +329,15 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
 
             <div className="mt-4">
               <h3 className="font-semibold text-sm mb-1">Organization/Company Name</h3>
-              <p className="text-muted-foreground text-sm">{artist.organizationName || "N/A"}</p>
+              <p className="text-muted-foreground text-sm">{(artist as any).organizationName || "N/A"}</p>
             </div>
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
             {isOwnProfile ? (
               <Button variant="outline">
-                <Edit className="w-4 h-4" />
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Profile
               </Button>
             ) : (
               <Button>Connect</Button>

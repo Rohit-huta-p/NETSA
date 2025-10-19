@@ -6,10 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import type { UserProfile } from "@/store/userStore";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Instagram, Edit, Save, X as CloseIcon, Check } from "lucide-react";
+import { Instagram, Edit, Check, X as CloseIcon } from "lucide-react";
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserProfile } from "@/lib/server/actions";
@@ -35,7 +34,6 @@ const getAge = (dob: Date | undefined | string) => {
 
 export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     const { user, setUser } = useUserStore();
-    const isMobile = useIsMobile();
     const { toast } = useToast();
     
     const [artist, setArtist] = useState(initialArtist);
@@ -78,11 +76,12 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
 
     const handleSaveEdits = () => {
         setIsEditMode(false);
+        // Field-by-field saves already happened, so we just give a summary toast.
         toast({ title: "Profile Updated", description: "Your changes have been saved." });
     };
 
     const handleCancelEdits = () => {
-        setArtist(initialArtist); 
+        setArtist(initialArtist); // Revert any non-saved changes if needed.
         setIsEditMode(false);
     };
 
@@ -112,7 +111,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                 <h3 className="font-bold text-lg">About</h3>
                 <EditableField
                     as="textarea"
-                    canEdit={canEdit || (isOwnProfile && !isMobile)}
+                    canEdit={canEdit}
                     value={artist.bio || ""}
                     onSave={(value) => handleFieldSave('bio', value)}
                     className="text-sm text-muted-foreground mt-2"
@@ -126,7 +125,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Age</p>
                                  <EditableField
-                                    canEdit={canEdit || (isOwnProfile && !isMobile)}
+                                    canEdit={canEdit}
                                     value={age?.toString() || 'N/A'}
                                     onSave={(value) => {
                                         const newDob = new Date();
@@ -141,7 +140,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Height</p>
                                 <EditableField
-                                    canEdit={canEdit || (isOwnProfile && !isMobile)}
+                                    canEdit={canEdit}
                                     value={height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)}"` : 'N/A'}
                                     onSave={(value) => {
                                         const parts = value.replace('"', '').split("'");
@@ -158,7 +157,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Skin tone</p>
                                  <EditableField
-                                    canEdit={canEdit || (isOwnProfile && !isMobile)}
+                                    canEdit={canEdit}
                                     value={skinTone || 'N/A'}
                                     onSave={(value) => handleFieldSave('skinTone', value)}
                                     className="font-semibold"
@@ -190,7 +189,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                         <div>
                             <p className="font-semibold">Instagram</p>
                              <EditableField
-                                canEdit={canEdit || (isOwnProfile && !isMobile)}
+                                canEdit={canEdit}
                                 value={instagramHandle || "No Instagram linked."}
                                 onSave={(value) => handleFieldSave('socialMedia.instagram', value)}
                                 className="text-sm text-primary"

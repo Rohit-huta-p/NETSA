@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { TextShimmer } from "@/components/core/TextShimmer";
 
 interface EditableFieldProps {
@@ -35,8 +34,6 @@ export function EditableField({
   isLoading = false,
 }: EditableFieldProps) {
   const [currentValue, setCurrentValue] = useState(value);
-  const [isEditing, setIsEditing] = useState(false);
-  const isMobile = useIsMobile();
 
   // Keep internal value in sync with external changes
   useEffect(() => {
@@ -47,17 +44,10 @@ export function EditableField({
     if (currentValue !== value) {
       onSave(currentValue);
     }
-    setIsEditing(false);
   };
 
-  const isCurrentlyEditing = isMobile ? canEdit : isEditing;
-
   // DISPLAY (not editing)
-  if (!isCurrentlyEditing) {
-    const hoverClasses =
-      canEdit && !isMobile
-        ? "hover:bg-gray-100/10 dark:hover:bg-white/10 rounded-md cursor-text"
-        : "";
+  if (!canEdit) {
     const Wrapper =
       as === "heading" ? "div" : as === "badge" ? "div" : as === "textarea" ? "p" : "span";
 
@@ -65,22 +55,14 @@ export function EditableField({
 
     if (isLoading) {
         return (
-            <div className={cn(className, "px-2 py-1 -mx-2 -my-1")}>
+            <div className={cn(className)}>
                 <TextShimmer duration={1.5}>{displayValue}</TextShimmer>
             </div>
         )
     }
 
     return (
-      <Wrapper
-        onClick={() => canEdit && !isMobile && setIsEditing(true)}
-        className={cn(
-          "transition-colors",
-          hoverClasses,
-          (as === "span" || as === "textarea") && "px-2 py-1 -mx-2 -my-1",
-          as === "heading" && "px-2 -mx-2 rounded-lg"
-        )}
-      >
+      <Wrapper className={cn("transition-colors")}>
         {as === "badge" ? (
           <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>
             {displayValue}
@@ -120,10 +102,6 @@ export function EditableField({
       setCurrentValue(e.target.value),
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (e.key === "Enter" && as !== "textarea") handleSave();
-      if (e.key === "Escape") {
-        setCurrentValue(value);
-        setIsEditing(false);
-      }
     },
     onBlur: handleSave,
     autoFocus: true,
