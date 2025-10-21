@@ -2,12 +2,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import {
   Mail,
   Star,
   Camera,
   Loader2,
+  Edit,
+  Save,
+  X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -22,7 +24,11 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
 import { DANCE_SKILLS, DANCE_STYLES } from "@/lib/skills-data";
@@ -34,68 +40,75 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
   const { user, setUser } = useUserStore();
-  const [showUploader, setShowUploader] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [artist, setArtist] = useState(initialArtist);
   const { toast } = useToast();
-  const [loadingField, setLoadingField] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form state for the edit modal
+  const [editData, setEditData] = useState({
+      firstName: initialArtist.firstName || '',
+      lastName: initialArtist.lastName || '',
+      artistType: initialArtist.artistType || '',
+      email: initialArtist.email || '',
+      skills: initialArtist.skills || [],
+      styles: initialArtist.styles || [],
+      profileImageUrl: initialArtist.profileImageUrl || ''
+  });
 
   const isOwnProfile = user?.id === initialArtist.id;
 
   useEffect(() => {
     setArtist(initialArtist);
+    setEditData({
+      firstName: initialArtist.firstName || '',
+      lastName: initialArtist.lastName || '',
+      artistType: initialArtist.artistType || '',
+      email: initialArtist.email || '',
+      skills: initialArtist.skills || [],
+      styles: initialArtist.styles || [],
+      profileImageUrl: initialArtist.profileImageUrl || ''
+    });
   }, [initialArtist]);
 
   const handleProfileImageUpload = async (url: string) => {
+      setEditData(prev => ({ ...prev, profileImageUrl: url }));
+  };
+
+  const handleModalSave = async () => {
     if (!user) return;
-    setLoadingField("profileImageUrl");
-    const updatedProfile = { ...user, profileImageUrl: url };
+    setIsSubmitting(true);
 
-    const result = await updateUserProfile(user.id, { profileImageUrl: url });
-    if (result.success) {
-      setUser(updatedProfile);
-      setArtist((prev) => ({ ...prev, profileImageUrl: url }));
-      toast({ title: "Success", description: "Profile picture updated!" });
-      setShowUploader(false);
-    } else {
-      toast({ variant: "destructive", title: "Error", description: result.error });
-    }
-    setLoadingField(null);
-  };
-
-  const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
-    if (!user || !isOwnProfile) return;
-
-    setLoadingField(field);
-    const updateData: { [key: string]: any } = {};
-
-    if (field.includes(".")) {
-      const [parent, child] = field.split(".");
-      const currentParent = (user as any)[parent] || {};
-      updateData[parent] = { ...currentParent, [child]: value };
-    } else {
-      updateData[field] = value;
-    }
-
-    const result = await updateUserProfile(user.id, updateData);
+    const result = await updateUserProfile(user.id, {
+        firstName: editData.firstName,
+        lastName: editData.lastName,
+        artistType: editData.artistType,
+        email: editData.email,
+        skills: editData.skills,
+        styles: editData.styles,
+        profileImageUrl: editData.profileImageUrl
+    });
 
     if (result.success) {
-      const updatedUser = { ...user, ...updateData };
-      if (field.includes(".")) {
-        const [parent, child] = field.split(".");
-        (updatedUser as any)[parent] = { ...((user as any)[parent] || {}), [child]: value };
-      }
+      const updatedUser = { 
+          ...user, 
+          ...editData 
+      };
       setUser(updatedUser);
-      setArtist((prev) => ({ ...prev, ...updatedUser }));
-      toast({ title: "Success", description: `${String(field)} updated!` });
+      setArtist(prev => ({ ...prev, ...updatedUser }));
+      toast({ title: "Success", description: `Profile updated successfully!` });
+      setIsEditModalOpen(false);
     } else {
       toast({ variant: "destructive", title: "Error", description: result.error });
     }
-    setLoadingField(null);
+    setIsSubmitting(false);
   };
+  
+  const handleInputChange = (field: keyof typeof editData, value: any) => {
+      setEditData(prev => ({...prev, [field]: value}))
+  }
 
   if (artist.role === "artist") {
-    const skills = artist.skills || [];
-    const styles = artist.styles || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
         <div className="flex flex-col md:flex-row items-center gap-6">
@@ -112,80 +125,51 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
                 </AvatarFallback>
               </Avatar>
             </div>
-            {isOwnProfile && (
-              <button
-                onClick={() => setShowUploader(true)}
-                className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
-                disabled={loadingField !== null}
-              >
-                {loadingField === "profileImageUrl" ? (
-                  <Loader2 className="w-6 h-6 text-white animate-spin" />
-                ) : (
-                  <Camera className="w-6 h-6 text-white" />
-                )}
-              </button>
-            )}
           </div>
 
           <div className="flex-grow text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-1">
-              <EditableField
-                isOwnProfile={isOwnProfile}
-                value={`${artist.firstName ?? ""} ${artist.lastName ?? ""}`.trim()}
-                onSave={(value) => {
-                  const [firstName, ...lastName] = value.split(" ");
-                  handleFieldSave("firstName", firstName);
-                  handleFieldSave("lastName", lastName.join(" "));
-                }}
-                className="text-3xl font-bold bg-muted/50"
-                as="heading"
-                isLoading={loadingField === "firstName" || loadingField === "lastName"}
-              />
-              <EditableField
-                isOwnProfile={isOwnProfile}
-                value={artist.artistType || "Artist"}
-                onSave={(value) => handleFieldSave("artistType", value)}
-                as="badge"
-                isLoading={loadingField === "artistType"}
-              />
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <h1 className="text-3xl font-bold">{`${artist.firstName ?? ""} ${artist.lastName ?? ""}`.trim()}</h1>
+              <EditableField value={artist.artistType || "Artist"} as="badge" />
             </div>
 
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
-              <EditableField
-                isOwnProfile={isOwnProfile}
-                value={artist.email}
-                onSave={(value) => handleFieldSave("email", value)}
-                as="span"
-                isLoading={loadingField === "email"}
-              />
+              <EditableField value={artist.email} />
             </div>
 
             <div className="mt-4">
               <MultiSelectEditable
-                isOwnProfile={isOwnProfile}
+                isOwnProfile={false} // Display only
                 label="Skills"
-                placeholder="Add a skill..."
+                placeholder=""
                 options={DANCE_SKILLS}
-                value={skills}
-                onChange={(newSkills) => handleFieldSave("skills", newSkills)}
+                value={artist.skills || []}
+                onChange={() => {}}
               />
             </div>
 
             <div className="mt-4">
               <MultiSelectEditable
-                isOwnProfile={isOwnProfile}
+                isOwnProfile={false} // Display only
                 label="Styles"
-                placeholder="Add a style..."
+                placeholder=""
                 options={DANCE_STYLES}
-                value={styles}
-                onChange={(newStyles) => handleFieldSave("styles", newStyles)}
+                value={artist.styles || []}
+                onChange={() => {}}
               />
             </div>
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            {!isOwnProfile && <Button>Connect</Button>}
+            {isOwnProfile ? (
+              <Button variant="outline" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                <Edit className="w-4 h-4 mr-2"/>
+                Edit Profile
+              </Button>
+            ) : (
+              <Button>Connect</Button>
+            )}
           </div>
         </div>
 
@@ -209,27 +193,77 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
           </div>
         </div>
 
-        <Dialog open={showUploader} onOpenChange={setShowUploader}>
-          <DialogContent>
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="sm:max-w-[625px]">
             <DialogHeader>
-              <DialogTitle>Update Profile Picture</DialogTitle>
-              <DialogDescription>Upload a new image to use as your profile avatar.</DialogDescription>
+              <DialogTitle>Edit Profile Header</DialogTitle>
+              <DialogDescription>Make changes to your main profile information.</DialogDescription>
             </DialogHeader>
-            <div className="mt-4">
-              <ImageUpload
-                onUpload={handleProfileImageUpload}
-                storagePath={`profile-images/${user?.id}`}
-                currentImageUrl={user?.profileImageUrl}
-                label=""
-              />
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                 <ImageUpload
+                    onUpload={handleProfileImageUpload}
+                    storagePath={`profile-images/${user?.id}`}
+                    currentImageUrl={editData.profileImageUrl}
+                    label="Profile Picture"
+                 />
+              </div>
+               <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input id="firstName" value={editData.firstName} onChange={e => handleInputChange('firstName', e.target.value)} />
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input id="lastName" value={editData.lastName} onChange={e => handleInputChange('lastName', e.target.value)} />
+                  </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="artistType">Artist Type</Label>
+                <Input id="artistType" value={editData.artistType} onChange={e => handleInputChange('artistType', e.target.value)} />
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={editData.email} onChange={e => handleInputChange('email', e.target.value)} />
+              </div>
+               <div className="space-y-2">
+                    <MultiSelectEditable
+                        isOwnProfile={true}
+                        label="Skills"
+                        placeholder="Add a skill..."
+                        options={DANCE_SKILLS}
+                        value={editData.skills}
+                        onChange={(newSkills) => handleInputChange('skills', newSkills)}
+                    />
+              </div>
+               <div className="space-y-2">
+                   <MultiSelectEditable
+                        isOwnProfile={true}
+                        label="Styles"
+                        placeholder="Add a style..."
+                        options={DANCE_STYLES}
+                        value={editData.styles}
+                        onChange={(newStyles) => handleInputChange('styles', newStyles)}
+                    />
+              </div>
             </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
+              </DialogClose>
+              <Button onClick={handleModalSave} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Save Changes
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
     );
   }
 
-  if (artist.role === "organizer") {
+  // ... (organizer role remains unchanged)
+   if (artist.role === "organizer") {
     const specialization = (artist as any).specialization || [];
     return (
       <div className="bg-card p-6 rounded-lg shadow-sm relative border">
@@ -247,14 +281,6 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
                 </AvatarFallback>
               </Avatar>
             </div>
-            {isOwnProfile && (
-              <button
-                onClick={() => setShowUploader(true)}
-                className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity"
-              >
-                <Camera className="w-6 h-6 text-white" />
-              </button>
-            )}
           </div>
 
           <div className="flex-grow">
@@ -311,26 +337,11 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
             <p className="text-sm text-muted-foreground">Rating</p>
           </div>
         </div>
-
-        <Dialog open={showUploader} onOpenChange={setShowUploader}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Update Profile Picture</DialogTitle>
-              <DialogDescription>Upload a new image to use as your profile avatar.</DialogDescription>
-            </DialogHeader>
-            <div className="mt-4">
-              <ImageUpload
-                onUpload={handleProfileImageUpload}
-                storagePath={`profile-images/${user?.id}`}
-                currentImageUrl={user?.profileImageUrl}
-                label=""
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     );
   }
 
   return null;
 }
+
+    

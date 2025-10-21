@@ -1,18 +1,31 @@
 
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { UserProfile } from "@/store/userStore";
 import Link from "next/link";
-import { Instagram } from "lucide-react";
-import { useState } from "react";
+import { Instagram, Edit, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useUserStore } from "@/store/userStore";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserProfile } from "@/lib/server/actions";
 import { EditableField } from "./EditableField";
 import { DANCE_SKILLS } from "@/lib/skills-data";
 import { MultiSelectEditable } from "@/components/shared/MultiSelectEditable";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AboutCardProps {
     artist: UserProfile;
@@ -35,40 +48,62 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     const { toast } = useToast();
     
     const [artist, setArtist] = useState(initialArtist);
-    const [loadingField, setLoadingField] = useState<string | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const [editData, setEditData] = useState({
+        bio: initialArtist.bio || "",
+        dob: initialArtist.dob ? new Date(initialArtist.dob).toISOString().split('T')[0] : "",
+        height: initialArtist.height || 0,
+        skinTone: initialArtist.skinTone || "",
+        skills: initialArtist.skills || [],
+        instagram: initialArtist.socialMedia?.instagram || ""
+    });
 
     const isOwnProfile = user?.id === artist.id;
 
-    const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
-        if (!user || !isOwnProfile) return;
-        setLoadingField(field);
+    useEffect(() => {
+        setArtist(initialArtist);
+        setEditData({
+            bio: initialArtist.bio || "",
+            dob: initialArtist.dob ? new Date(initialArtist.dob).toISOString().split('T')[0] : "",
+            height: initialArtist.height || 0,
+            skinTone: initialArtist.skinTone || "",
+            skills: initialArtist.skills || [],
+            instagram: initialArtist.socialMedia?.instagram || ""
+        });
+    }, [initialArtist]);
 
-        const updateData: { [key: string]: any } = {};
-        
-        if (field.includes('.')) {
-            const [parent, child] = field.split('.');
-            const currentParent = (user as any)[parent] || {};
-            updateData[parent] = { ...currentParent, [child]: value };
-        } else {
-            updateData[field] = value;
-        }
+    const handleModalSave = async () => {
+        if (!user) return;
+        setIsSubmitting(true);
+
+        const updateData: Partial<UserProfile> & { socialMedia?: { instagram?: string } } = {
+            bio: editData.bio,
+            dob: editData.dob ? new Date(editData.dob) : undefined,
+            height: Number(editData.height),
+            skinTone: editData.skinTone,
+            skills: editData.skills,
+            socialMedia: { instagram: editData.instagram }
+        };
 
         const result = await updateUserProfile(user.id, updateData);
 
         if (result.success) {
             const updatedUser = { ...user, ...updateData };
-             if (field.includes('.')) {
-                const [parent, child] = field.split('.');
-                updatedUser[parent] = { ...((user as any)[parent] || {}), [child]: value };
-            }
             setUser(updatedUser);
             setArtist(prev => ({...prev, ...updatedUser}));
-            toast({ title: "Success", description: `${String(field)} updated!` });
+            toast({ title: "Success", description: "About section updated!" });
+            setIsEditModalOpen(false);
         } else {
              toast({ variant: 'destructive', title: "Error", description: result.error });
         }
-        setLoadingField(null);
+        setIsSubmitting(false);
     };
+
+    const handleInputChange = (field: keyof typeof editData, value: any) => {
+      setEditData(prev => ({...prev, [field]: value}))
+    }
 
     const age = getAge(artist.dob);
     const height = artist.height;
@@ -78,74 +113,48 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     
     return (
         <Card className="relative">
-            <CardContent className="p-6">
-                <h3 className="font-bold text-lg">About</h3>
-                <EditableField
-                    isOwnProfile={isOwnProfile}
-                    as="textarea"
-                    value={artist.bio || ""}
-                    onSave={(value) => handleFieldSave('bio', value)}
-                    className="text-sm text-muted-foreground mt-2 bg-muted/50"
-                    placeholder="No bio available."
-                    isLoading={loadingField === 'bio'}
-                />
+             {isOwnProfile && (
+                <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setIsEditModalOpen(true)}
+                    className="absolute top-4 right-4"
+                >
+                    <Edit className="w-4 h-4 mr-2"/>
+                    Edit
+                </Button>
+            )}
+            <CardHeader>
+                 <h3 className="font-bold text-lg">About</h3>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm text-muted-foreground mt-2 whitespace-pre-line">{artist.bio || "No bio available."}</p>
                 
                 {artist.role === 'artist' && (
                     <>
                         <div className="grid grid-cols-3 gap-4 text-sm mt-6">
                             <div>
                                 <p className="text-muted-foreground">Age</p>
-                                 <EditableField
-                                    isOwnProfile={isOwnProfile}
-                                    value={age?.toString() || 'N/A'}
-                                    onSave={(value) => {
-                                        const newDob = new Date();
-                                        newDob.setFullYear(newDob.getFullYear() - parseInt(value));
-                                        handleFieldSave('dob', newDob.toISOString());
-                                    }}
-                                    className="font-semibold bg-muted/50"
-                                    placeholder="N/A"
-                                    isLoading={loadingField === 'dob'}
-                                />
+                                <p className="font-semibold">{age || 'N/A'}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground">Height</p>
-                                <EditableField
-                                    isOwnProfile={isOwnProfile}
-                                    value={height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)}"` : 'N/A'}
-                                    onSave={(value) => {
-                                        const parts = value.replace('"', '').split("'");
-                                        const feet = parseInt(parts[0] || '0');
-                                        const inches = parseInt(parts[1] || '0');
-                                        const cm = (feet * 30.48) + (inches * 2.54);
-                                        handleFieldSave('height', cm);
-                                    }}
-                                    className="font-semibold bg-muted/50"
-                                    placeholder="N/A"
-                                    isLoading={loadingField === 'height'}
-                                />
+                                <p className="font-semibold">{height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)}"` : 'N/A'}</p>
                             </div>
                             <div>
                                 <p className="text-muted-foreground">Skin tone</p>
-                                 <EditableField
-                                    isOwnProfile={isOwnProfile}
-                                    value={skinTone || 'N/A'}
-                                    onSave={(value) => handleFieldSave('skinTone', value)}
-                                    className="font-semibold bg-muted/50"
-                                    placeholder="N/A"
-                                    isLoading={loadingField === 'skinTone'}
-                                />
+                                 <p className="font-semibold">{skinTone || 'N/A'}</p>
                             </div>
                         </div>
                         <Separator className="my-6" />
 
                         <MultiSelectEditable
-                          isOwnProfile={isOwnProfile}
+                          isOwnProfile={false} // Display only
                           label="Skills & Styles"
-                          placeholder="Add a skill..."
+                          placeholder=""
                           options={DANCE_SKILLS}
                           value={skills}
-                          onChange={(newSkills) => handleFieldSave('skills', newSkills)}
+                          onChange={() => {}}
                       />
                     </>
                 )}
@@ -159,20 +168,69 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                         </div>
                         <div>
                             <p className="font-semibold">Instagram</p>
-                             <EditableField
-                                isOwnProfile={isOwnProfile}
-                                value={instagramHandle || "No Instagram linked."}
-                                onSave={(value) => handleFieldSave('socialMedia.instagram', value)}
-                                className="text-sm text-primary bg-muted/50"
-                                placeholder="instagram.com/handle"
-                                isLink={true}
-                                linkPrefix="https://instagram.com/"
-                                isLoading={loadingField === 'socialMedia.instagram'}
-                            />
+                            {instagramHandle ? (
+                                <Link href={`https://instagram.com/${instagramHandle}`} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">{instagramHandle}</Link>
+                            ) : (
+                                <p className="text-sm text-muted-foreground">No Instagram linked.</p>
+                            )}
                         </div>
                     </div>
                 </div>
             </CardContent>
+
+             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                <DialogContent className="sm:max-w-[625px]">
+                    <DialogHeader>
+                    <DialogTitle>Edit About Section</DialogTitle>
+                    <DialogDescription>Update your personal and professional details.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="bio">Bio</Label>
+                            <Textarea id="bio" value={editData.bio} onChange={e => handleInputChange('bio', e.target.value)} rows={4} />
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="dob">Date of Birth</Label>
+                                <Input id="dob" type="date" value={editData.dob} onChange={e => handleInputChange('dob', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="height">Height (cm)</Label>
+                                <Input id="height" type="number" value={editData.height} onChange={e => handleInputChange('height', e.target.value)} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="skinTone">Skin Tone</Label>
+                                <Input id="skinTone" value={editData.skinTone} onChange={e => handleInputChange('skinTone', e.target.value)} />
+                            </div>
+                        </div>
+                         <div className="space-y-2">
+                             <MultiSelectEditable
+                                isOwnProfile={true}
+                                label="Skills & Styles"
+                                placeholder="Add a skill..."
+                                options={DANCE_SKILLS}
+                                value={editData.skills}
+                                onChange={(newSkills) => handleInputChange('skills', newSkills)}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="instagram">Instagram Handle</Label>
+                            <Input id="instagram" value={editData.instagram} onChange={e => handleInputChange('instagram', e.target.value)} />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={handleModalSave} disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Save Changes
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }
+
+    
