@@ -114,7 +114,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                     canEdit={canEdit}
                     value={artist.bio || ""}
                     onSave={(value) => handleFieldSave('bio', value)}
-                    className="text-sm text-muted-foreground mt-2"
+                    className="text-sm text-muted-foreground mt-2 bg-muted/50"
                     placeholder="No bio available."
                     isLoading={loadingField === 'bio'}
                 />
@@ -132,7 +132,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                         newDob.setFullYear(newDob.getFullYear() - parseInt(value));
                                         handleFieldSave('dob', newDob.toISOString());
                                     }}
-                                    className="font-semibold"
+                                    className="font-semibold bg-muted/50"
                                     placeholder="N/A"
                                     isLoading={loadingField === 'dob'}
                                 />
@@ -149,7 +149,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                         const cm = (feet * 30.48) + (inches * 2.54);
                                         handleFieldSave('height', cm);
                                     }}
-                                    className="font-semibold"
+                                    className="font-semibold bg-muted/50"
                                     placeholder="N/A"
                                     isLoading={loadingField === 'height'}
                                 />
@@ -160,7 +160,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                     canEdit={canEdit}
                                     value={skinTone || 'N/A'}
                                     onSave={(value) => handleFieldSave('skinTone', value)}
-                                    className="font-semibold"
+                                    className="font-semibold bg-muted/50"
                                     placeholder="N/A"
                                     isLoading={loadingField === 'skinTone'}
                                 />
@@ -192,7 +192,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                                 canEdit={canEdit}
                                 value={instagramHandle || "No Instagram linked."}
                                 onSave={(value) => handleFieldSave('socialMedia.instagram', value)}
-                                className="text-sm text-primary"
+                                className="text-sm text-primary bg-muted/50"
                                 placeholder="instagram.com/handle"
                                 isLink={true}
                                 linkPrefix="https://instagram.com/"
@@ -205,4 +205,5 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
         </Card>
     );
 }
+
     

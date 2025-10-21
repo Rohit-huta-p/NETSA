@@ -156,7 +156,7 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
                   handleFieldSave("firstName", firstName);
                   handleFieldSave("lastName", lastName.join(" "));
                 }}
-                className="text-3xl font-bold"
+                className="text-3xl font-bold bg-muted/50"
                 as="heading"
                 isLoading={loadingField === "firstName" || loadingField === "lastName"}
               />
@@ -387,3 +387,5 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
 
   return null;
 }
+
+    
