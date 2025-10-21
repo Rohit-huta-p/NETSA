@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { TextShimmer } from "@/components/core/TextShimmer";
 
 interface EditableFieldProps {
-  canEdit: boolean;
+  isOwnProfile: boolean;
   value: string;
   onSave: (newValue: string) => void;
   className?: string;
@@ -23,7 +23,7 @@ interface EditableFieldProps {
 }
 
 export function EditableField({
-  canEdit,
+  isOwnProfile,
   value,
   onSave,
   className,
@@ -33,6 +33,7 @@ export function EditableField({
   linkPrefix = "",
   isLoading = false,
 }: EditableFieldProps) {
+  const [isEditing, setIsEditing] = useState(false);
   const [currentValue, setCurrentValue] = useState(value);
 
   // Keep internal value in sync with external changes
@@ -44,12 +45,19 @@ export function EditableField({
     if (currentValue !== value) {
       onSave(currentValue);
     }
+    setIsEditing(false);
+  };
+
+  const handleWrapperClick = () => {
+    if (isOwnProfile) {
+      setIsEditing(true);
+    }
   };
 
   // DISPLAY (not editing)
-  if (!canEdit) {
+  if (!isEditing || !isOwnProfile) {
     const Wrapper =
-      as === "heading" ? "div" : as === "badge" ? "div" : as === "textarea" ? "p" : "span";
+      as === "heading" ? "div" : as === "badge" ? "div" : as === "textarea" ? "p" : "div";
 
     const displayValue = value || placeholder || "";
 
@@ -62,7 +70,7 @@ export function EditableField({
     }
 
     return (
-      <Wrapper className={cn("transition-colors")}>
+      <Wrapper className={cn("transition-colors rounded-sm", isOwnProfile && "hover:bg-muted/70 -m-1 p-1 cursor-pointer")} onClick={handleWrapperClick}>
         {as === "badge" ? (
           <Badge className={cn("bg-purple-600 text-white hover:bg-purple-700", className)}>
             {displayValue}
@@ -73,13 +81,14 @@ export function EditableField({
           </p>
         ) : isLink ? (
           displayValue.includes("No ") ? (
-            <span className={className}>{displayValue}</span>
+            <span className={cn(className, !value && "text-muted-foreground/70")}>{displayValue}</span>
           ) : (
             <Link
               href={`${linkPrefix}${displayValue}`}
               target="_blank"
               rel="noopener noreferrer"
               className={cn("hover:underline", className)}
+              onClick={(e) => e.stopPropagation()} // Prevent wrapper click from triggering edit
             >
               {displayValue}
             </Link>
@@ -102,6 +111,7 @@ export function EditableField({
       setCurrentValue(e.target.value),
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (e.key === "Enter" && as !== "textarea") handleSave();
+      if (e.key === "Escape") setIsEditing(false);
     },
     onBlur: handleSave,
     autoFocus: true,
@@ -125,7 +135,7 @@ export function EditableField({
     <div className="flex items-center">
       <Input
         {...commonInputProps}
-        style={as === "heading" || as === "badge" || as === "span" ? { width: calculatedWidth } : undefined}
+        style={as === "heading" || as === "badge" || as === "span" ? { width: calculatedWidth, minWidth: '10ch' } : undefined}
         className={cn(
           "h-auto p-0 border-0 bg-muted/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-0 rounded-sm",
           className,

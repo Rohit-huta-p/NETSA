@@ -6,17 +6,11 @@ import Link from "next/link";
 import {
   Mail,
   Star,
-  Edit,
   Camera,
-  MapPin,
-  Phone,
-  Check,
-  X as CloseIcon,
   Loader2,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import type { UserProfile } from "@/store/userStore";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useUserStore } from "@/store/userStore";
@@ -43,11 +37,9 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
   const [showUploader, setShowUploader] = useState(false);
   const [artist, setArtist] = useState(initialArtist);
   const { toast } = useToast();
-  const [isEditMode, setIsEditMode] = useState(false);
   const [loadingField, setLoadingField] = useState<string | null>(null);
 
   const isOwnProfile = user?.id === initialArtist.id;
-  const canEdit = isOwnProfile && isEditMode;
 
   useEffect(() => {
     setArtist(initialArtist);
@@ -101,17 +93,6 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
     setLoadingField(null);
   };
 
-  const handleSaveEdits = () => {
-    // Field-by-field saves already happened via onBlur
-    setIsEditMode(false);
-    toast({ title: "Profile Updated", description: "Your changes have been saved." });
-  };
-
-  const handleCancelEdits = () => {
-    setArtist(initialArtist); // Revert to original data
-    setIsEditMode(false);
-  };
-
   if (artist.role === "artist") {
     const skills = artist.skills || [];
     const styles = artist.styles || [];
@@ -149,7 +130,7 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
           <div className="flex-grow text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-1">
               <EditableField
-                canEdit={canEdit}
+                isOwnProfile={isOwnProfile}
                 value={`${artist.firstName ?? ""} ${artist.lastName ?? ""}`.trim()}
                 onSave={(value) => {
                   const [firstName, ...lastName] = value.split(" ");
@@ -161,7 +142,7 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
                 isLoading={loadingField === "firstName" || loadingField === "lastName"}
               />
               <EditableField
-                canEdit={canEdit}
+                isOwnProfile={isOwnProfile}
                 value={artist.artistType || "Artist"}
                 onSave={(value) => handleFieldSave("artistType", value)}
                 as="badge"
@@ -172,7 +153,7 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
             <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Mail className="w-4 h-4" />
               <EditableField
-                canEdit={canEdit}
+                isOwnProfile={isOwnProfile}
                 value={artist.email}
                 onSave={(value) => handleFieldSave("email", value)}
                 as="span"
@@ -204,22 +185,6 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            {isOwnProfile && (
-              isEditMode ? (
-                <>
-                  <Button variant="ghost" size="icon" onClick={handleCancelEdits}>
-                    <CloseIcon className="w-5 h-5 text-destructive" />
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={handleSaveEdits}>
-                    <Check className="w-5 h-5 text-green-500" />
-                  </Button>
-                </>
-              ) : (
-                <Button variant="outline" size="icon" onClick={() => setIsEditMode(true)}>
-                  <Edit className="w-4 h-4" />
-                </Button>
-              )
-            )}
             {!isOwnProfile && <Button>Connect</Button>}
           </div>
         </div>
@@ -293,23 +258,17 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
           </div>
 
           <div className="flex-grow">
-            <div className="flex items-center justify-start gap-4">
-              <h1 className="text-3xl font-bold">
-                {artist.firstName} {artist.lastName}
-              </h1>
-              <Badge className="bg-blue-600 text-white hover:bg-blue-700 capitalize">{artist.role}</Badge>
-            </div>
+            <h1 className="text-3xl font-bold">
+              {artist.firstName} {artist.lastName}
+            </h1>
+            
+            <p className="text-muted-foreground mt-1 text-sm">
+                {(artist as any).jobTitle || 'Organizer'} at <span className="font-semibold">{(artist as any).organizationName || "Self-employed"}</span>
+            </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 mt-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" /> <span>{artist.city}, {artist.country}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4" /> <span>{artist.email}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4" /> <span>{artist.phoneNumber || "Not provided"}</span>
-              </div>
+             <div className="flex items-center gap-2 mt-1">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">{artist.email}</span>
             </div>
 
             <div className="mt-4">
@@ -326,22 +285,10 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
                 )}
               </div>
             </div>
-
-            <div className="mt-4">
-              <h3 className="font-semibold text-sm mb-1">Organization/Company Name</h3>
-              <p className="text-muted-foreground text-sm">{(artist as any).organizationName || "N/A"}</p>
-            </div>
           </div>
 
           <div className="absolute top-4 right-4 flex items-center gap-2">
-            {isOwnProfile ? (
-              <Button variant="outline">
-                <Edit className="w-4 h-4 mr-2" />
-                Edit Profile
-              </Button>
-            ) : (
-              <Button>Connect</Button>
-            )}
+            {!isOwnProfile && <Button>Connect</Button>}
           </div>
         </div>
 
@@ -387,5 +334,3 @@ export function ProfileHeader({ artist: initialArtist }: ProfileHeaderProps) {
 
   return null;
 }
-
-    

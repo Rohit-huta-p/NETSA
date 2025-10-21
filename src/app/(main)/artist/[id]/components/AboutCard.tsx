@@ -4,12 +4,10 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { UserProfile } from "@/store/userStore";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Instagram, Edit, Check, X as CloseIcon } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { useState } from "react";
 import { useUserStore } from "@/store/userStore";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { updateUserProfile } from "@/lib/server/actions";
 import { EditableField } from "./EditableField";
@@ -37,11 +35,9 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     const { toast } = useToast();
     
     const [artist, setArtist] = useState(initialArtist);
-    const [isEditMode, setIsEditMode] = useState(false);
     const [loadingField, setLoadingField] = useState<string | null>(null);
 
     const isOwnProfile = user?.id === artist.id;
-    const canEdit = isOwnProfile && isEditMode;
 
     const handleFieldSave = async (field: keyof UserProfile | string, value: any) => {
         if (!user || !isOwnProfile) return;
@@ -74,17 +70,6 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
         setLoadingField(null);
     };
 
-    const handleSaveEdits = () => {
-        setIsEditMode(false);
-        // Field-by-field saves already happened, so we just give a summary toast.
-        toast({ title: "Profile Updated", description: "Your changes have been saved." });
-    };
-
-    const handleCancelEdits = () => {
-        setArtist(initialArtist); // Revert any non-saved changes if needed.
-        setIsEditMode(false);
-    };
-
     const age = getAge(artist.dob);
     const height = artist.height;
     const skinTone = artist.skinTone;
@@ -93,25 +78,11 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
     
     return (
         <Card className="relative">
-            {isOwnProfile && (
-                 <div className="absolute top-4 right-4 flex items-center gap-2">
-                    {isEditMode ? (
-                        <>
-                            <Button variant="ghost" size="icon" onClick={handleCancelEdits}><CloseIcon className="w-5 h-5 text-destructive" /></Button>
-                            <Button variant="ghost" size="icon" onClick={handleSaveEdits}><Check className="w-5 h-5 text-green-500" /></Button>
-                        </>
-                    ) : (
-                        <Button variant="outline" size="icon" onClick={() => setIsEditMode(true)}>
-                            <Edit className="w-4 h-4" />
-                        </Button>
-                    )}
-                 </div>
-            )}
             <CardContent className="p-6">
                 <h3 className="font-bold text-lg">About</h3>
                 <EditableField
+                    isOwnProfile={isOwnProfile}
                     as="textarea"
-                    canEdit={canEdit}
                     value={artist.bio || ""}
                     onSave={(value) => handleFieldSave('bio', value)}
                     className="text-sm text-muted-foreground mt-2 bg-muted/50"
@@ -125,7 +96,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Age</p>
                                  <EditableField
-                                    canEdit={canEdit}
+                                    isOwnProfile={isOwnProfile}
                                     value={age?.toString() || 'N/A'}
                                     onSave={(value) => {
                                         const newDob = new Date();
@@ -140,7 +111,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Height</p>
                                 <EditableField
-                                    canEdit={canEdit}
+                                    isOwnProfile={isOwnProfile}
                                     value={height ? `${Math.floor(height/30.48)}'${Math.round((height/2.54)%12)}"` : 'N/A'}
                                     onSave={(value) => {
                                         const parts = value.replace('"', '').split("'");
@@ -157,7 +128,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                             <div>
                                 <p className="text-muted-foreground">Skin tone</p>
                                  <EditableField
-                                    canEdit={canEdit}
+                                    isOwnProfile={isOwnProfile}
                                     value={skinTone || 'N/A'}
                                     onSave={(value) => handleFieldSave('skinTone', value)}
                                     className="font-semibold bg-muted/50"
@@ -189,7 +160,7 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
                         <div>
                             <p className="font-semibold">Instagram</p>
                              <EditableField
-                                canEdit={canEdit}
+                                isOwnProfile={isOwnProfile}
                                 value={instagramHandle || "No Instagram linked."}
                                 onSave={(value) => handleFieldSave('socialMedia.instagram', value)}
                                 className="text-sm text-primary bg-muted/50"
@@ -205,5 +176,3 @@ export function AboutCard({ artist: initialArtist }: AboutCardProps) {
         </Card>
     );
 }
-
-    
