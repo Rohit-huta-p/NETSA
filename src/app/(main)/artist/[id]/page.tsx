@@ -26,18 +26,18 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
             <AboutCard artist={profile} />
           </div>
           <div className="lg:col-span-2 space-y-8">
-            <PortfolioGallery />
-            <div>
+            <PortfolioGallery artist={profile} />
+            <div className="relative">
               <CardTitle className="text-xl font-bold mb-4">Experience</CardTitle>
-              <Experience />
+              <Experience artist={profile} />
             </div>
           </div>
         </div>
       {profile.role === 'organizer' && (
         <div className="space-y-8">
-           <div>
+           <div className="relative">
               <CardTitle className="text-xl font-bold mb-4">Experience</CardTitle>
-              <Experience />
+              <Experience artist={profile} />
             </div>
         </div>
       )}
