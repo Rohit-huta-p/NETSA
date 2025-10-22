@@ -7,6 +7,7 @@ import { PortfolioGallery } from "./components/PortfolioGallery";
 import { Experience } from "./components/Experience";
 import { ArtistProfileSkeleton } from "./components/skeletons/ArtistProfileSkeleton";
 import { AboutCard } from "./components/AboutCard";
+import { CardTitle } from "@/components/ui/card";
 
 async function ArtistProfileContent({ artistId }: { artistId: string }) {
   const { data: profile, error } = await getUserProfile_Admin(artistId);
@@ -26,12 +27,18 @@ async function ArtistProfileContent({ artistId }: { artistId: string }) {
           </div>
           <div className="lg:col-span-2 space-y-8">
             <PortfolioGallery />
-            <Experience />
+            <div>
+              <CardTitle className="text-xl font-bold mb-4">Experience</CardTitle>
+              <Experience />
+            </div>
           </div>
         </div>
       {profile.role === 'organizer' && (
         <div className="space-y-8">
-          <Experience /> 
+           <div>
+              <CardTitle className="text-xl font-bold mb-4">Experience</CardTitle>
+              <Experience />
+            </div>
         </div>
       )}
     </div>
